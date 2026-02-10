@@ -35,7 +35,7 @@ public class Organization {
 
     @Column(unique = true, nullable = false)
     @NotBlank(message = "Le slug est obligatoire pour le multi-tenant")
-    private String slug; // Ex: "nom-entreprise" pour l'URL ou le filtrage
+    private String slug; 
 
     private String logoUrl;
 
