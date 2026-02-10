@@ -30,6 +30,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // --- CORRECTION : Ajout de @Builder.Default ---
+    @Builder.Default
     @Column(unique = true, nullable = false, updatable = false)
     private String uuid = UUID.randomUUID().toString();
 
@@ -44,14 +46,13 @@ public class User implements UserDetails {
     private String firstname;
     private String lastname;
 
-   
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "organization_members", // Table de liaison
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "organization_id")
     )
-    @Builder.Default
+    @Builder.Default // Tu l'avais bien mis ici, c'est parfait !
     private Set<Organization> organizations = new HashSet<>();
 
     // --- RÔLES & SÉCURITÉ ---

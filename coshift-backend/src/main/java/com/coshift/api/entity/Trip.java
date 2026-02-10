@@ -26,7 +26,8 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Identifiant public sécurisé
+   
+    @Builder.Default
     @Column(unique = true, nullable = false, updatable = false)
     private String uuid = UUID.randomUUID().toString();
 
@@ -39,7 +40,7 @@ public class Trip {
     private String arrivalCity;
 
     @NotNull(message = "Date de départ obligatoire")
-    @Future(message = "Le trajet doit être dans le futur") // Validation auto !
+    @Future(message = "Le trajet doit être dans le futur")
     private LocalDateTime departureTime;
 
     @Min(value = 1, message = "Il faut au moins 1 place")
@@ -47,14 +48,14 @@ public class Trip {
 
     @NotNull(message = "Le prix est obligatoire")
     @Min(value = 0, message = "Le prix ne peut pas être négatif")
-    private BigDecimal pricePerSeat; // Toujours utiliser BigDecimal pour l'argent
+    private BigDecimal pricePerSeat;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default
+    @Builder.Default // CORRECTION 2 : Pour ne pas avoir status = null
     private TripStatus status = TripStatus.PLANNED;
 
-    // --- RELATIONS CLÉS (Ce qui relie tout ton schéma) ---
+    // --- RELATIONS CLÉS ---
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_id", nullable = false)
@@ -62,9 +63,7 @@ public class Trip {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicule_id", nullable = false)
-    private Vehicule vehicule;
-
-    // IMPORTANT : Le trajet appartient à une organisation (Multi-tenant)
+    private Vehicule vehicule; 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
