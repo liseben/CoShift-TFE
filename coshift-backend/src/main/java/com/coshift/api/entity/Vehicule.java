@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "vehicules")
@@ -21,6 +22,10 @@ public class Vehicule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Builder.Default
+    @Column(unique = true, nullable = false, updatable = false)
+    private String uuid = UUID.randomUUID().toString();
 
     @NotBlank(message = "La marque est obligatoire")
     private String brand; // ex: Tesla, Renault
