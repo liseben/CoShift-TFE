@@ -1,0 +1,19 @@
+# Fichiers systèmes et IDE
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Compilation Java (Backend)
+target/
+*.class
+
+# Compilation Node (Frontend)
+node_modules/
+dist/
+build/
+.env
+.env.local
+
+# Secrets et config locale (Sécurité maximale)
+application-secrets.properties
