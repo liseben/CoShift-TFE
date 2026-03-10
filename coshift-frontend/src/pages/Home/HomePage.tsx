@@ -1,11 +1,11 @@
-import Background3D from "../../components/Background3D";
+import MapBackground from "../../components/MapBackground";
 import "./HomePage.css";
 
 export default function HomePage() {
   return (
     <div className="home-container">
-      {/* Notre nouveau composant 3D en arrière-plan */}
-      <Background3D />
+      {/* La carte Mapbox animée en fond */}
+      <MapBackground />
 
       {/* HERO SECTION - On s'assure qu'elle est au-dessus avec le z-index dans le CSS */}
       <section className="hero-section">
