@@ -1,0 +1,118 @@
+.home-container {
+  width: 100%;
+  position: relative; /* Important pour contenir le canvas absolu */
+  min-height: calc(100vh - 80px); /* 80px est environ la taille de ton header */
+  overflow: hidden; /* Empêche le débordement de la 3D */
+}
+
+.hero-section {
+  /* On enlève le background gradient pour laisser voir la 3D */
+  padding: 6rem 2rem;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 1; /* Place le contenu AU-DESSUS du canvas 3D */
+  min-height: inherit;
+  align-items: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  /* un léger effet de verre (Glassmorphism) derrière le texte pour le rendre plus lisible */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 3rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.badge {
+  background-color: #e6f7f1;
+  color: var(--primary-color);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.highlight {
+  color: var(--primary-color);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  max-width: 600px;
+}
+
+/* QUICK SEARCH CARD (Inspiration Karos) */
+.quick-search-card {
+  margin-top: 2rem;
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 700px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input-group input:focus {
+  border-color: var(--primary-color);
+}
+
+.btn-search {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  height: 47px; /* Alignement avec les inputs */
+}
+
+.btn-search:hover {
+  background-color: var(--primary-hover);
+}
