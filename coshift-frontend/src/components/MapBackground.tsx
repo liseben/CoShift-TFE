@@ -104,7 +104,7 @@ export default function MapBackground() {
         "fill-extrusion-color": SIBELGA_NAVY,
         "fill-extrusion-height": ["get", "height"],
         "fill-extrusion-base": ["get", "min_height"],
-        "fill-extrusion-opacity": 0.85,
+        "fill-extrusion-opacity": 0.4,
       },
     }),
     [],
@@ -118,29 +118,46 @@ export default function MapBackground() {
         left: 0,
         width: "100%",
         height: "100%",
+        backgroundColor: SIBELGA_BG, // Le fond profond derrière la carte
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         zIndex: 0,
-        backgroundColor: SIBELGA_BG,
+        overflow: "hidden",
       }}
     >
-      <Map
-        {...viewState}
-        onMove={(evt) => setViewState(evt.viewState)}
-        mapStyle="mapbox://styles/mapbox/dark-v11"
-        mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
-        interactive={false}
-        projection="mercator"
-        renderWorldCopies={false}
+      {/* LE CONTENEUR DÉTACHÉ */}
+      <div
+        style={{
+          width: "85%", // Largeur de la carte (ajustable)
+          height: "75%", // Hauteur de la carte (ajustable)
+          borderRadius: "24px", // Bords très arrondis pour l'effet moderne
+          overflow: "hidden", // Pour que la map respecte l'arrondi
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", // Ombre profonde pour le relief
+          border: `1px solid rgba(255, 255, 255, 0.05)`, // Fine bordure pour détacher du noir
+          position: "relative",
+        }}
       >
-        <Layer {...building3dLayer} />
+        <Map
+          {...viewState}
+          onMove={(evt) => setViewState(evt.viewState)}
+          mapStyle="mapbox://styles/mapbox/dark-v11"
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
+          interactive={false}
+          projection="mercator"
+          renderWorldCopies={false}
+        >
+          <Layer {...building3dLayer} />
 
-        <Source id="route" type="geojson" data={routeGeoJSON}>
-          <Layer {...lineLayer} />
-        </Source>
+          <Source id="route" type="geojson" data={routeGeoJSON}>
+            <Layer {...lineLayer} />
+          </Source>
 
-        <Source id="car" type="geojson" data={carPosition}>
-          <Layer {...carLayer} />
-        </Source>
-      </Map>
+          <Source id="car" type="geojson" data={carPosition}>
+            <Layer {...carLayer} />
+          </Source>
+        </Map>
+      </div>
     </div>
   );
 }

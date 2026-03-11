@@ -1,0 +1,49 @@
+.marquee-wrapper {
+  position: relative;
+  background-color: transparent;
+  padding: 0rem 0 0 0; /* On laisse de la place pour l'oblique du footer */
+  z-index: 1;
+}
+
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 15%,
+    black 85%,
+    transparent
+  );
+}
+
+.marquee-content {
+  display: flex;
+  /* 120 secondes pour un défilement ultra-lent et hypnotique */
+  animation: scroll-marquee 120s linear infinite;
+}
+
+.marquee-content span {
+  font-size: 3vw;
+  font-weight: 900;
+  font-style: italic; /* 👈 Passage en italique */
+  color: #057b8a; 
+  opacity: 0.5;  /* 👈 Encore plus subtil */
+  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  padding-right: 2rem; /* Espace entre les répétitions */ 
+}
+
+@keyframes scroll-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}

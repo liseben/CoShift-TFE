@@ -1,35 +1,75 @@
+import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
+import MarqueeText from "../components/marqueeText/MarqueeText";
 import "./MainLayout.css";
 
 export default function MainLayout() {
+  const [showLoginMenu, setShowLoginMenu] = useState(false);
   return (
     <div className="layout-container">
       {/* HEADER */}
       <header className="main-header">
-        <div className="header-content">
-          <Link to="/" className="logo">
-            
-            <h1>CoShift</h1>
+        <Link to="/" className="logo">
+          CoShift
+        </Link>
+
+        <nav className="nav-links">
+          <Link to="/entreprises" className="nav-item">
+            Entreprises
+          </Link>
+          <Link to="/a-propos" className="nav-item">
+            À propos
+          </Link>
+          <Link to="/blog" className="nav-item">
+            Le Blog
           </Link>
 
-          <nav className="main-nav">
-            <Link to="/trajets" className="nav-link">
-              Trajets
-            </Link>
-            <Link to="/organisation" className="nav-link">
-              Mon Campus/Entreprise
-            </Link>
-          </nav>
+          <select className="lang-select">
+            <option>FR</option>
+            <option>EN</option>
+            <option>NL</option>
+          </select>
 
-          <div className="header-actions">
-            <Link to="/login" className="btn-login">
+          <div className="login-wrapper">
+            <button
+              className="nav-item btn-login-trigger"
+              onClick={() => setShowLoginMenu(!showLoginMenu)}
+            >
               Connexion
-            </Link>
-            <Link to="/register" className="btn-register">
-              S'inscrire
-            </Link>
+            </button>
+
+            {/* LE POPOVER DE CONNEXION */}
+            {showLoginMenu && (
+              <div className="login-popover">
+                <div className="popover-section">
+                  <h4>Connexion</h4>
+                  <p>J'ai déjà un compte</p>
+                  <Link
+                    to="/login"
+                    className="btn-primary"
+                    onClick={() => setShowLoginMenu(false)}
+                  >
+                    Se connecter
+                  </Link>
+                </div>
+
+                <div className="popover-divider"></div>
+
+                <div className="popover-section">
+                  <h4>Inscription</h4>
+                  <p>Je n'ai pas de compte</p>
+                  <Link
+                    to="/register"
+                    className="btn-outline"
+                    onClick={() => setShowLoginMenu(false)}
+                  >
+                    S'inscrire
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        </nav>
       </header>
 
       {/* CONTENU PRINCIPAL DYNAMIQUE */}
@@ -37,12 +77,12 @@ export default function MainLayout() {
         <Outlet />
       </main>
 
+      <MarqueeText />
+
       {/* FOOTER */}
       <footer className="main-footer">
         <div className="footer-content">
-          <p>
-            © {new Date().getFullYear()} CoShift
-          </p>
+          <p>© {new Date().getFullYear()} CoShift</p>
         </div>
       </footer>
     </div>

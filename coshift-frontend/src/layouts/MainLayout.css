@@ -1,3 +1,9 @@
+:root {
+  --coshift-orange: #ff8c00;
+  /* Utilisation de clamp pour une taille qui varie entre 1rem et 1.2rem selon l'écran */
+  --nav-font-size: clamp(1.1rem, 1.2vw + 0.5rem, 1.3rem);
+}
+
 .layout-container {
   display: flex;
   flex-direction: column;
@@ -6,80 +12,73 @@
 
 /* HEADER */
 .main-header {
-  background-color: var(--white);
-  box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1.5rem 5%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #eee;
 }
 
+/* LOGO */
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
+  font-size: 3.8rem;
   font-weight: 800;
-  color: var(--primary-color);
+  color: var(--primary-color); /* Le vert */
+  text-decoration: none;
+  letter-spacing: -1px;
+  font-style: italic;
+
 }
 
-.main-nav {
+.nav-links {
   display: flex;
-  gap: 2rem;
-}
-
-.nav-link {
-  font-weight: 500;
-  color: var(--text-muted);
-  transition: color 0.2s ease;
-}
-
-.nav-link:hover {
-  color: var(--primary-color);
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
+  gap: clamp(1rem, 2vw, 2.5rem); /* Espace fluide entre les liens */
   align-items: center;
 }
 
-.btn-login {
-  font-weight: 600;
+.nav-item {
+  text-decoration: none;
   color: var(--text-main);
-}
-
-.btn-register {
-  background-color: var(--primary-color);
-  color: var(--white);
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
   font-weight: 600;
-  transition: background-color 0.2s ease;
+  font-size: var(--nav-font-size);
+  transition: color 0.3s ease;
+  cursor: pointer;
 }
 
-.btn-register:hover {
-  background-color: var(--primary-hover);
+.nav-item:hover {
+  color: var(--coshift-orange);
 }
 
-/* MAIN CONTENT */
-.main-content {
-  flex: 1; /* Permet au footer de rester en bas */
-}
-
-/* FOOTER */
+/* FOOTER NETTOYÉ */
 .main-footer {
   background-color: var(--white);
-  padding: 2rem;
+  padding: clamp(4rem, 8vw, 8rem) 2rem 4rem 2rem;
   text-align: center;
   color: var(--text-muted);
-  border-top: 1px solid #e2e8f0;
+  position: relative;
+  /* Correction : Un seul margin-top et un seul z-index */
+  margin-top: -4rem; 
+  clip-path: polygon(0 65%, 100% 0, 100% 100%, 0% 100%);
+  z-index: 3;
+}
+
+/* POPOVER (Reste inchangé mais vérifié) */
+.login-popover {
+  position: absolute;
+  top: 130%;
+  right: 0;
+  width: clamp(300px, 40vw, 450px); /* Largeur adaptative */
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: flex;
+  padding: 1.5rem;
+  z-index: 1001;
+  border: 1px solid #eee;
+  animation: fadeInDown 0.3s ease;
 }
