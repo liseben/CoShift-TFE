@@ -9,11 +9,13 @@ export default function MainLayout() {
     <div className="layout-container">
       {/* HEADER */}
       <header className="main-header">
-        <Link to="/" className="logo">
-          CoShift
-        </Link>
+        <div className="header-left">
+          <Link to="/" className="logo">
+            CoShift
+          </Link>
+        </div>
 
-        <nav className="nav-links">
+        <nav className="header-center nav-links">
           <Link to="/entreprises" className="nav-item">
             Entreprises
           </Link>
@@ -23,16 +25,14 @@ export default function MainLayout() {
           <Link to="/blog" className="nav-item">
             Le Blog
           </Link>
+        </nav>
 
-          <button
+        <div className="header-right action-buttons">
+          <button 
             className="btn-download-app"
-            onClick={() =>
-              alert(
-                "La logique d'installation de la PWA / APK sera ajoutée ici !",
-              )
-            }
+            onClick={() => alert("La logique d'installation de la PWA / APK sera ajoutée ici !")}
           >
-            Télécharger l'App
+            📱 Télécharger l'App
           </button>
 
           <select className="lang-select">
@@ -80,7 +80,7 @@ export default function MainLayout() {
               </div>
             )}
           </div>
-        </nav>
+        </div>
       </header>
 
       {/* CONTENU PRINCIPAL DYNAMIQUE */}
