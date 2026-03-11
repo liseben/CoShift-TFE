@@ -24,6 +24,17 @@ export default function MainLayout() {
             Le Blog
           </Link>
 
+          <button
+            className="btn-download-app"
+            onClick={() =>
+              alert(
+                "La logique d'installation de la PWA / APK sera ajoutée ici !",
+              )
+            }
+          >
+            Télécharger l'App
+          </button>
+
           <select className="lang-select">
             <option>FR</option>
             <option>EN</option>

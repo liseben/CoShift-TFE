@@ -82,3 +82,28 @@
   border: 1px solid #eee;
   animation: fadeInDown 0.3s ease;
 }
+
+/* --- BOUTON TÉLÉCHARGER L'APP --- */
+.btn-download-app {
+  background-color: #003354; /* Le bleu Sibelga Navy pour un look très pro/tech */
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px; /* Forme de pilule pour se démarquer des autres boutons */
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1vw + 0.4rem, 1.1rem); /* Légèrement plus petit que le menu */
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+}
+
+.btn-download-app:hover {
+  background-color: var(--coshift-orange); /* Rappel de ton effet de survol */
+  color: white;
+  transform: translateY(-2px); /* Effet de soulèvement au clic */
+  box-shadow: 0 6px 15px rgba(255, 140, 0, 0.3); /* Ombre orange glowy */
+}
