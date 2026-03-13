@@ -1,0 +1,33 @@
+.mobility-tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2.5rem); /* Typographie responsive */
+  font-weight: 800;
+  color: var(--text-main);
+  overflow: hidden; /* Empêche les autres mots de dépasser en haut/bas */
+}
+
+.roller-container {
+  display: inline-block;
+  /* On fixe la hauteur à EXACTEMENT une ligne de texte (1em ou un peu plus selon ta police) */
+  height: 1.2em; 
+  overflow: hidden;
+  position: relative;
+  vertical-align: bottom; /* Aligne le texte qui roule avec le texte fixe */
+}
+
+.roller-list {
+  display: flex;
+  flex-direction: column;
+  /* L'animation est gérée dans le style inline du composant React */
+}
+
+.roller-item {
+  /* Chaque mot fait exactement la même hauteur que le container */
+  height: 1.2em; 
+  display: flex;
+  align-items: center; /* Centre le texte verticalement */
+  color: var(--coshift-orange); /* Ton bel orange pour faire ressortir le mot */
+  padding-bottom: 0.1em; /* Ajustement optique si le texte a l'air trop bas */
+}
