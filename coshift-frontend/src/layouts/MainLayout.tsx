@@ -56,6 +56,9 @@ export default function MainLayout() {
           <Link to="/entreprises" className="nav-item">
             Entreprises
           </Link>
+          <Link to="/actus" className="nav-item">
+            Actus Mobilité
+          </Link>
           <Link to="/a-propos" className="nav-item">
             À propos
           </Link>
