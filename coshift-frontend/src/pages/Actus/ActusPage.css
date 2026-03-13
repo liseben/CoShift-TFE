@@ -1,0 +1,301 @@
+/* --- LE FOND DE LA PAGE --- */
+.actus-page-wrapper {
+  /* Un fond très légèrement chaud */
+  background-color: #fdfbf7; 
+  
+  background-image: 
+    /* 1. TEXTURE : Une fine grille qui donne un côté "Dashboard Tech" */
+    linear-gradient(rgba(0, 51, 84, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 51, 84, 0.04) 1px, transparent 1px),
+    
+    /* 2. COULEUR : Les halos plus grands (50%) et plus intenses (0.25 et 0.15) */
+    radial-gradient(at 0% 0%, rgba(255, 140, 0, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 51, 84, 0.15) 0px, transparent 50%);
+  
+  /* On applique la taille de 30px pour la grille, et 100% pour les halos */
+  background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%;
+
+  padding: 20rem 5% 0rem 5%; 
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+/* --- LA CARTE PRINCIPALE DÉCOLLÉE --- */
+.actus-floating-container {
+  background-color: #ffffff;
+  width: 95%;
+  max-width: 75%; /* Ne prend pas toute la largeur de l'écran */
+  border-radius: 24px; /* Bords bien ronds */
+  padding: 3rem 4rem 5rem 4rem; /* Espace interne généreux */
+  overflow: hidden;
+  
+  /* L'effet de lévitation (Ombre profonde et diffuse) */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.5); /* Effet de brillance sur le bord haut */
+  
+  /* petite animation d'apparition */
+  animation: floatUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+/* Animation d'entrée pour la carte */
+@keyframes floatUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* --- LE HEADER À L'INTÉRIEUR --- */
+.actus-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #f0f0f0; /* Sépare doucement le titre du contenu */
+}
+
+.actus-header h1 {
+  font-size: 3rem;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  letter-spacing: -1px;
+}
+
+.actus-header p {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* GRILLE DU LAYOUT */
+.actus-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* SIDEBAR (GAUCHE) */
+.actus-sidebar {
+  position: sticky;
+  top: 120px; /* Reste visible au scroll, sous le header */
+}
+
+.actus-sidebar h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.category-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.category-btn:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.category-btn.active {
+  background: rgba(255, 140, 0, 0.1);
+  color: var(--coshift-orange);
+}
+
+.cat-icon {
+  font-size: 1.2rem;
+}
+
+/* FLUX D'ACTUS (DROITE) */
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.feed-header h2 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.article-count {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* CARTES D'ACTUALITÉS */
+.news-card {
+  display: grid;
+  grid-template-columns: 250px 1fr; /* Image à gauche, texte à droite */
+  gap: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid #eee;
+  transition: all 0.3s ease;
+}
+
+.news-card:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+  transform: translateY(-3px);
+  border-color: rgba(255, 140, 0, 0.3);
+}
+
+.news-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+}
+
+.news-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.news-source {
+  font-size: 0.85rem;
+  color: var(--coshift-orange);
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.news-content h3 {
+  font-size: 1.4rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+  color: var(--text-main);
+}
+
+.news-content p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  flex-grow: 1;
+}
+
+.read-more {
+  display: inline-block;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.read-more:hover {
+  color: var(--coshift-orange);
+}
+
+/* RESPONSIVE (Mobiles) */
+@media (max-width: 900px) {
+  .actus-layout {
+    grid-template-columns: 1fr;
+  }
+  .actus-sidebar {
+    position: relative;
+    top: 0;
+  }
+  .category-list {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+  .category-btn {
+    white-space: nowrap;
+    width: auto;
+  }
+  .news-card {
+    grid-template-columns: 1fr;
+  }
+  .news-image {
+    min-height: 250px;
+  }
+}
+
+/*tagline*********************/
+
+.actus-page-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tagline-hero-zone {
+  width: 100%;
+  height: 20rem; /* Correspond à ton padding */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* On le sort du flux pour qu'il plane sur la zone vide */
+  top: 0;
+  z-index: 10;
+}
+
+/* --- RENDRE LA ZONE D'ACTUS RESPONSIVE --- */
+.actus-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr; /* Sidebar fixe + Feed flexible */
+  gap: 2rem;
+  width: 100%;
+}
+
+/* Tablette et Mobile */
+@media (max-width: 900px) {
+  .actus-layout {
+    grid-template-columns: 1fr; /* On empile la sidebar et le feed */
+  }
+
+  .actus-sidebar {
+    position: static;
+    width: 100%;
+  }
+  
+  .news-list {
+    grid-template-columns: 1fr; /* Une seule colonne de cartes */
+  }
+
+  .tagline-hero-zone {
+    height: 15rem; /* On réduit l'espace vide sur petit écran */
+  }
+  
+  .actus-floating-container {
+    padding-top: 15rem; /* On réduit le padding en conséquence */
+  }
+}
