@@ -192,7 +192,7 @@
   padding: 0.8rem 1rem;
   border-radius: 10px;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   transition: all 0.2s ease;
   margin-top: auto; /* Pousse les boutons toujours en bas même si les textes n'ont pas la même taille */
