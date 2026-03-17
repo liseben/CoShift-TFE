@@ -9,7 +9,7 @@ interface Article {
   title: string;
   summary: string;
   source: string;
-  date: string;
+  date: string; // Le format reçu du backend sera "YYYY-MM-DD"
   imageUrl: string;
   url: string;
 }
@@ -23,51 +23,62 @@ const CATEGORIES = [
   { id: "autre", label: "Autres", icon: "🔗" },
 ];
 
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+const ARTICLES_PER_PAGE = 5;
+
+// Fonction propre pour couper le texte sans casser un mot
+function truncateAtWord(text: string, maxLen: number): string {
+  if (text.length <= maxLen) return text;
+  const cut = text.lastIndexOf(" ", maxLen);
+  return (cut > 0 ? text.slice(0, cut) : text.slice(0, maxLen)) + "…";
+}
+
 export default function ActusPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [activeCategory, setActiveCategory] = useState("toutes");
   const [isLoading, setIsLoading] = useState(true);
-
-  // --- CONFIGURATION PAGINATION ---
+  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const articlesPerPage = 5;
 
   useEffect(() => {
-    const fetchNewsFromBackend = async () => {
+    const fetchNews = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        const response = await axios.get(
-          "http://localhost:8080/api/pwa/articles",
+        const response = await axios.get<Article[]>(
+          `${API_BASE}/api/pwa/articles`,
         );
         setArticles(response.data);
-      } catch (error) {
-        console.error("Erreur de connexion avec le serveur CoShift :", error);
+      } catch (err) {
+        console.error("Erreur API:", err);
+        setError(
+          "Impossible de contacter le serveur CoShift. Réessaie dans un moment.",
+        );
       } finally {
         setIsLoading(false);
       }
     };
-    fetchNewsFromBackend();
+    fetchNews();
   }, []);
 
-  // On revient à la page 1 si on change de catégorie
+  // Remise à zéro de la page lors d'un changement de catégorie
   useEffect(() => {
     setCurrentPage(1);
   }, [activeCategory]);
 
-  const filteredNews = useMemo(() => {
-    return activeCategory === "toutes"
-      ? articles
-      : articles.filter((a) => a.category === activeCategory);
-  }, [activeCategory, articles]);
-
-  // Logique pour n'afficher que 5 articles
-  const indexOfLastArticle = currentPage * articlesPerPage;
-  const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
-  const currentArticles = filteredNews.slice(
-    indexOfFirstArticle,
-    indexOfLastArticle,
+  const filteredNews = useMemo(
+    () =>
+      activeCategory === "toutes"
+        ? articles
+        : articles.filter((a) => a.category === activeCategory),
+    [activeCategory, articles],
   );
-  const totalPages = Math.ceil(filteredNews.length / articlesPerPage);
+
+  const totalPages = Math.ceil(filteredNews.length / ARTICLES_PER_PAGE);
+  const currentArticles = filteredNews.slice(
+    (currentPage - 1) * ARTICLES_PER_PAGE,
+    currentPage * ARTICLES_PER_PAGE,
+  );
 
   return (
     <div className="actus-page-wrapper">
@@ -106,15 +117,32 @@ export default function ActusPage() {
               <h2>
                 {activeCategory === "toutes"
                   ? "Dernières actualités"
-                  : activeCategory.toUpperCase()}
+                  : (CATEGORIES.find((c) => c.id === activeCategory)?.label ??
+                    activeCategory)}
               </h2>
-              <span className="article-count">
-                {filteredNews.length} articles pertinents
-              </span>
+              {!isLoading && !error && (
+                <span className="article-count">
+                  {filteredNews.length} articles pertinents
+                </span>
+              )}
             </div>
 
+            {/* GESTION DES 3 ÉTATS : CHARGEMENT, ERREUR, OU SUCCÈS */}
             {isLoading ? (
-              <div className="loading-spinner">Mise à jour du flux...</div>
+              <div className="skeleton-list">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="news-card skeleton">
+                    <div className="skeleton-img" />
+                    <div className="skeleton-content">
+                      <div className="skeleton-line short" />
+                      <div className="skeleton-line" />
+                      <div className="skeleton-line medium" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : error ? (
+              <div className="error-state">⚠️ {error}</div>
             ) : currentArticles.length > 0 ? (
               <>
                 <div className="news-list">
@@ -129,10 +157,11 @@ export default function ActusPage() {
                           {news.category}
                         </div>
                         <span className="news-meta">
-                          {news.source} • {news.date}
+                          {news.source} •{" "}
+                          {new Date(news.date).toLocaleDateString("fr-FR")}
                         </span>
                         <h3>{news.title}</h3>
-                        <p>{news.summary.slice(0, 100)}...</p>
+                        <p>{truncateAtWord(news.summary, 120)}</p>
                         <a
                           href={news.url}
                           target="_blank"
@@ -146,30 +175,26 @@ export default function ActusPage() {
                   ))}
                 </div>
 
-                {/* --- NAVIGATION PAGINATION --- */}
-                {filteredNews.length > articlesPerPage && (
+                {/* PAGINATION */}
+                {totalPages > 1 && (
                   <div className="pagination-controls">
-                    {currentPage > 1 && (
-                      <button
-                        className="pag-btn"
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                      >
-                        ← Précédent
-                      </button>
-                    )}
-
+                    <button
+                      className="pag-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                    >
+                      ← Précédent
+                    </button>
                     <span className="page-info">
                       Page <strong>{currentPage}</strong> sur {totalPages}
                     </span>
-
-                    {currentPage < totalPages && (
-                      <button
-                        className="pag-btn"
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                      >
-                        Suivant →
-                      </button>
-                    )}
+                    <button
+                      className="pag-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                    >
+                      Suivant →
+                    </button>
                   </div>
                 )}
               </>
