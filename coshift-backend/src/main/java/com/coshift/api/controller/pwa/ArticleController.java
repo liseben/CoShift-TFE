@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pwa/articles") // J'ai adapté la route pour refléter l'architecture
+@RequestMapping("/api/pwa/articles")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Permet à ton React (localhost:5173) de faire ses requêtes
+@CrossOrigin(origins = "*")
 public class ArticleController {
 
     private final ArticleRepository articleRepository;
 
     @GetMapping
     public ResponseEntity<List<Article>> getArticles() {
-        // Renvoie tous les articles triés du plus récent ajouté au plus ancien
-        List<Article> articles = articleRepository.findAllByOrderByCreatedAtDesc();
+        // CORRECTION : Appel de la nouvelle méthode de tri
+        List<Article> articles = articleRepository.findAllByOrderByDateDesc();
         return ResponseEntity.ok(articles);
     }
 }

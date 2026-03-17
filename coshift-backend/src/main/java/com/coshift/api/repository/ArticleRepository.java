@@ -9,9 +9,10 @@ import java.util.List;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, String> {
     
-    // On veut renvoyer les articles au Front-End triés par date de création dans la DB
-    List<Article> findAllByOrderByCreatedAtDesc();
+    // CORRECTION : On trie par date de publication (le champ 'date' YYYY-MM-DD), exactement comme React
+    List<Article> findAllByOrderByDateDesc();
     
-    // Pour vérifier rapidement si un article existe déjà avant de l'insérer
     boolean existsByUrl(String url);
+
+    boolean existsByTitleIgnoreCase(String title);
 }
