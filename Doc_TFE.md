@@ -80,3 +80,8 @@ Ce fichier documente au fur et à mesure les choix techniques, architecturaux et
 **Amélioration Continue (Refactoring) :**
 - Intégration d'un toggle "Afficher/Masquer le mot de passe" (icône SVG dynamique). Ce détail UX réduit considérablement les erreurs de frappe lors de la connexion, un aspect crucial pour la rétention utilisateur sur mobile.
 - Refonte du design d'origine (Flat Design clair) vers le thème sombre Glassmorphism du projet, garantissant une cohérence d'interface de bout en bout.
+
+**Module d'Inscription (Registration Flow) :**
+- Développement d'un formulaire complet avec double validation des mots de passe côté client (React) pour minimiser les requêtes inutiles vers le serveur.
+- Utilisation de `BCryptPasswordEncoder` côté Spring Boot pour garantir que les mots de passe ne sont jamais stockés en clair dans la base de données.
+- Implémentation du pattern "Auto-Login" : dès la réussite de l'inscription, le backend génère et renvoie un JWT, permettant au frontend de connecter l'utilisateur immédiatement sans le forcer à repasser par la page de connexion.
