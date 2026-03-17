@@ -1,14 +1,8 @@
 package com.coshift.api.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,23 +14,29 @@ import java.time.LocalDateTime;
 public class Article {
 
     @Id
-    private String id; // On utilisera l'URL ou un hash comme ID unique
+    private String id;
 
     private String category;
+
+    @Column(length = 500)
     private String title;
-    
+
+    // Titre normalisé pour la déduplication
+    @Column(name = "normalized_title", length = 500)
+    private String normalizedTitle;
+
     @Column(columnDefinition = "TEXT")
     private String summary;
-    
+
     private String source;
-    
-    @Column(name = "published_date")
-    private String date; // Formatée en String pour React (ex: "12 mars 2026")
-    
-    @Column(name = "image_url")
+
+    // Nouvelle gestion propre de la date
+    private LocalDate date;
+
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
-    
-    @Column(unique = true)
+
+    @Column(length = 1000, unique = true)
     private String url;
 
     @Column(name = "created_at")
