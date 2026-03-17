@@ -76,3 +76,7 @@ Ce fichier documente au fur et à mesure les choix techniques, architecturaux et
 **Choix Techniques :**
 - Utilisation de la méthode JavaScript `.slice()` sur le tableau d'articles filtré. Cela permet de manipuler les données en mémoire sans refaire d'appel serveur, garantissant une navigation instantanée entre les pages.
 - Calcul dynamique du nombre total de pages via `Math.ceil()` basé sur les résultats filtrés par catégorie.
+
+**Amélioration Continue (Refactoring) :**
+- Intégration d'un toggle "Afficher/Masquer le mot de passe" (icône SVG dynamique). Ce détail UX réduit considérablement les erreurs de frappe lors de la connexion, un aspect crucial pour la rétention utilisateur sur mobile.
+- Refonte du design d'origine (Flat Design clair) vers le thème sombre Glassmorphism du projet, garantissant une cohérence d'interface de bout en bout.

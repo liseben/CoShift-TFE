@@ -1,22 +1,58 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./LoginPage.css";
+
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  // On type l'événement "e" pour savoir que c'est un formulaire HTML
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // États pour la communication avec le backend
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Tentative de connexion avec :", email, password);
-    // TODO: Appel API
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Appel API vers ton backend Spring Boot
+      const response = await axios.post(`${API_BASE}/api/auth/login`, {
+        email,
+        password,
+      });
+
+      const token = response.data.token;
+      if (token) {
+        localStorage.setItem("coshift_token", token);
+        navigate("/dashboard"); // Redirection après succès
+      }
+    } catch (err: any) {
+      console.error("Erreur de connexion :", err);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError("Email ou mot de passe incorrect.");
+      } else {
+        setError("Impossible de joindre le serveur. Veuillez réessayer.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="login-title">Connexion CoShift</h2>
+        <div className="login-header">
+          <h2 className="login-title">Connexion CoShift</h2>
+          <p>Connectez-vous pour proposer ou trouver un trajet.</p>
+        </div>
+
+        {error && <div className="auth-error-message">⚠️ {error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
@@ -25,10 +61,9 @@ const LoginPage: React.FC = () => {
               type="email"
               className="login-input"
               value={email}
-              // TypeScript sait que e.target.value est un string
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="exemple@email.com"
+              placeholder="jean.dupont@entreprise.be"
             />
           </div>
 
@@ -48,7 +83,6 @@ const LoginPage: React.FC = () => {
                 type="button"
                 className="eye-button"
                 onClick={() => setShowPassword(!showPassword)}
-                // Bonne pratique accessibilité
                 aria-label={
                   showPassword
                     ? "Masquer le mot de passe"
@@ -56,7 +90,6 @@ const LoginPage: React.FC = () => {
                 }
               >
                 {showPassword ? (
-                  // Icône Oeil Barré
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -72,7 +105,6 @@ const LoginPage: React.FC = () => {
                     <line x1="1" y1="1" x2="23" y2="23"></line>
                   </svg>
                 ) : (
-                  // Icône Oeil Ouvert
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -92,10 +124,29 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          <button type="submit" className="login-button">
-            Se connecter
+          <div className="auth-options">
+            <label className="remember-me">
+              <input type="checkbox" /> Se souvenir de moi
+            </label>
+            <a href="#" className="forgot-password">
+              Mot de passe oublié ?
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            className={`login-button ${isLoading ? "loading" : ""}`}
+            disabled={isLoading}
+          >
+            {isLoading ? "Connexion en cours..." : "Se connecter"}
           </button>
         </form>
+
+        <div className="auth-footer">
+          <p>
+            Nouveau sur CoShift ? <Link to="/register">Créer un compte</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
