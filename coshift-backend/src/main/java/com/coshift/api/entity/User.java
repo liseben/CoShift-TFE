@@ -45,6 +45,9 @@ public class User implements UserDetails {
 
     private String firstname;
     private String lastname;
+    
+    @Column(name = "picture_url")
+    private String pictureUrl;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

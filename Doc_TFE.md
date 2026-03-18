@@ -85,3 +85,15 @@ Ce fichier documente au fur et à mesure les choix techniques, architecturaux et
 - Développement d'un formulaire complet avec double validation des mots de passe côté client (React) pour minimiser les requêtes inutiles vers le serveur.
 - Utilisation de `BCryptPasswordEncoder` côté Spring Boot pour garantir que les mots de passe ne sont jamais stockés en clair dans la base de données.
 - Implémentation du pattern "Auto-Login" : dès la réussite de l'inscription, le backend génère et renvoie un JWT, permettant au frontend de connecter l'utilisateur immédiatement sans le forcer à repasser par la page de connexion.
+
+**Intégration OAuth2 (Single Sign-On via Google) :**
+- **Objectif :** Réduire la friction à l'inscription et augmenter le taux de conversion des utilisateurs en proposant le "Continuer avec Google".
+- **Choix Technique (Frontend) :** Utilisation de la librairie officielle `@react-oauth/google` pour gérer le flux OAuth2 directement depuis le client React.
+- **Sécurité et Flux (Architecture) :** 1. Le frontend React récupère le jeton d'identité Google (JWT sécurisé par Google) via la popup native.
+  2. Ce jeton est ensuite envoyé au backend Spring Boot (`/api/auth/google`) qui se charge de le décoder et de vérifier sa signature cryptographique auprès des serveurs de Google (garantissant ainsi que l'email n'a pas été usurpé).
+  3. Le backend crée ou connecte l'utilisateur "à la volée" et renvoie le token JWT natif de l'application CoShift.
+
+  **Débogage et Résolution (Spring Security) :**
+- **Problème :** Blocage des requêtes OAuth2 (Erreur 403) par le `SecurityFilterChain` malgré la configuration apparente.
+- **Analyse :** Incohérence entre les chemins physiques des packages (`/api/controller/auth`) et les chemins des endpoints exposés (`@RequestMapping("/api/auth")`). Spring Security intercepte les requêtes basées sur l'URL d'appel (Endpoint), et non sur l'arborescence des fichiers.
+- **Résolution :** Alignement strict des `requestMatchers` sur les routes de l'API REST (`/api/auth/**`), permettant au flux Google de traverser le filtre de sécurité avec succès et d'inscrire l'utilisateur en base de données.

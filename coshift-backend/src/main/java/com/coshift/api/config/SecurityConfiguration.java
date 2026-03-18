@@ -29,7 +29,7 @@ public class SecurityConfiguration {
             // 2. Configuration des accès URL
             .authorizeHttpRequests(auth -> auth
                 // Les routes d'authentification sont publiques (Inscription, Login)
-                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/pwa/articles").permitAll()
                 // Tout le reste nécessite d'être connecté
                 .anyRequest().authenticated()

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.coshift.api.dto.GoogleLoginRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -16,6 +17,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthenticationResponse> authenticateWithGoogle(
+            @Valid @RequestBody GoogleLoginRequest request
+    ) {
+        return ResponseEntity.ok(service.authenticateWithGoogle(request));
+    }
 
     // --- LA NOUVELLE ROUTE D'INSCRIPTION ---
     @PostMapping("/register")
