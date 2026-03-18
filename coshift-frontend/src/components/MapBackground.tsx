@@ -1,9 +1,12 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useMemo } from "react";
+// 1. On importe MapRef
 import Map, { Source, Layer } from "react-map-gl";
+import type { MapRef } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+
+// @ts-ignore
 import * as turf from "@turf/turf";
 
-// --- COULEURS SIBELGA ---
 const SIBELGA_TEAL = "#00B4C5";
 const SIBELGA_NAVY = "#003354";
 const SIBELGA_BG = "#001b2e";
@@ -19,42 +22,43 @@ const routeGeoJSON = turf.lineString(routeCoordinates);
 const routeLength = turf.length(routeGeoJSON, { units: "kilometers" });
 
 export default function MapBackground() {
-  const [carPosition, setCarPosition] = useState<
-    GeoJSON.Feature<GeoJSON.Point>
-  >(turf.point(routeCoordinates[0]));
-
-  const [viewState, setViewState] = useState({
-    longitude: 4.365,
-    latitude: 50.83,
-    zoom: 16,
-    pitch: 70,
-    bearing: 0,
-  });
+  // 2. On utilise une référence (qui ne déclenche AUCUN re-rendu React)
+  const mapRef = useRef<MapRef>(null);
 
   useEffect(() => {
     let start: number;
     let animationFrameId: number;
     const duration = 5000;
+    let currentBearing = 0; // On stocke la rotation ici, hors de React
 
     const animate = (timestamp: number) => {
       if (!start) start = timestamp;
       const progress = (timestamp - start) / duration;
 
-      // Rotation continue de la caméra
-      setViewState((prev) => ({
-        ...prev,
-        bearing: prev.bearing + 0.15,
-      }));
+      // 3. On récupère le moteur Mapbox brut
+      const map = mapRef.current?.getMap();
 
-      // Avancée de la voiture
-      if (progress < 1) {
-        const distance = progress * routeLength;
-        const newPoint = turf.along(routeGeoJSON, distance, {
-          units: "kilometers",
-        });
-        setCarPosition(newPoint);
-      } else {
-        start = timestamp;
+      // On s'assure que la carte a fini de charger avant d'animer
+      if (map && map.isStyleLoaded()) {
+        // A. On tourne la caméra directement dans Mapbox
+        currentBearing += 0.15;
+        map.setBearing(currentBearing);
+
+        // B. On fait avancer la voiture directement dans Mapbox
+        if (progress < 1) {
+          const distance = progress * routeLength;
+          const newPoint = turf.along(routeGeoJSON, distance, {
+            units: "kilometers",
+          });
+
+          // On injecte les nouvelles coordonnées à la volée (casté en any pour éviter les soucis TypeScript)
+          const source = map.getSource("car") as any;
+          if (source) {
+            source.setData(newPoint);
+          }
+        } else {
+          start = timestamp;
+        }
       }
 
       animationFrameId = requestAnimationFrame(animate);
@@ -86,7 +90,7 @@ export default function MapBackground() {
         "circle-color": "#ffffff",
         "circle-stroke-width": 4,
         "circle-stroke-color": SIBELGA_TEAL,
-        "circle-pitch-alignment": "map",
+        "circle-pitch-alignment": "map" as const,
       },
     }),
     [],
@@ -118,7 +122,7 @@ export default function MapBackground() {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: SIBELGA_BG, // Le fond profond derrière la carte
+        backgroundColor: SIBELGA_BG,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -126,34 +130,45 @@ export default function MapBackground() {
         overflow: "hidden",
       }}
     >
-      {/* LE CONTENEUR DÉTACHÉ */}
       <div
         style={{
-          width: "85%", // Largeur de la carte (ajustable)
-          height: "75%", // Hauteur de la carte (ajustable)
-          borderRadius: "24px", // Bords très arrondis pour l'effet moderne
-          overflow: "hidden", // Pour que la map respecte l'arrondi
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", // Ombre profonde pour le relief
-          border: `1px solid rgba(255, 255, 255, 0.05)`, // Fine bordure pour détacher du noir
+          width: "85%",
+          height: "75%",
+          borderRadius: "24px",
+          overflow: "hidden",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          border: `1px solid rgba(255, 255, 255, 0.05)`,
           position: "relative",
         }}
       >
         <Map
-          {...viewState}
-          onMove={(evt) => setViewState(evt.viewState)}
+          ref={mapRef} // 👈 On connecte notre référence ici
+          initialViewState={{
+            // 👈 On utilise initialViewState au lieu des states
+            longitude: 4.365,
+            latitude: 50.83,
+            zoom: 16,
+            pitch: 70,
+            bearing: 0,
+          }}
           mapStyle="mapbox://styles/mapbox/dark-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
           interactive={false}
-          projection="mercator"
+          // On désactive les rendus dupliqués du monde pour alléger la carte graphique
           renderWorldCopies={false}
         >
-          <Layer {...building3dLayer} />
+          <Layer {...(building3dLayer as any)} />
 
           <Source id="route" type="geojson" data={routeGeoJSON}>
             <Layer {...lineLayer} />
           </Source>
 
-          <Source id="car" type="geojson" data={carPosition}>
+          {/* On fixe le point de départ en dur, l'animation s'occupe du reste */}
+          <Source
+            id="car"
+            type="geojson"
+            data={turf.point(routeCoordinates[0])}
+          >
             <Layer {...carLayer} />
           </Source>
         </Map>

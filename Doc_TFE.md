@@ -97,3 +97,13 @@ Ce fichier documente au fur et à mesure les choix techniques, architecturaux et
 - **Problème :** Blocage des requêtes OAuth2 (Erreur 403) par le `SecurityFilterChain` malgré la configuration apparente.
 - **Analyse :** Incohérence entre les chemins physiques des packages (`/api/controller/auth`) et les chemins des endpoints exposés (`@RequestMapping("/api/auth")`). Spring Security intercepte les requêtes basées sur l'URL d'appel (Endpoint), et non sur l'arborescence des fichiers.
 - **Résolution :** Alignement strict des `requestMatchers` sur les routes de l'API REST (`/api/auth/**`), permettant au flux Google de traverser le filtre de sécurité avec succès et d'inscrire l'utilisateur en base de données.
+
+**Optimisation des Performances (React & WebGL) :**
+- **Problème :** Ralentissement extrême de la navigation (Single Page Application) et surcharge du thread principal du navigateur.
+- **Diagnostic :** L'animation de la carte Mapbox (WebGL) à 60 FPS déclenchait un re-rendu complet du composant React à cause de l'utilisation de `useState` dans la boucle `requestAnimationFrame`. La file d'attente du Virtual DOM était saturée.
+- **Résolution :** Refactorisation du composant `MapBackground`. Remplacement des états React par une référence mutative (`useRef<MapRef>`). L'animation interagit désormais directement avec l'instance native de Mapbox via `map.setBearing()` et `source.setData()`, contournant totalement le cycle de vie de React et libérant le thread principal pour une navigation instantanée.
+
+**Finalisation du flux d'Authentification et Routage :**
+- Configuration du routage global via `react-router-dom` avec un `MainLayout` persistant.
+- Sécurisation des routes privées côté Frontend (protection du `/dashboard` via redirection conditionnelle).
+- Optimisation de l'UX post-connexion : redirection asynchrone vers la page d'accueil (`/`) permettant l'initialisation complète de l'`AuthContext` avant le changement de vue, évitant ainsi les "flashs" d'interface non connectée.

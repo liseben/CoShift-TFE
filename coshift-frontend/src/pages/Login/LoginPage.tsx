@@ -33,8 +33,14 @@ const LoginPage: React.FC = () => {
 
       const token = response.data.token;
       if (token) {
-        localStorage.setItem("coshift_token", token);
-        navigate("/dashboard"); // Redirection après succès
+        // 1. On lance la connexion
+        login(token);
+
+        // 2. On attend un tout petit peu (optionnel mais plus sûr) pour que le contexte s'initialise
+        // Puis on redirige vers l'accueil ("/")
+        setTimeout(() => {
+          navigate("/");
+        }, 100);
       }
     } catch (err: any) {
       console.error("Erreur de connexion :", err);
@@ -43,8 +49,7 @@ const LoginPage: React.FC = () => {
       } else {
         setError("Impossible de joindre le serveur. Veuillez réessayer.");
       }
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // On arrête le chargement seulement en cas d'erreur
     }
   };
 
@@ -52,27 +57,29 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // credentialResponse.credential contient le token sécurisé de Google
       const googleToken = credentialResponse.credential;
 
-      // On enverra ce token à notre Spring Boot plus tard
       const response = await axios.post(`${API_BASE}/api/auth/google`, {
         token: googleToken,
       });
 
       const token = response.data.token;
       if (token) {
+        // 1. On lance la connexion
         login(token);
-        navigate("/dashboard");
+
+        // 2. Redirection vers l'accueil
+        setTimeout(() => {
+          navigate("/");
+        }, 100);
       }
     } catch (err) {
       console.error("Erreur Google :", err);
       setError("Échec de la connexion avec Google. Veuillez réessayer.");
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // On arrête le chargement seulement en cas d'erreur
     }
   };
-
+  
   return (
     <div className="login-container">
       <div className="login-card">

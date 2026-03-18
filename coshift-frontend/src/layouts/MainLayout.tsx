@@ -209,7 +209,7 @@ export default function MainLayout() {
                         className="popover-btn btn-primary"
                         onClick={() => setShowLoginMenu(false)}
                       >
-                        Accéder au Dashboard
+                        Dashboard
                       </Link>
                     </div>
                     <div className="popover-divider"></div>

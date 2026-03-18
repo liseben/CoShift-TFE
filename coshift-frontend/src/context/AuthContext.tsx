@@ -3,8 +3,8 @@ import React, {
   useState,
   useEffect,
   useContext,
-  ReactNode,
 } from "react";
+import type { ReactNode } from "react";
 import axios from "axios";
 
 // 1. On définit la forme de notre Utilisateur
