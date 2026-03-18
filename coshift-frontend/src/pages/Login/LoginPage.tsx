@@ -2,11 +2,14 @@ import { GoogleLogin } from "@react-oauth/google";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 import "./LoginPage.css";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
+
 const LoginPage: React.FC = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -59,7 +62,7 @@ const LoginPage: React.FC = () => {
 
       const token = response.data.token;
       if (token) {
-        localStorage.setItem("coshift_token", token);
+        login(token);
         navigate("/dashboard");
       }
     } catch (err) {

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 import "./RegisterPage.css"; // On va créer ce fichier juste après
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const RegisterPage: React.FC = () => {
+  const { login } = useAuth();
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -45,8 +47,8 @@ const RegisterPage: React.FC = () => {
       // 3. Récupération du JWT et connexion automatique
       const token = response.data.token;
       if (token) {
-        localStorage.setItem("coshift_token", token);
-        navigate("/dashboard"); // Redirection vers le dashboard
+        login(token);
+        navigate("/dashboard");
       }
     } catch (err: any) {
       console.error("Erreur d'inscription :", err);
