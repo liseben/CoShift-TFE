@@ -1,0 +1,237 @@
+.dashboard-container {
+  min-height: calc(100vh - 80px); /* 80px est la hauteur approximative de ton header */
+  background-color: #f8fafc; /* Un fond clair pour l'espace de travail, contraste avec les pages publiques sombres */
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: #64748b;
+  font-size: 1.2rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 170, 0, 0.3);
+  border-top: 4px solid #ffaa00;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Carte d'en-tête (Profil) */
+.dashboard-header-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.profile-picture-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffaa00;
+  box-shadow: 0 4px 10px rgba(255, 170, 0, 0.2);
+}
+
+.profile-initial-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #ffaa00;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #0f172a;
+  border: 3px solid #ffe5b4;
+}
+
+.profile-info h1 {
+  margin: 0 0 5px 0;
+  font-size: 1.8rem;
+  color: #0f172a;
+}
+
+.profile-email {
+  margin: 0 0 10px 0;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.role-badge {
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-outline-light {
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline-light:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* Grille des Widgets */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.dashboard-widget {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-widget.full-width {
+  grid-column: 1 / -1;
+}
+
+.widget-header h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.2rem;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.widget-body.empty-state {
+  text-align: center;
+  padding: 30px 10px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+}
+
+.widget-body.empty-state p {
+  color: #64748b;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.btn-primary-small {
+  background: #ffaa00;
+  color: #0f172a;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-primary-small:hover {
+  transform: translateY(-2px);
+}
+
+.btn-outline-small {
+  background: transparent;
+  color: #0f172a;
+  border: 2px solid #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline-small:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+/* Impact Carbone */
+.impact-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.stat-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 20px;
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #16a34a;
+}
+
+.stat-label {
+  color: #15803d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .profile-section {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .impact-stats {
+    flex-direction: column;
+  }
+}
