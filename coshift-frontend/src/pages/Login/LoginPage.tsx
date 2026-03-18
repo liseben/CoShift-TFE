@@ -1,3 +1,4 @@
+import { GoogleLogin } from "@react-oauth/google";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -44,6 +45,31 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // credentialResponse.credential contient le token sécurisé de Google
+      const googleToken = credentialResponse.credential;
+
+      // On enverra ce token à notre Spring Boot plus tard
+      const response = await axios.post(`${API_BASE}/api/auth/google`, {
+        token: googleToken,
+      });
+
+      const token = response.data.token;
+      if (token) {
+        localStorage.setItem("coshift_token", token);
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Erreur Google :", err);
+      setError("Échec de la connexion avec Google. Veuillez réessayer.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -54,6 +80,39 @@ const LoginPage: React.FC = () => {
 
         {error && <div className="auth-error-message">⚠️ {error}</div>}
 
+        {/* --- LE NOUVEAU BOUTON GOOGLE --- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => {
+              setError(
+                "La fenêtre Google a été fermée ou une erreur est survenue.",
+              );
+            }}
+            theme="filled_black" // S'intègre bien avec ton design sombre
+            shape="pill"
+            text="continue_with"
+          />
+        </div>
+
+        <div
+          style={{
+            textAlign: "center",
+            color: "rgba(255,255,255,0.5)",
+            marginBottom: "20px",
+            fontSize: "0.9rem",
+          }}
+        >
+          — OU —
+        </div>
+        {/* --- FIN DU BOUTON GOOGLE --- */}
+
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
             <label className="input-label">Email</label>
@@ -63,7 +122,7 @@ const LoginPage: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="jean.dupont@entreprise.be"
+              placeholder="elisabeth.benga@entreprise.be"
             />
           </div>
 
