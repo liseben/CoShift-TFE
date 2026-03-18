@@ -1,12 +1,21 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import MarqueeText from "../components/marqueeText/MarqueeText";
+import { useAuth } from "../context/AuthContext";
 import "./MainLayout.css";
 
 export default function MainLayout() {
   const [showLoginMenu, setShowLoginMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [currentLang, setCurrentLang] = useState("FR");
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setShowLoginMenu(false);
+    navigate("/");
+  };
 
   // 1. On crée des "références" pour nos deux menus
   const langMenuRef = useRef<HTMLDivElement>(null);
@@ -125,43 +134,125 @@ export default function MainLayout() {
           </div>
 
           <div className="login-wrapper" ref={loginMenuRef}>
-            <button
-              className="nav-item btn-login-trigger"
-              onClick={() => setShowLoginMenu(!showLoginMenu)}
-            >
-              Connexion
-            </button>
+            {user ? (
+              // --- SI CONNECTÉ : Affichage de la photo + Bouton "Mon profil" ---
+              <button
+                className="btn-profile-trigger"
+                onClick={() => setShowLoginMenu(!showLoginMenu)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "white",
+                }}
+              >
+                {/* La photo de profil (ou l'initiale par défaut) */}
+                {user.pictureUrl ? (
+                  <img
+                    src={user.pictureUrl}
+                    alt="Profil"
+                    style={{
+                      width: "35px",
+                      height: "35px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      border: "2px solid #ffaa00",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "35px",
+                      height: "35px",
+                      borderRadius: "50%",
+                      backgroundColor: "#ffaa00",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontWeight: "bold",
+                      color: "#0f172a",
+                    }}
+                  >
+                    {user.firstname.charAt(0)}
+                  </div>
+                )}
 
-            {/* LE POPOVER DE CONNEXION */}
+                <span className="nav-item">Mon profil</span>
+              </button>
+            ) : (
+              // --- SI NON CONNECTÉ : Bouton "Connexion" classique ---
+              <button
+                className="nav-item btn-login-trigger"
+                onClick={() => setShowLoginMenu(!showLoginMenu)}
+              >
+                Connexion
+              </button>
+            )}
+
+            {/* LE POPOVER DYNAMIQUE */}
             {showLoginMenu && (
               <div className="login-popover">
-                <div className="popover-section">
-                  <div className="popover-icon">👋</div>
-                  <h4>Bon retour</h4>
-                  <p>Accédez à votre espace CoShift.</p>
-                  <Link
-                    to="/login"
-                    className="popover-btn btn-primary"
-                    onClick={() => setShowLoginMenu(false)}
-                  >
-                    Se connecter
-                  </Link>
-                </div>
-
-                <div className="popover-divider"></div>
-
-                <div className="popover-section">
-                  <div className="popover-icon">✨</div>
-                  <h4>Nouveau ici ?</h4>
-                  <p>Rejoignez la mobilité de demain.</p>
-                  <Link
-                    to="/register"
-                    className="popover-btn btn-outline"
-                    onClick={() => setShowLoginMenu(false)}
-                  >
-                    Créer un compte
-                  </Link>
-                </div>
+                {user ? (
+                  // Popover quand CONNECTÉ
+                  <>
+                    <div
+                      className="popover-section"
+                      style={{ textAlign: "center" }}
+                    >
+                      <h4>Bonjour, {user.firstname} 👋</h4>
+                      <p>{user.email}</p>
+                      <Link
+                        to="/dashboard"
+                        className="popover-btn btn-primary"
+                        onClick={() => setShowLoginMenu(false)}
+                      >
+                        Accéder au Dashboard
+                      </Link>
+                    </div>
+                    <div className="popover-divider"></div>
+                    <div className="popover-section">
+                      <button
+                        onClick={handleLogout}
+                        className="popover-btn btn-outline"
+                        style={{ color: "#ff6b6b", borderColor: "#ff6b6b" }}
+                      >
+                        Se déconnecter
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  // Popover quand NON CONNECTÉ (Celui que tu avais déjà)
+                  <>
+                    <div className="popover-section">
+                      <div className="popover-icon">👋</div>
+                      <h4>Bon retour</h4>
+                      <p>Accédez à votre espace CoShift.</p>
+                      <Link
+                        to="/login"
+                        className="popover-btn btn-primary"
+                        onClick={() => setShowLoginMenu(false)}
+                      >
+                        Se connecter
+                      </Link>
+                    </div>
+                    <div className="popover-divider"></div>
+                    <div className="popover-section">
+                      <div className="popover-icon">✨</div>
+                      <h4>Nouveau ici ?</h4>
+                      <p>Rejoignez la mobilité de demain.</p>
+                      <Link
+                        to="/register"
+                        className="popover-btn btn-outline"
+                        onClick={() => setShowLoginMenu(false)}
+                      >
+                        Créer un compte
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
