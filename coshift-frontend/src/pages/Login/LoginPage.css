@@ -3,10 +3,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: radial-gradient(circle at top left, #1e373b, #1b2421);
   font-family: Arial, sans-serif;
   padding: 20px;
+
+  /* Animation légère du fond */
+  background-size: 200% 200%;
+  animation: gradientMove 8s ease infinite;
 }
+
+
+
+@keyframes gradientMove {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
 
 .login-card {
   background: rgba(255, 255, 255, 0.03);
@@ -15,9 +28,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2.5rem;
   border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(158, 46, 46, 0.5);
   width: 100%;
-  max-width: 450px;
+  max-width: 1000px;
 }
 
 .login-header {

@@ -73,10 +73,23 @@ const LoginPage: React.FC = () => {
           navigate("/");
         }, 100);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erreur Google :", err);
-      setError("Échec de la connexion avec Google. Veuillez réessayer.");
-      setIsLoading(false); // On arrête le chargement seulement en cas d'erreur
+
+      // 1. Si ton GlobalExceptionHandler Spring Boot renvoie un JSON avec un champ 'message'
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      }
+      // 2. Fallback explicite si le backend renvoie juste un statut 401 (Unauthorized)
+      else if (err.response?.status === 401 || err.response?.status === 403) {
+        setError("Cet utilisateur n'existe pas. Veuillez créer un compte.");
+      }
+      // 3. Si c'est une autre erreur (serveur éteint, pas de connexion, etc.)
+      else {
+        setError("Échec de la connexion avec Google. Veuillez réessayer.");
+      }
+
+      setIsLoading(false);
     }
   };
   
@@ -131,6 +144,7 @@ const LoginPage: React.FC = () => {
               className="login-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setError(null)}
               required
               placeholder="elisabeth.benga@entreprise.be"
             />
@@ -144,6 +158,7 @@ const LoginPage: React.FC = () => {
                 className="login-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setError(null)}
                 required
                 placeholder="Votre mot de passe"
               />

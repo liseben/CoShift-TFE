@@ -21,8 +21,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.Collections;
-import java.util.UUID;
-
+import com.coshift.api.exception.UnauthorizedException;
 import java.time.LocalDateTime;
 
 @Service
@@ -38,6 +37,7 @@ public class AuthenticationService {
     private String googleClientId;
 
     // --- LA NOUVELLE MÉTHODE GOOGLE ---
+    // --- LA NOUVELLE MÉTHODE GOOGLE ---
     public AuthenticationResponse authenticateWithGoogle(GoogleLoginRequest request) {
         // 1. Initialiser le vérificateur Google
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
@@ -49,35 +49,20 @@ public class AuthenticationService {
             GoogleIdToken idToken = verifier.verify(request.getToken());
             if (idToken != null) {
                 GoogleIdToken.Payload payload = idToken.getPayload();
-
-                // 3. Extraire les infos fournies par Google
                 String email = payload.getEmail();
-                String firstName = (String) payload.get("given_name");
-                String lastName = (String) payload.get("family_name");
-                String pictureUrl = (String) payload.get("picture");
 
-                // 4. Chercher l'utilisateur ou le CRÉER à la volée s'il n'existe pas
-                User user = repository.findByEmail(email).orElseGet(() -> {
-                    log.info("Création d'un nouveau compte via Google pour : {}", email);
-                    User newUser = User.builder()
-                            .firstname(firstName != null ? firstName : "Utilisateur")
-                            .lastname(lastName != null ? lastName : "Google")
-                            .email(email)
-                            .pictureUrl(pictureUrl)
-                            .password(passwordEncoder.encode(UUID.randomUUID().toString()))
-                            .role(Role.USER)
-                            .createdAt(LocalDateTime.now())
-                            .updatedAt(LocalDateTime.now())
-                            .build();
-                    return repository.save(newUser);
+                // 3. Chercher l'utilisateur. S'il n'existe pas, on bloque la connexion.
+                User user = repository.findByEmail(email).orElseThrow(() -> {
+                    log.warn("Tentative de connexion Google avec un email non inscrit : {}", email);
+                    // On utilise ton exception personnalisée ici !
+                    return new UnauthorizedException("Cet utilisateur n'existe pas. Veuillez créer un compte.");
                 });
 
-                if (pictureUrl != null && !pictureUrl.equals(user.getPictureUrl())) {
-                    user.setPictureUrl(pictureUrl);
-                    repository.save(user);
-                }
+                // NOTE: On ne met plus à jour le `pictureUrl` avec celui de Google.
+                // L'utilisateur garde ses données telles qu'elles sont en base,
+                // ce qui permettra au frontend d'afficher l'icône par défaut.
 
-                // 5. Générer NOTRE Token JWT CoShift
+                // 4. Générer NOTRE Token JWT CoShift
                 var jwtToken = jwtService.generateToken(user);
 
                 return AuthenticationResponse.builder()
@@ -88,6 +73,9 @@ public class AuthenticationService {
             } else {
                 throw new RuntimeException("Le Token Google est invalide.");
             }
+        } catch (RuntimeException e) {
+            // Permet de faire remonter notre message "Ce compte n'existe pas..." sans l'écraser
+            throw e;
         } catch (Exception e) {
             log.error("Erreur lors de la vérification du Token Google : ", e);
             throw new RuntimeException("Échec de l'authentification Google.");
