@@ -90,7 +90,7 @@
 
 .register-button {
   padding: 1rem;
-  background-color: #ffaa00;
+  background-color: #e67e22;
   color: #0f172a;
   border: none;
   border-radius: 8px;
@@ -131,7 +131,7 @@
 }
 
 .auth-footer a {
-  color: #ffaa00;
+  color: #e67e22;
   text-decoration: none;
   font-weight: bold;
 }

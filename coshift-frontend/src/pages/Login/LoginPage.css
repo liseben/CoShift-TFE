@@ -41,7 +41,7 @@
 .login-title {
   color: white;
   margin-bottom: 0.5rem;
-  font-size: 2rem;
+  font-size: 3rem;
 }
 
 .login-header p {
@@ -83,10 +83,12 @@
   position: relative;
   display: flex;
   align-items: center;
+   width: 100%;
 }
 
 .login-input {
   width: 100%;
+  max-width: 980px;
   padding: 0.8rem 2.5rem 0.8rem 1rem; /* Espace à droite pour l'icône */
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -103,7 +105,7 @@
 
 .login-input:focus {
   outline: none;
-  border-color: #ffaa00;
+  border-color: #e67e22;
   background: rgba(0, 0, 0, 0.4);
 }
 
@@ -140,7 +142,7 @@
 }
 
 .forgot-password {
-  color: #ffaa00;
+  color: #e67e22;
   text-decoration: none;
   transition: opacity 0.3s ease;
 }
@@ -152,7 +154,7 @@
 
 .login-button {
   padding: 1rem;
-  background-color: #ffaa00;
+  background-color: #e67e22;
   color: #0f172a;
   border: none;
   border-radius: 8px;
@@ -181,11 +183,42 @@
 }
 
 .auth-footer a {
-  color: #ffaa00;
+  color: #e67e22;
   text-decoration: none;
   font-weight: bold;
 }
 
 .auth-footer a:hover {
   text-decoration: underline;
+}
+
+
+
+/* Message de succès pour l'email envoyé */
+.auth-success-message {
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  color: #2ecc71;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Bouton de retour vers la connexion */
+.back-button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: none;
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.back-button:hover {
+  color: #ffffff;
 }

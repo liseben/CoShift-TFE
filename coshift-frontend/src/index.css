@@ -26,3 +26,7 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+html {
+  font-size: 22px; /* Augmente la taille de base de 16px à 18px */
+}

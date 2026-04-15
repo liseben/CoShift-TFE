@@ -65,8 +65,10 @@
   color: var(--text-main);
   font-weight: 700;
   font-size: var(--nav-font-size);
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 0.3rem;
   border-radius: 12px; 
+  
+  font-size: 25px;
   
   /* Transition fluide pour le hover et le clic */
   transition: background-color 0.3s ease, color 0.3s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -185,33 +187,46 @@
   margin: 0;
 }
 
-/* --- Les Boutons du Popover --- */
-.popover-btn {
-  width: 100%; /* Prend toute la largeur de la colonne */
-  text-align: center;
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 700;
-  transition: all 0.2s ease;
-  margin-top: auto; /* Pousse les boutons toujours en bas même si les textes n'ont pas la même taille */
+/* --- LE CONTENEUR QUI GÈRE L'ESPACE --- */
+.popover-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px; /* 👈 C'est ici qu'on gère l'espace exact entre les deux boutons ! */
+  margin-top: 10px;
 }
 
-/* Bouton principal (Se connecter) */
+/* --- Les Boutons du Popover (Base) --- */
+.popover-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Bouton principal (Se connecter / Dashboard) */
 .popover-btn.btn-primary {
   background: var(--coshift-orange);
   color: white;
-  box-shadow: 0 4px 10px rgba(255, 140, 0, 0.2);
+  border: none; 
 }
 
 .popover-btn.btn-primary:hover {
   background: #e67e22;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(255, 140, 0, 0.3);
 }
 
-/* Bouton secondaire (S'inscrire) */
+/* Bouton secondaire (S'inscrire / Se déconnecter) */
 .popover-btn.btn-outline {
   background: white;
   border: 2px solid #eee;
@@ -219,12 +234,9 @@
 }
 
 .popover-btn.btn-outline:hover {
-  border-color: var(--coshift-orange);
-  color: var(--coshift-orange);
   transform: translateY(-2px);
 }
 
-/* L'effet de clic (ressort) pour les deux */
 .popover-btn:active {
   transform: scale(0.95);
 }
@@ -232,22 +244,30 @@
 /* --- BOUTON TÉLÉCHARGER L'APP --- */
 .btn-download-app {
   position: relative;
-  overflow: hidden; /* Empêche le cercle de déborder du bouton */
-  background-color: #003354; /* Le fond initial bleu Sibelga */
+  overflow: hidden; 
+  background-color: #003354; 
   color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 50px;
+  
+  /* 👇 MODIFICATIONS ICI : 0.5rem en hauteur (pour qu'il respire) et 0.8rem en largeur (pour le raccourcir) */
+  padding: 0.5rem 0.8rem; 
+  
+  border-radius: 90px;
   font-weight: 700;
-  font-size: clamp(0.9rem, 1vw + 0.4rem, 1.1rem);
+  
+  /* 👇 MODIFICATION ICI : On réduit très légèrement la taille du texte pour gagner de la place */
+  font-size: 0.9rem; 
+  white-space: nowrap; /* Empêche le texte de se couper sur deux lignes */
+  
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: inherit;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 1; /* S'assure que le texte reste au-dessus du cercle */
+  z-index: 1; 
 }
 
 /* Le cercle orange qui va grandir */
@@ -375,5 +395,109 @@
   to {
     opacity: 1;
     transform: translateY(0); /* Et remonte à sa place naturelle */
+  }
+}
+
+/* =========================================
+   RESPONSIVE MOBILE (MENU DÉROULANT À DROITE)
+========================================= */
+
+/* Le bouton hamburger caché par défaut sur PC */
+.mobile-toggle-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  cursor: pointer;
+  z-index: 1005;
+}
+
+/* Astuce : sur PC, ce wrapper n'influence pas la grille */
+.header-menus-wrapper {
+  display: contents;
+}
+
+/* DÈS QUE L'ÉCRAN EST PLUS PETIT QUE 1024px */
+@media (max-width: 1437px) {
+  
+  /* 1. Le header devient un simple conteneur flex (Logo à gauche, Burger à droite) */
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* Point d'ancrage crucial pour la boîte déroulante */
+  }
+
+  /* 2. On affiche le bouton Burger */
+  .mobile-toggle-btn {
+    display: flex;
+    align-items: center;
+  }
+
+  /* 3. Le wrapper devient une petite BOÎTE DÉROULANTE alignée à droite */
+  .header-menus-wrapper {
+    display: none; /* Cachée par défaut */
+    position: absolute;
+    top: calc(100% + 10px); /* S'affiche un peu en dessous du header */
+    right: 5%; /* Alignée sur le bouton burger */
+    width: 320px; /* Largeur fixe (et non 100% de l'écran) */
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); /* Ombre bien visible */
+    padding: 1.5rem;
+    border: 1px solid #eee;
+    z-index: 1000;
+    transform-origin: top right; /* L'animation partira de l'icône */
+  }
+
+  /* 4. Quand le state isMobileMenuOpen est true, on affiche la boîte */
+  .header-menus-wrapper.open {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: popMenu 0.2s ease-out forwards;
+  }
+
+  /* 5. On empile proprement les éléments à l'intérieur */
+  .header-center, .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
+  /* 6. Le Popover de connexion "fusionne" avec la boîte mobile pour ne pas déborder */
+  .login-popover {
+    position: static; /* Il n'est plus flottant, il prend sa place dans la liste */
+    width: 100%;
+    box-shadow: none;
+    border: 2px solid #eee;
+    margin-top: 10px;
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .popover-divider {
+    width: 100%;
+    height: 1px;
+    background: #eee;
+    margin: 1rem 0;
+  }
+}
+
+/* L'animation : la boîte apparaît et grandit légèrement depuis le bouton */
+@keyframes popMenu {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
