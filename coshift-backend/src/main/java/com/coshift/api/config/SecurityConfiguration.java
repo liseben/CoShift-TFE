@@ -40,9 +40,11 @@ public class SecurityConfiguration {
                 // LA SOLUTION EST ICI : Autoriser toutes les requêtes OPTIONS (Preflight)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // Les routes publiques
+                // Routes publiques (auth + vérification + articles publics)
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/pwa/articles").permitAll()
+                // Photo de profil accessible sans auth (images publiques)
+                .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                 
                 // Tout le reste nécessite d'être connecté
                 .anyRequest().authenticated()

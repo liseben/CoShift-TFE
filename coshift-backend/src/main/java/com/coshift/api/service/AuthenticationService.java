@@ -3,15 +3,17 @@ package com.coshift.api.service;
 import com.coshift.api.dto.AuthenticationResponse;
 import com.coshift.api.dto.GoogleLoginRequest;
 import com.coshift.api.dto.LoginRequest;
-import com.coshift.api.dto.RegisterRequest; 
-import com.coshift.api.entity.Role; 
-import com.coshift.api.entity.User; 
+import com.coshift.api.dto.RegisterRequest;
+import com.coshift.api.dto.VerifyEmailRequest;
+import com.coshift.api.entity.Role;
+import com.coshift.api.entity.User;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Value;
+import java.security.SecureRandom;
 import java.util.Collections;
 import com.coshift.api.exception.UnauthorizedException;
 import java.time.LocalDateTime;
@@ -33,11 +36,19 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
     @Value("${api.google.client-id}")
     private String googleClientId;
 
-    // --- LA NOUVELLE MÉTHODE GOOGLE ---
-    // --- LA NOUVELLE MÉTHODE GOOGLE ---
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    private String generateVerificationCode() {
+        int code = 100000 + RANDOM.nextInt(900000);
+        return String.valueOf(code);
+    }
+
+    // --- CONNEXION GOOGLE OAuth2 ---
     public AuthenticationResponse authenticateWithGoogle(GoogleLoginRequest request) {
         // 1. Initialiser le vérificateur Google
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
@@ -82,51 +93,108 @@ public class AuthenticationService {
         }
     }
 
-    // --- LA NOUVELLE MÉTHODE D'INSCRIPTION ---
+    // --- INSCRIPTION (F4) ---
     public AuthenticationResponse register(RegisterRequest request) {
-        // 1. Vérifier si l'email existe déjà
         if (repository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Un compte existe déjà avec cet email"); 
-            // Idéalement, on utiliserait une exception personnalisée (ex: UserAlreadyExistsException)
+            throw new RuntimeException("Un compte existe déjà avec cet email");
         }
 
-        // 2. Créer l'entité User (le password est haché ici !)
+        String code = generateVerificationCode();
+
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER) // Par défaut, c'est un utilisateur normal
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .role(Role.USER)
+                .emailVerified(false)
+                .verificationCode(code)
+                .verificationCodeExpiry(LocalDateTime.now().plusHours(24))
                 .build();
 
-        // 3. Sauvegarder dans la DB
         repository.save(user);
 
-        // 4. Générer le JWT
-        var jwtToken = jwtService.generateToken(user);
+        // Envoi asynchrone — ne bloque pas la réponse
+        emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(), code);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .message("Inscription réussie")
+                .message("Compte créé ! Vérifiez votre email pour activer votre compte.")
                 .build();
     }
 
-    // --- LA MÉTHODE DE CONNEXION (Inchangée) ---
+    // --- VÉRIFICATION EMAIL (F7) ---
+    public AuthenticationResponse verifyEmail(VerifyEmailRequest request) {
+        User user = repository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Aucun compte associé à cet email."));
+
+        if (user.isEmailVerified()) {
+            var token = jwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(token)
+                    .message("Compte déjà vérifié.")
+                    .build();
+        }
+
+        if (user.getVerificationCode() == null
+                || !user.getVerificationCode().equals(request.getCode())) {
+            throw new RuntimeException("Code de vérification incorrect.");
+        }
+
+        if (user.getVerificationCodeExpiry() == null
+                || user.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Ce code a expiré. Veuillez en demander un nouveau.");
+        }
+
+        user.setEmailVerified(true);
+        user.setVerificationCode(null);
+        user.setVerificationCodeExpiry(null);
+        repository.save(user);
+
+        var token = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(token)
+                .message("Compte vérifié avec succès ! Bienvenue sur CoShift.")
+                .build();
+    }
+
+    // --- RENVOI DU CODE (F7) ---
+    public AuthenticationResponse resendVerificationCode(String email) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Aucun compte associé à cet email."));
+
+        if (user.isEmailVerified()) {
+            throw new RuntimeException("Ce compte est déjà vérifié.");
+        }
+
+        String newCode = generateVerificationCode();
+        user.setVerificationCode(newCode);
+        user.setVerificationCodeExpiry(LocalDateTime.now().plusHours(24));
+        repository.save(user);
+
+        emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(), newCode);
+
+        return AuthenticationResponse.builder()
+                .message("Un nouveau code a été envoyé à votre adresse email.")
+                .build();
+    }
+
+    // --- CONNEXION (F5) ---
     public AuthenticationResponse authenticate(LoginRequest request) {
+        // Vérifier manuellement si le compte est activé avant de passer dans Spring Security
+        // (pour renvoyer un message explicite plutôt qu'une erreur 401 générique)
+        User user = repository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email ou mot de passe incorrect."));
+
+        if (!user.isEmailVerified()) {
+            throw new DisabledException("Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
+        }
+
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        var user = repository.findByEmail(request.getEmail())
-                .orElseThrow();
-
         var jwtToken = jwtService.generateToken(user);
-        
+
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .message("Connexion réussie")

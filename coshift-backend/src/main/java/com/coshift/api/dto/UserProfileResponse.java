@@ -14,5 +14,9 @@ public class UserProfileResponse {
     private String lastname;
     private String email;
     private String pictureUrl;
+    private String phoneNumber;
     private String role;
+    private boolean emailVerified;
+    private double averageRating;
+    private int tripsCount;
 }
