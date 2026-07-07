@@ -41,7 +41,10 @@ public class Vehicule {
     private int seats; // Nombre de places TOTALES (conducteur compris)
 
     @Enumerated(EnumType.STRING)
-    private EnergyType energy; // Électrique, Diesel, etc. (Pour le calcul CO2 !)
+    private EnergyType energy;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
 
     // Relation : Un véhicule appartient à un User
     @ManyToOne(fetch = FetchType.LAZY)

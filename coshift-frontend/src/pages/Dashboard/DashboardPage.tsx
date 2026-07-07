@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaCar, FaTicketAlt, FaLeaf, FaStar } from "react-icons/fa";
-import { FiEdit3, FiX, FiCamera, FiPhone } from "react-icons/fi";
+import { FiEdit3, FiX, FiCamera, FiPhone, FiGrid, FiTruck } from "react-icons/fi";
 import axios from "axios";
+import VehiclePage from "./VehiclePage";
 import "./DashboardPage.css";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
@@ -11,6 +12,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 const DashboardPage: React.FC = () => {
   const { user, isLoading, login } = useAuth();
 
+  const [activeTab, setActiveTab] = useState<"overview" | "vehicles">("overview");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editFirstname, setEditFirstname] = useState(user?.firstname ?? "");
   const [editLastname, setEditLastname]   = useState(user?.lastname  ?? "");
@@ -165,7 +167,26 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* ── GRILLE DES WIDGETS ── */}
+        {/* ── ONGLETS ── */}
+        <div className="dashboard-tabs">
+          <button
+            className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
+            onClick={() => setActiveTab("overview")}
+          >
+            <FiGrid size={15} /> Vue d'ensemble
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "vehicles" ? "active" : ""}`}
+            onClick={() => setActiveTab("vehicles")}
+          >
+            <FiTruck size={15} /> Mes véhicules
+          </button>
+        </div>
+
+        {/* ── CONTENU PAR ONGLET ── */}
+        {activeTab === "vehicles" ? (
+          <VehiclePage />
+        ) : (
         <div className="dashboard-grid">
 
           <div className="dashboard-widget">
@@ -218,6 +239,7 @@ const DashboardPage: React.FC = () => {
           </div>
 
         </div>
+        )}
       </div>
 
       {/* ── MODALE MODIFICATION DU PROFIL ── */}
