@@ -6,6 +6,8 @@ import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from "./pages/Register/RegisterPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import VerificationPage from "./pages/Verification/VerificationPage";
+import SearchTripsPage from "./pages/Trips/SearchTripsPage";
+import CreateTripPage from "./pages/Trips/CreateTripPage";
 
 // Pages fictives temporaires pour éviter les erreurs
 const EntreprisesPage = () => (
@@ -39,6 +41,8 @@ function App() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="verify-email" element={<VerificationPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="trips/search" element={<SearchTripsPage />} />
+          <Route path="trips/create" element={<CreateTripPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

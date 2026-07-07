@@ -36,8 +36,14 @@ public class Trip {
     @NotBlank(message = "Ville de départ obligatoire")
     private String departureCity;
 
+    @Column(name = "departure_address")
+    private String departureAddress;
+
     @NotBlank(message = "Ville d'arrivée obligatoire")
     private String arrivalCity;
+
+    @Column(name = "arrival_address")
+    private String arrivalAddress;
 
     @NotNull(message = "Date de départ obligatoire")
     @Future(message = "Le trajet doit être dans le futur")
@@ -50,9 +56,18 @@ public class Trip {
     @Min(value = 0, message = "Le prix ne peut pas être négatif")
     private BigDecimal pricePerSeat;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    // Préférences conducteur
+    @Builder.Default @Column(name = "accepts_luggage") private boolean acceptsLuggage = true;
+    @Builder.Default @Column(name = "accepts_pets")    private boolean acceptsPets    = false;
+    @Builder.Default @Column(name = "music_allowed")   private boolean musicAllowed   = true;
+    @Builder.Default @Column(name = "talking_allowed") private boolean talkingAllowed = true;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default // CORRECTION 2 : Pour ne pas avoir status = null
+    @Builder.Default
     private TripStatus status = TripStatus.PLANNED;
 
     // --- RELATIONS CLÉS ---
@@ -63,9 +78,10 @@ public class Trip {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicule_id", nullable = false)
-    private Vehicule vehicule; 
+    private Vehicule vehicule;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id", nullable = false)
+    @JoinColumn(name = "organization_id")
     private Organization organization;
 
     // --- AUDIT ---

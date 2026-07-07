@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaCar, FaTicketAlt, FaLeaf, FaStar } from "react-icons/fa";
 import { FiEdit3, FiX, FiCamera, FiPhone, FiGrid, FiTruck } from "react-icons/fi";
@@ -11,6 +11,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const DashboardPage: React.FC = () => {
   const { user, isLoading, login } = useAuth();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState<"overview" | "vehicles">("overview");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -44,7 +45,7 @@ const DashboardPage: React.FC = () => {
   };
 
   // ── Enregistrer le profil ──
-  const handleSaveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveProfile = async (e: { preventDefault(): void }) => {
     e.preventDefault();
     setIsSaving(true);
     setModalError(null);
@@ -198,7 +199,7 @@ const DashboardPage: React.FC = () => {
             </div>
             <div className="widget-body empty-state">
               <p>Vous n'avez pas encore proposé de trajet pour vos collègues.</p>
-              <button className="btn-primary-small">Proposer un trajet</button>
+              <button className="btn-primary-small" onClick={() => navigate("/trips/create")}>Proposer un trajet</button>
             </div>
           </div>
 
@@ -211,7 +212,7 @@ const DashboardPage: React.FC = () => {
             </div>
             <div className="widget-body empty-state">
               <p>Vous n'avez aucune réservation de covoiturage en cours.</p>
-              <button className="btn-outline-small">Trouver un trajet</button>
+              <button className="btn-outline-small" onClick={() => navigate("/trips/search")}>Trouver un trajet</button>
             </div>
           </div>
 
