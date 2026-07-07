@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
-import "./RegisterPage.css"; // On va créer ce fichier juste après
+import "./RegisterPage.css";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const RegisterPage: React.FC = () => {
-  const { login } = useAuth();
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -39,19 +37,15 @@ const RegisterPage: React.FC = () => {
 
     try {
       // 2. Appel API vers ton backend Spring Boot
-      const response = await axios.post(`${API_BASE}/api/auth/register`, {
+      await axios.post(`${API_BASE}/api/auth/register`, {
         firstname,
         lastname,
         email,
         password,
       });
 
-      // 3. Récupération du JWT et connexion automatique
-      const token = response.data.token;
-      if (token) {
-        login(token);
-        navigate("/dashboard");
-      }
+      // 3. L'inscription ne renvoie plus de token — l'utilisateur doit vérifier son email
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       console.error("Erreur d'inscription :", err);
       // Si le backend renvoie une erreur (ex: email déjà pris)

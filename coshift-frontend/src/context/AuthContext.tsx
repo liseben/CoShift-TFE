@@ -13,7 +13,11 @@ interface User {
   lastname: string;
   email: string;
   pictureUrl?: string;
+  phoneNumber?: string;
   role: string;
+  emailVerified: boolean;
+  averageRating: number;
+  tripsCount: number;
 }
 
 // 2. On définit ce que notre Contexte va fournir à l'application

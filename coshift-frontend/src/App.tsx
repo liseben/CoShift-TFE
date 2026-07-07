@@ -5,6 +5,7 @@ import ActusPage from "./pages/Actus/ActusPage";
 import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from "./pages/Register/RegisterPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
+import VerificationPage from "./pages/Verification/VerificationPage";
 
 // Pages fictives temporaires pour éviter les erreurs
 const EntreprisesPage = () => (
@@ -36,6 +37,7 @@ function App() {
           <Route path="blog" element={<BlogPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
+          <Route path="verify-email" element={<VerificationPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
         </Route>
       </Routes>

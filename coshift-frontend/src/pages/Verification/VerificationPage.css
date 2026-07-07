@@ -1,0 +1,276 @@
+/* ===================================================================
+   VerificationPage — Charte CoShift (Dark Glassmorphism Premium)
+   Inspiré de Stripe / Linear / Vercel
+   =================================================================== */
+
+.verify-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(30, 55, 59, 0.9) 0%, #0f1a1c 60%),
+              radial-gradient(ellipse 60% 40% at 80% 90%, rgba(59, 130, 246, 0.08) 0%, transparent 60%);
+  padding: 20px;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Carte principale ── */
+.verify-card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 3rem 2.5rem 2.5rem;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 32px 64px -16px rgba(0, 0, 0, 0.6),
+    0 0 80px -20px rgba(59, 130, 246, 0.08);
+
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── Icône animée ── */
+.verify-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.5rem;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(96, 165, 250, 0.08));
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.2); }
+  50%       { box-shadow: 0 0 0 12px rgba(96, 165, 250, 0); }
+}
+
+/* ── Logo CoShift ── */
+.verify-logo {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #60a5fa;
+  margin-bottom: 2rem;
+  opacity: 0.7;
+}
+
+/* ── Titres ── */
+.verify-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.verify-subtitle {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  margin-bottom: 2.25rem;
+}
+
+.verify-subtitle strong {
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+}
+
+/* ── Alertes ── */
+.verify-alert {
+  border-radius: 10px;
+  padding: 11px 16px;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.verify-alert.error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+.verify-alert.success {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+
+/* ── Inputs 6 cases ── */
+.code-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.75rem;
+}
+
+.digit-input {
+  width: 52px;
+  height: 60px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f1f5f9;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+  caret-color: #60a5fa;
+}
+
+.digit-input:focus {
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.06);
+  box-shadow:
+    0 0 0 3px rgba(96, 165, 250, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.digit-input.filled {
+  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(96, 165, 250, 0.07);
+}
+
+.digit-input:disabled {
+  opacity: 0.4;
+}
+
+/* ── Séparateur visuel entre les 2 groupes de 3 ── */
+.code-inputs .digit-separator {
+  display: flex;
+  align-items: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 1.2rem;
+  padding: 0 2px;
+}
+
+/* ── Bouton principal ── */
+.verify-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+  background-size: 200% 200%;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    opacity 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+}
+
+.verify-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.verify-btn:hover:not(:disabled)::before { opacity: 1; }
+.verify-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45);
+}
+
+.verify-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.verify-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Spinner dans le bouton */
+.verify-btn .spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Footer ── */
+.verify-footer {
+  margin-top: 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 1.5rem;
+}
+
+.verify-footer p {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.85rem;
+  margin: 0 0 0.6rem;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.resend-btn:disabled {
+  color: rgba(255, 255, 255, 0.25);
+  cursor: not-allowed;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .verify-card { padding: 2rem 1.5rem; }
+  .digit-input { width: 44px; height: 52px; font-size: 1.3rem; }
+  .code-inputs { gap: 6px; }
+}
