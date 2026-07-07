@@ -1,154 +1,182 @@
 import React, { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { FaCar, FaTicketAlt, FaLeaf } from "react-icons/fa";
-import { FiEdit3, FiX, FiCamera } from "react-icons/fi";
+import { FaCar, FaTicketAlt, FaLeaf, FaStar } from "react-icons/fa";
+import { FiEdit3, FiX, FiCamera, FiPhone } from "react-icons/fi";
 import axios from "axios";
 import "./DashboardPage.css";
 
-// 1. CORRECTION : On déclare API_BASE ici pour pouvoir joindre Spring Boot
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const DashboardPage: React.FC = () => {
-  // 2. CORRECTION : On ajoute 'login' ici pour pouvoir l'utiliser plus bas
   const { user, isLoading, login } = useAuth();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // Les champs sont pré-remplis. S'ils ne sont pas modifiés, ils gardent leur valeur d'origine.
-  const [editFirstname, setEditFirstname] = useState(user?.firstname || "");
-  const [editLastname, setEditLastname] = useState(user?.lastname || "");
-  const [editEmail, setEditEmail] = useState(user?.email || "");
-  const [isSaving, setIsSaving] = useState(false);
-  const [modalError, setModalError] = useState<string | null>(null);
+  const [editFirstname, setEditFirstname] = useState(user?.firstname ?? "");
+  const [editLastname, setEditLastname]   = useState(user?.lastname  ?? "");
+  const [editEmail, setEditEmail]         = useState(user?.email     ?? "");
+  const [editPhone, setEditPhone]         = useState(user?.phoneNumber ?? "");
+  const [isSaving, setIsSaving]           = useState(false);
+  const [modalError, setModalError]       = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   if (isLoading) {
     return (
       <div className="dashboard-loading">
-        <div className="spinner"></div>
+        <div className="spinner" />
         <p>Chargement de votre espace...</p>
       </div>
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  // ── Ouvrir la modale en synchronisant les champs avec les données actuelles ──
+  const openModal = () => {
+    setEditFirstname(user.firstname ?? "");
+    setEditLastname(user.lastname  ?? "");
+    setEditEmail(user.email        ?? "");
+    setEditPhone(user.phoneNumber  ?? "");
+    setModalError(null);
+    setIsEditModalOpen(true);
+  };
+
+  // ── Enregistrer le profil ──
+  const handleSaveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
     setModalError(null);
-
     try {
-      const response = await axios.put(
+      const res = await axios.put(
         `${API_BASE}/api/users/profile`,
-        {
-          firstname: editFirstname,
-          lastname: editLastname,
-          email: editEmail,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("coshift_token")}`,
-          },
-        },
+        { firstname: editFirstname, lastname: editLastname, email: editEmail, phoneNumber: editPhone },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("coshift_token")}` } },
       );
-
-      if (response.data && response.data.token) {
-        login(response.data.token);
-      } else {
-        console.log(
-          "Profil mis à jour ! Rechargez la page ou mettez à jour le contexte.",
-        );
-      }
-
+      if (res.data?.token) login(res.data.token);
       setIsEditModalOpen(false);
     } catch (err: any) {
-      console.error("Erreur lors de la mise à jour :", err);
-      if (err.response?.data?.message) {
-        setModalError(err.response.data.message);
-      } else {
-        setModalError("Une erreur est survenue lors de la sauvegarde.");
-      }
+      setModalError(err.response?.data?.message ?? "Une erreur est survenue lors de la sauvegarde.");
     } finally {
       setIsSaving(false);
     }
   };
 
+  // ── Upload de la photo de profil ──
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-
+    if (!e.target.files?.length) return;
+    const file = e.target.files[0];
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      setModalError("Seuls les formats JPG et PNG sont acceptés.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setModalError("La photo ne doit pas dépasser 2 Mo.");
+      return;
+    }
+    setIsUploadingPhoto(true);
+    setModalError(null);
+    try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      try {
-        alert(
-          `Vous avez sélectionné ${selectedFile.name}. \nL'upload automatique via FormData vers /api/users/photo est à configurer ici.`,
-        );
-      } catch (err) {
-        console.error("Erreur upload photo", err);
-        setModalError("Impossible d'uploader l'image.");
+      formData.append("file", file);
+      const res = await axios.post(`${API_BASE}/api/users/photo`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("coshift_token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      if (res.data?.pictureUrl) {
+        // Rafraîchir le profil pour afficher la nouvelle photo
+        login(localStorage.getItem("coshift_token") ?? "");
       }
+    } catch (err: any) {
+      setModalError(err.response?.data?.message ?? "Impossible d'uploader l'image.");
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
+
+  const avatar = user.pictureUrl ? (
+    <img src={user.pictureUrl} alt="Profil" className="profile-picture-large" />
+  ) : (
+    <div className="profile-initial-large">
+      {user.firstname?.charAt(0).toUpperCase() ?? "U"}
+    </div>
+  );
+
+  const modalAvatar = user.pictureUrl ? (
+    <img src={user.pictureUrl} alt="Profil" className="modal-photo-preview" />
+  ) : (
+    <div className="modal-photo-preview placeholder">
+      {user.firstname?.charAt(0).toUpperCase() ?? "U"}
+    </div>
+  );
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">
-        {/* EN-TÊTE DU PROFIL */}
+
+        {/* ── EN-TÊTE DU PROFIL ── */}
         <div className="dashboard-header-card">
           <div className="profile-section">
-            {user.pictureUrl ? (
-              <img
-                src={user.pictureUrl}
-                alt="Profil"
-                className="profile-picture-large"
-              />
-            ) : (
-              <div className="profile-initial-large">
-                {user.firstname ? user.firstname.charAt(0).toUpperCase() : "U"}
-              </div>
-            )}
-
+            {avatar}
             <div className="profile-info">
-              <h1>
-                Bonjour, {user.firstname} {user.lastname} 👋
-              </h1>
-              <p className="profile-email">{user.email}</p>
-              <span className="role-badge">
-                {user.role === "USER" ? "Membre CoShift" : "Administrateur"}
-              </span>
+              <h1>Bonjour, {user.firstname} {user.lastname} 👋</h1>
+              <div className="profile-meta">
+                <span className="profile-email">{user.email}</span>
+                {user.phoneNumber && (
+                  <>
+                    <span className="profile-meta-sep">·</span>
+                    <span className="profile-phone">
+                      <FiPhone size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />
+                      {user.phoneNumber}
+                    </span>
+                  </>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <span className="role-badge">
+                  {user.role === "USER" ? "✦ Membre CoShift" : "⚡ Administrateur"}
+                </span>
+                {!user.emailVerified && (
+                  <span className="badge-unverified">⚠ Email non vérifié</span>
+                )}
+              </div>
+              <div className="profile-quick-stats">
+                <span className="quick-stat">
+                  <FaCar size={12} />
+                  <span className="quick-stat-value">{user.tripsCount}</span> trajet{user.tripsCount !== 1 ? "s" : ""}
+                </span>
+                <span className="quick-stat">
+                  <FaStar size={12} style={{ color: "#fbbf24" }} />
+                  <span className="quick-stat-value">
+                    {user.averageRating > 0 ? user.averageRating.toFixed(1) : "—"}
+                  </span>
+                  {user.averageRating > 0 && " / 5"}
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="profile-actions">
-            <button
-              className="btn-outline-light"
-              onClick={() => setIsEditModalOpen(true)}
-            >
-              <FiEdit3 size={18} />
+            <button className="btn-outline-light" onClick={openModal}>
+              <FiEdit3 size={15} />
               Modifier le profil
             </button>
           </div>
         </div>
 
-        {/* GRILLE DES WIDGETS */}
+        {/* ── GRILLE DES WIDGETS ── */}
         <div className="dashboard-grid">
+
           <div className="dashboard-widget">
             <div className="widget-header">
               <h3>
-                <div className="icon-wrapper icon-car">
-                  <FaCar />
-                </div>
+                <div className="icon-wrapper icon-car"><FaCar /></div>
                 Mes Trajets Proposés
               </h3>
             </div>
             <div className="widget-body empty-state">
-              <p>
-                Vous n'avez pas encore proposé de trajet pour vos collègues.
-              </p>
+              <p>Vous n'avez pas encore proposé de trajet pour vos collègues.</p>
               <button className="btn-primary-small">Proposer un trajet</button>
             </div>
           </div>
@@ -156,9 +184,7 @@ const DashboardPage: React.FC = () => {
           <div className="dashboard-widget">
             <div className="widget-header">
               <h3>
-                <div className="icon-wrapper icon-ticket">
-                  <FaTicketAlt />
-                </div>
+                <div className="icon-wrapper icon-ticket"><FaTicketAlt /></div>
                 Mes Réservations
               </h3>
             </div>
@@ -171,27 +197,30 @@ const DashboardPage: React.FC = () => {
           <div className="dashboard-widget full-width">
             <div className="widget-header">
               <h3>
-                <div className="icon-wrapper icon-leaf">
-                  <FaLeaf />
-                </div>
+                <div className="icon-wrapper icon-leaf"><FaLeaf /></div>
                 Mon Impact Carbone
               </h3>
             </div>
             <div className="widget-body impact-stats">
               <div className="stat-box">
                 <span className="stat-number">0</span>
-                <span className="stat-label">kg de CO2 évités</span>
+                <span className="stat-label">kg de CO₂ évités</span>
               </div>
               <div className="stat-box">
-                <span className="stat-number">0</span>
+                <span className="stat-number">{user.tripsCount}</span>
                 <span className="stat-label">Trajets partagés</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-number">0 km</span>
+                <span className="stat-label">Parcourus ensemble</span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* MODALE DE MODIFICATION DU PROFIL */}
+      {/* ── MODALE MODIFICATION DU PROFIL ── */}
       {isEditModalOpen && (
         <div
           className="modal-overlay"
@@ -205,47 +234,20 @@ const DashboardPage: React.FC = () => {
                 onClick={() => setIsEditModalOpen(false)}
                 disabled={isSaving}
               >
-                <FiX size={24} />
+                <FiX size={18} />
               </button>
             </div>
 
-            {modalError && (
-              <div
-                style={{
-                  color: "#ef4444",
-                  background: "#fef2f2",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  marginBottom: "15px",
-                  fontSize: "0.9rem",
-                }}
-              >
-                ⚠️ {modalError}
-              </div>
-            )}
+            {modalError && <div className="modal-alert">⚠ {modalError}</div>}
 
             <form onSubmit={handleSaveProfile} className="modal-form">
-              {/* SECTION PHOTO DE PROFIL */}
+
+              {/* Photo */}
               <div className="modal-photo-section">
                 <div className="modal-photo-container">
-                  {user?.pictureUrl ? (
-                    <img
-                      src={user.pictureUrl}
-                      alt="Profil"
-                      className="modal-photo-preview"
-                    />
-                  ) : (
-                    <div className="modal-photo-preview placeholder">
-                      {user?.firstname
-                        ? user.firstname.charAt(0).toUpperCase()
-                        : "U"}
-                    </div>
-                  )}
-                  <label
-                    htmlFor="photo-upload"
-                    className="modal-photo-upload-btn"
-                  >
-                    <FiCamera size={16} />
+                  {modalAvatar}
+                  <label htmlFor="photo-upload" className="modal-photo-upload-btn">
+                    <FiCamera size={13} />
                   </label>
                   <input
                     id="photo-upload"
@@ -253,58 +255,69 @@ const DashboardPage: React.FC = () => {
                     accept="image/png, image/jpeg"
                     style={{ display: "none" }}
                     onChange={handlePhotoUpload}
-                    disabled={isSaving}
+                    disabled={isSaving || isUploadingPhoto}
                   />
                 </div>
-                <div className="modal-photo-text">
+                <div>
                   <p className="photo-title">Photo de profil</p>
-                  <p className="photo-hint">
-                    Format JPG ou PNG. Poids maximum 2Mo.
-                  </p>
+                  <p className="photo-hint">JPG ou PNG · max 2 Mo</p>
+                  {isUploadingPhoto && <p className="photo-uploading">Upload en cours...</p>}
                 </div>
               </div>
 
+              {/* Prénom / Nom */}
               <div className="form-row">
                 <div className="input-group">
                   <label className="input-label">Prénom</label>
-                  {/* 3. CORRECTION : setEditFirstname au lieu de setFirstname */}
                   <input
                     type="text"
                     className="modal-input"
                     value={editFirstname}
                     onChange={(e) => setEditFirstname(e.target.value)}
                     disabled={isSaving}
+                    required
                   />
                 </div>
-
                 <div className="input-group">
                   <label className="input-label">Nom</label>
-                  {/* 3. CORRECTION : setEditLastname au lieu de setLastname */}
                   <input
                     type="text"
                     className="modal-input"
                     value={editLastname}
                     onChange={(e) => setEditLastname(e.target.value)}
                     disabled={isSaving}
+                    required
                   />
                 </div>
               </div>
 
+              {/* Email */}
               <div className="input-group">
-                <label className="input-label">
-                  Adresse e-mail professionnelle
-                </label>
+                <label className="input-label">Adresse e-mail</label>
                 <input
                   type="email"
                   className="modal-input"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
                   disabled={isSaving}
+                  required
                 />
                 <p className="input-help-text">
-                  Un e-mail de confirmation sera envoyé à votre nouvelle
-                  adresse.
+                  Un e-mail de confirmation sera envoyé à votre nouvelle adresse.
                 </p>
+              </div>
+
+              {/* Téléphone */}
+              <div className="input-group">
+                <label className="input-label">Téléphone (optionnel)</label>
+                <input
+                  type="tel"
+                  className="modal-input"
+                  placeholder="+32 470 00 00 00"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  disabled={isSaving}
+                />
               </div>
 
               <div className="modal-footer">
@@ -316,11 +329,8 @@ const DashboardPage: React.FC = () => {
                 >
                   Annuler
                 </button>
-
                 <button type="submit" className="btn-save" disabled={isSaving}>
-                  {isSaving
-                    ? "Enregistrement..."
-                    : "Enregistrer les modifications"}
+                  {isSaving ? "Enregistrement..." : "Enregistrer"}
                 </button>
               </div>
             </form>

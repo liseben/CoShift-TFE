@@ -2,11 +2,28 @@
   {
     "name": "application.security.jwt.secret-key",
     "type": "java.lang.String",
-    "description": "A description for 'application.security.jwt.secret-key'"
+    "description": "Clé secrète HS256 pour la signature des tokens JWT (minimum 256 bits)."
   },
   {
     "name": "application.security.jwt.expiration",
+    "type": "java.lang.Long",
+    "description": "Durée de validité du token JWT en millisecondes (ex: 86400000 = 24h)."
+  },
+  {
+    "name": "app.upload.dir",
     "type": "java.lang.String",
-    "description": "A description for 'application.security.jwt.expiration'"
+    "description": "Dossier de stockage des photos de profil uploadées (relatif au répertoire de travail du serveur).",
+    "defaultValue": "uploads/avatars"
+  },
+  {
+    "name": "app.base-url",
+    "type": "java.lang.String",
+    "description": "URL de base publique du backend (utilisée pour construire les URLs des fichiers statiques).",
+    "defaultValue": "http://localhost:8080"
+  },
+  {
+    "name": "api.google.client-id",
+    "type": "java.lang.String",
+    "description": "Client ID Google OAuth2 pour la vérification des tokens Google."
   }
 ]}
