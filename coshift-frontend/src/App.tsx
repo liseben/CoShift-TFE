@@ -8,6 +8,8 @@ import DashboardPage from "./pages/Dashboard/DashboardPage";
 import VerificationPage from "./pages/Verification/VerificationPage";
 import SearchTripsPage from "./pages/Trips/SearchTripsPage";
 import CreateTripPage from "./pages/Trips/CreateTripPage";
+import TripDetailPage from "./pages/Trips/TripDetailPage";
+import MyBookingsPage from "./pages/Bookings/MyBookingsPage";
 
 // Pages fictives temporaires pour éviter les erreurs
 const EntreprisesPage = () => (
@@ -43,6 +45,10 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="trips/search" element={<SearchTripsPage />} />
           <Route path="trips/create" element={<CreateTripPage />} />
+          {/* Doit rester APRÈS les routes fixes, sinon "search" et "create"
+              seraient interprétés comme des identifiants de trajet. */}
+          <Route path="trips/:uuid" element={<TripDetailPage />} />
+          <Route path="bookings" element={<MyBookingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
