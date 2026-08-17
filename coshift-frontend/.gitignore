@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Le modele de configuration, lui, doit etre versionne
+!.env.example

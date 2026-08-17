@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./RegisterPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 
 const RegisterPage: React.FC = () => {
   const [firstname, setFirstname] = useState<string>("");

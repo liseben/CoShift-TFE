@@ -6,6 +6,7 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
+import { API_BASE } from "../config/api";
 
 // 1. On définit la forme de notre Utilisateur
 interface User {
@@ -33,8 +34,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
   // Fonction pour aller chercher le profil avec le Token
   const fetchUser = async (token: string) => {

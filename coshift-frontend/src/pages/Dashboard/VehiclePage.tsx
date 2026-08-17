@@ -5,7 +5,7 @@ import { FiX } from "react-icons/fi";
 import axios from "axios";
 import "./VehiclePage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 
 const ENERGY_LABELS: Record<string, { label: string; icon: React.ReactElement; color: string }> = {
   ELECTRIC: { label: "Électrique", icon: <FaBolt />, color: "#34d399" },

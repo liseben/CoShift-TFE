@@ -23,7 +23,7 @@ const CATEGORIES = [
   { id: "autre", label: "Autres", icon: "🔗" },
 ];
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 const ARTICLES_PER_PAGE = 5;
 
 // Fonction propre pour couper le texte sans casser un mot

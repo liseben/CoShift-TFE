@@ -7,7 +7,7 @@ import axios from "axios";
 import VehiclePage from "./VehiclePage";
 import "./DashboardPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 
 const DashboardPage: React.FC = () => {
   const { user, isLoading, login } = useAuth();

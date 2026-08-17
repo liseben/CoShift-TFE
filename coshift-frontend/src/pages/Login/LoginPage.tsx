@@ -5,7 +5,7 @@ import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import "./LoginPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 
 
 const LoginPage: React.FC = () => {

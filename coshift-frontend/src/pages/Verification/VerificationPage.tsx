@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import "./VerificationPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 
 const VerificationPage: React.FC = () => {
   const [searchParams] = useSearchParams();

@@ -5,7 +5,7 @@ import { FiArrowLeft, FiCheck } from "react-icons/fi";
 import axios from "axios";
 import "./TripsPage.css";
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+import { API_BASE } from "../../config/api";
 
 interface Vehicule {
   uuid: string;
