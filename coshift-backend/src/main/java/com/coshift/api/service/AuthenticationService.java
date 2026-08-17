@@ -77,7 +77,16 @@ public class AuthenticationService {
                 // L'utilisateur garde ses données telles qu'elles sont en base,
                 // ce qui permettra au frontend d'afficher l'icône par défaut.
 
-                // 4. Générer NOTRE Token JWT CoShift
+                // 4. Un compte non activé ne doit pas obtenir de token, quel que soit
+                //    le canal de connexion : sans ce contrôle, un utilisateur inscrit
+                //    par le formulaire classique et jamais validé accédait à toute
+                //    l'application via Google, contournant complètement F7.
+                if (!user.isEmailVerified()) {
+                    throw new DisabledException(
+                            "Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
+                }
+
+                // 5. Générer NOTRE Token JWT CoShift
                 var jwtToken = jwtService.generateToken(user);
 
                 return AuthenticationResponse.builder()
