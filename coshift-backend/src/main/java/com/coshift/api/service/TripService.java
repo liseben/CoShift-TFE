@@ -7,6 +7,7 @@ import com.coshift.api.exception.BadRequestException;
 import com.coshift.api.exception.ConflictException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
+import com.coshift.api.repository.BookingRepository;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.repository.VehiculeRepository;
@@ -28,6 +29,7 @@ public class TripService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final VehiculeRepository vehiculeRepository;
+    private final BookingRepository bookingRepository;
 
     /** Délai minimum entre la publication et le départ, imposé par F16. */
     private static final int MIN_HOURS_BEFORE_DEPARTURE = 2;
@@ -144,6 +146,22 @@ public class TripService {
         }
         if (trip.getDepartureTime().isBefore(LocalDateTime.now())) {
             throw new ConflictException("Impossible d'annuler un trajet déjà passé.");
+        }
+
+        // Les réservations en cours doivent suivre le sort du trajet : sans ça,
+        // un passager gardait une réservation « confirmée » sur un trajet annulé.
+        var impacted = bookingRepository.findByTripIdAndStatusIn(
+                trip.getId(), List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
+
+        impacted.forEach(booking -> {
+            booking.setStatus(BookingStatus.CANCELLED);
+            booking.setStatusReason("Trajet annulé par le conducteur.");
+        });
+        bookingRepository.saveAll(impacted);
+
+        if (!impacted.isEmpty()) {
+            log.info("{} réservation(s) annulée(s) suite à l'annulation du trajet {}",
+                    impacted.size(), trip.getUuid());
         }
 
         trip.setStatus(TripStatus.CANCELLED);
