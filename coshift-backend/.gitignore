@@ -35,3 +35,5 @@ build/
 .env
 .env.local
 .env.*
+# Le modele de configuration, lui, doit etre versionne
+!.env.example
