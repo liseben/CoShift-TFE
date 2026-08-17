@@ -121,8 +121,11 @@ Le numéro de téléphone n'est exposé qu'après confirmation, conformément à
 - [ ] **A12** — `ArticleService.java:172-181` : `findAll()` + Levenshtein sur toute la table pour
       chaque article candidat, toutes les 6 h (O(n²)).
       → Fenêtre glissante 30 jours + projection sur `normalizedTitle`.
-- [ ] **A16** — `application.properties` : `spring.security.user.password=admin123` en clair,
-      `show-sql=true`, URLs `localhost` codées en dur, `devtools` en runtime, aucun profil `prod`.
+- [ ] **A16** — `application.properties` : `show-sql=true`, `devtools` en portée runtime,
+      aucun profil `prod`.
+      ✅ *Partiellement corrigé* : le compte Spring Security codé en dur a été supprimé
+      (contrôle avant le premier push), et le port comme l'URL de base sont surchargeables
+      via le `.env`.
 - [ ] **A17** — jjwt 0.11.5 en fin de vie, API dépréciée. Migrer en 0.12.x.
 - [ ] **A15** — Pas de PWA : ni manifeste, ni service worker.
       `index.html` est le gabarit Vite (`lang="en"`, titre `coshift-frontend`, favicon vite.svg).
