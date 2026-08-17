@@ -7,7 +7,7 @@ import "./VehiclePage.css";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
-const ENERGY_LABELS: Record<string, { label: string; icon: JSX.Element; color: string }> = {
+const ENERGY_LABELS: Record<string, { label: string; icon: React.ReactElement; color: string }> = {
   ELECTRIC: { label: "Électrique", icon: <FaBolt />, color: "#34d399" },
   HYBRID:   { label: "Hybride",    icon: <FaLeaf />, color: "#60a5fa" },
   GASOLINE: { label: "Essence",    icon: <FaGasPump />, color: "#fbbf24" },

@@ -42,7 +42,7 @@ interface Trip {
   vehicule: VehicleSummary;
 }
 
-const ENERGY_ICONS: Record<string, JSX.Element> = {
+const ENERGY_ICONS: Record<string, React.ReactElement> = {
   ELECTRIC: <FaBolt style={{ color: "#34d399" }} />,
   HYBRID:   <FaLeaf style={{ color: "#60a5fa" }} />,
   GASOLINE: <FaGasPump style={{ color: "#fbbf24" }} />,
