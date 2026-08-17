@@ -692,3 +692,134 @@
   .form-row { grid-template-columns: 1fr; }
   .modal-content { padding: 24px 20px; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Widgets alimentes par l API (F19, F30) — ajout phase 2
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* L en-tete accueille desormais une action a droite du titre. */
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.widget-header h3 { margin-bottom: 0; }
+
+.widget-action {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 7px;
+  transition: background 0.18s ease;
+  white-space: nowrap;
+}
+
+.widget-action:hover { background: rgba(96, 165, 250, 0.12); }
+
+/* Pastille de notification sur l onglet des demandes recues. */
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 6px;
+  margin-left: 7px;
+  border-radius: 10px;
+  background: var(--amber);
+  color: #0f1a1c;
+  font-size: 0.71rem;
+  font-weight: 800;
+}
+
+.widget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* Chaque ligne est cliquable : c est un bouton, pas une div. */
+.widget-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.widget-row:hover {
+  background: var(--glass-hover);
+  transform: translateX(3px);
+}
+
+.wr-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.wr-meta {
+  margin: 3px 0 0;
+  font-size: 0.79rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.wr-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.wr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+.wr-badge.tone-wait { background: rgba(251, 191, 36, 0.14); color: #fcd34d; }
+.wr-badge.tone-ok   { background: rgba(52, 211, 153, 0.14); color: #6ee7b7; }
+.wr-badge.tone-bad  { background: rgba(248, 113, 113, 0.14); color: #fca5a5; }
+.wr-badge.tone-off  { background: rgba(148, 163, 184, 0.14); color: #94a3b8; }
+.wr-badge.tone-done { background: rgba(96, 165, 250, 0.14); color: #93c5fd; }
+
+/* Squelette de chargement, coherent avec celui de la page Actus. */
+.widget-skeleton {
+  height: 74px;
+  margin-top: 18px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: wr-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes wr-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}

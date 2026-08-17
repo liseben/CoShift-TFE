@@ -1,19 +1,52 @@
-import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { FaCar, FaTicketAlt, FaLeaf, FaStar } from "react-icons/fa";
-import { FiEdit3, FiX, FiCamera, FiPhone, FiGrid, FiTruck } from "react-icons/fi";
+import { FaCar, FaTicketAlt, FaLeaf, FaStar, FaInbox, FaUsers } from "react-icons/fa";
+import { FiEdit3, FiX, FiCamera, FiPhone, FiGrid, FiTruck, FiArrowRight } from "react-icons/fi";
 import axios from "axios";
 import VehiclePage from "./VehiclePage";
+import ReceivedBookingsPage from "../Bookings/ReceivedBookingsPage";
+import { statusOf, formatTripDate } from "../Bookings/bookingStatus";
 import "./DashboardPage.css";
 
 import { API_BASE } from "../../config/api";
 
+type TabKey = "overview" | "requests" | "vehicles";
+
+interface MyTrip {
+  uuid: string;
+  departureCity: string;
+  arrivalCity: string;
+  departureTime: string;
+  availableSeats: number;
+  pricePerSeat: number;
+  status: string;
+}
+
+interface MyBooking {
+  uuid: string;
+  status: string;
+  seatsBooked: number;
+  trip: { uuid: string; departureCity: string; arrivalCity: string; departureTime: string };
+}
+
 const DashboardPage: React.FC = () => {
   const { user, isLoading, login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<"overview" | "vehicles">("overview");
+  // CreateTripPage redirige vers /dashboard?tab=vehicles : le paramètre était
+  // jusqu'ici ignoré, l'utilisateur retombait toujours sur la vue d'ensemble.
+  const tabFromUrl = searchParams.get("tab") as TabKey | null;
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    tabFromUrl && ["overview", "requests", "vehicles"].includes(tabFromUrl) ? tabFromUrl : "overview",
+  );
+
+  const [myTrips, setMyTrips]       = useState<MyTrip[]>([]);
+  const [myBookings, setMyBookings] = useState<MyBooking[]>([]);
+  const [pendingCount, setPending]  = useState(0);
+  const [loadingData, setLoadingData] = useState(true);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editFirstname, setEditFirstname] = useState(user?.firstname ?? "");
   const [editLastname, setEditLastname]   = useState(user?.lastname  ?? "");
@@ -22,6 +55,31 @@ const DashboardPage: React.FC = () => {
   const [isSaving, setIsSaving]           = useState(false);
   const [modalError, setModalError]       = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  // Les widgets affichaient un état vide codé en dur : aucune de ces données
+  // n'était jamais demandée au serveur.
+  useEffect(() => {
+    if (!user) return;
+    const headers = { Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}` };
+
+    Promise.allSettled([
+      axios.get(`${API_BASE}/api/trips/mine`, { headers }),
+      axios.get(`${API_BASE}/api/bookings/mine`, { headers }),
+      axios.get(`${API_BASE}/api/bookings/received`, { headers }),
+    ]).then(([trips, bookings, received]) => {
+      if (trips.status === "fulfilled") setMyTrips(trips.value.data);
+      if (bookings.status === "fulfilled") setMyBookings(bookings.value.data);
+      if (received.status === "fulfilled") {
+        setPending(received.value.data.filter((b: MyBooking) => b.status === "PENDING").length);
+      }
+      setLoadingData(false);
+    });
+  }, [user]);
+
+  const selectTab = (tab: TabKey) => {
+    setActiveTab(tab);
+    setSearchParams(tab === "overview" ? {} : { tab });
+  };
 
   if (isLoading) {
     return (
@@ -172,13 +230,20 @@ const DashboardPage: React.FC = () => {
         <div className="dashboard-tabs">
           <button
             className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
-            onClick={() => setActiveTab("overview")}
+            onClick={() => selectTab("overview")}
           >
             <FiGrid size={15} /> Vue d'ensemble
           </button>
           <button
+            className={`tab-btn ${activeTab === "requests" ? "active" : ""}`}
+            onClick={() => selectTab("requests")}
+          >
+            <FaInbox size={14} /> Demandes reçues
+            {pendingCount > 0 && <span className="tab-badge">{pendingCount}</span>}
+          </button>
+          <button
             className={`tab-btn ${activeTab === "vehicles" ? "active" : ""}`}
-            onClick={() => setActiveTab("vehicles")}
+            onClick={() => selectTab("vehicles")}
           >
             <FiTruck size={15} /> Mes véhicules
           </button>
@@ -187,6 +252,8 @@ const DashboardPage: React.FC = () => {
         {/* ── CONTENU PAR ONGLET ── */}
         {activeTab === "vehicles" ? (
           <VehiclePage />
+        ) : activeTab === "requests" ? (
+          <ReceivedBookingsPage />
         ) : (
         <div className="dashboard-grid">
 
@@ -194,33 +261,86 @@ const DashboardPage: React.FC = () => {
             <div className="widget-header">
               <h3>
                 <div className="icon-wrapper icon-car"><FaCar /></div>
-                Mes Trajets Proposés
+                Mes trajets proposés
               </h3>
+              {myTrips.length > 0 && (
+                <button className="widget-action" onClick={() => navigate("/trips/create")}>
+                  Nouveau trajet
+                </button>
+              )}
             </div>
-            <div className="widget-body empty-state">
-              <p>Vous n'avez pas encore proposé de trajet pour vos collègues.</p>
-              <button className="btn-primary-small" onClick={() => navigate("/trips/create")}>Proposer un trajet</button>
-            </div>
+            {loadingData ? (
+              <div className="widget-body"><div className="widget-skeleton" /></div>
+            ) : myTrips.length === 0 ? (
+              <div className="widget-body empty-state">
+                <p>Vous n'avez pas encore proposé de trajet pour vos collègues.</p>
+                <button className="btn-primary-small" onClick={() => navigate("/trips/create")}>Proposer un trajet</button>
+              </div>
+            ) : (
+              <div className="widget-body widget-list">
+                {myTrips.slice(0, 4).map((t) => (
+                  <button className="widget-row" key={t.uuid} onClick={() => navigate(`/trips/${t.uuid}`)}>
+                    <div>
+                      <p className="wr-title">{t.departureCity} → {t.arrivalCity}</p>
+                      <p className="wr-meta">{formatTripDate(t.departureTime)}</p>
+                    </div>
+                    <div className="wr-right">
+                      <span className={`wr-badge tone-${statusOf(t.status === "PLANNED" ? "CONFIRMED" : "COMPLETED").tone}`}>
+                        <FaUsers size={10} /> {t.availableSeats}
+                      </span>
+                      <FiArrowRight size={14} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="dashboard-widget">
             <div className="widget-header">
               <h3>
                 <div className="icon-wrapper icon-ticket"><FaTicketAlt /></div>
-                Mes Réservations
+                Mes réservations
               </h3>
+              {myBookings.length > 0 && (
+                <button className="widget-action" onClick={() => navigate("/bookings")}>
+                  Tout voir
+                </button>
+              )}
             </div>
-            <div className="widget-body empty-state">
-              <p>Vous n'avez aucune réservation de covoiturage en cours.</p>
-              <button className="btn-outline-small" onClick={() => navigate("/trips/search")}>Trouver un trajet</button>
-            </div>
+            {loadingData ? (
+              <div className="widget-body"><div className="widget-skeleton" /></div>
+            ) : myBookings.length === 0 ? (
+              <div className="widget-body empty-state">
+                <p>Vous n'avez aucune réservation de covoiturage en cours.</p>
+                <button className="btn-outline-small" onClick={() => navigate("/trips/search")}>Trouver un trajet</button>
+              </div>
+            ) : (
+              <div className="widget-body widget-list">
+                {myBookings.slice(0, 4).map((b) => {
+                  const st = statusOf(b.status);
+                  return (
+                    <button className="widget-row" key={b.uuid} onClick={() => navigate("/bookings")}>
+                      <div>
+                        <p className="wr-title">{b.trip.departureCity} → {b.trip.arrivalCity}</p>
+                        <p className="wr-meta">{formatTripDate(b.trip.departureTime)}</p>
+                      </div>
+                      <div className="wr-right">
+                        <span className={`wr-badge tone-${st.tone}`}>{st.label}</span>
+                        <FiArrowRight size={14} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="dashboard-widget full-width">
             <div className="widget-header">
               <h3>
                 <div className="icon-wrapper icon-leaf"><FaLeaf /></div>
-                Mon Impact Carbone
+                Mon impact carbone
               </h3>
             </div>
             <div className="widget-body impact-stats">
@@ -229,12 +349,12 @@ const DashboardPage: React.FC = () => {
                 <span className="stat-label">kg de CO₂ évités</span>
               </div>
               <div className="stat-box">
-                <span className="stat-number">{user.tripsCount}</span>
-                <span className="stat-label">Trajets partagés</span>
+                <span className="stat-number">{myTrips.length}</span>
+                <span className="stat-label">Trajets publiés</span>
               </div>
               <div className="stat-box">
-                <span className="stat-number">0 km</span>
-                <span className="stat-label">Parcourus ensemble</span>
+                <span className="stat-number">{myBookings.length}</span>
+                <span className="stat-label">Réservations</span>
               </div>
             </div>
           </div>
