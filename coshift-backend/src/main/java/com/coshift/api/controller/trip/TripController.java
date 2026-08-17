@@ -29,8 +29,10 @@ public class TripController {
             @RequestParam(required = false) String departure,
             @RequestParam(required = false) String arrival,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) Integer seats) {
-        return ResponseEntity.ok(tripService.searchTrips(departure, arrival, date, seats));
+            @RequestParam(required = false) Integer seats,
+            Authentication auth) {
+        return ResponseEntity.ok(
+                tripService.searchTrips(auth.getName(), departure, arrival, date, seats));
     }
 
     // F26 — Détail d'un trajet
