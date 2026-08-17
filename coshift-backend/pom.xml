@@ -119,10 +119,18 @@
 			<version>5.2.2</version>
 		</dependency>
 
+		<!--
+			Spring Boot 4 a éclaté les auto-configurations en modules séparés :
+			flyway-core seul met bien Flyway sur le classpath, mais Spring ne crée
+			alors aucun bean Flyway et n'exécute AUCUNE migration, sans le moindre
+			message d'erreur. C'est ce starter qui apporte FlywayAutoConfiguration
+			et rend les propriétés spring.flyway.* opérantes.
+		-->
 		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
 		</dependency>
+		<!-- Support du dialecte MySQL pour Flyway (obligatoire depuis Flyway 10). -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-mysql</artifactId>
