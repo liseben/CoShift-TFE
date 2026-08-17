@@ -56,10 +56,16 @@ public class ArticleService {
 
     /**
      * L'Aspirateur Automatique !
-     * Démarre 5 secondes après le lancement de l'application, 
+     * Démarre 5 secondes après le lancement de l'application,
      * puis se relance tout seul toutes les 6 heures.
+     *
+     * <p>Les deux délais sont externalisés pour que les tests puissent repousser
+     * le premier déclenchement : sinon le planificateur part pendant l'exécution
+     * de la suite et appelle réellement GNews et NewsData.</p>
      */
-    @Scheduled(initialDelay = 5_000, fixedRate = 6 * 60 * 60 * 1_000)
+    @Scheduled(
+            initialDelayString = "${app.news.initial-delay:5000}",
+            fixedRateString    = "${app.news.fixed-rate:21600000}")
     public void fetchAllNews() {
         log.info("📡 Démarrage de l'aspiration automatique des actualités...");
         try {
