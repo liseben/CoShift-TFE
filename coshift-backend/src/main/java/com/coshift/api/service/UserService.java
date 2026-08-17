@@ -2,6 +2,8 @@ package com.coshift.api.service;
 import com.coshift.api.dto.AuthenticationResponse;
 import com.coshift.api.dto.UserProfileUpdateRequest;
 import com.coshift.api.entity.User;
+import com.coshift.api.exception.ConflictException;
+import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.security.JwtService;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,12 @@ public class UserService {
     public AuthenticationResponse updateUserProfile(String currentEmail, UserProfileUpdateRequest request) {
         // 1. Récupérer l'utilisateur actuel
         User user = userRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
 
         // 2. Vérifier si l'email a changé ET s'il est déjà pris par un autre utilisateur
         if (!user.getEmail().equals(request.getEmail())) {
             if (userRepository.existsByEmail(request.getEmail())) {
-                throw new IllegalArgumentException("Cet email est déjà utilisé par un autre compte.");
+                throw new ConflictException("Cet email est déjà utilisé par un autre compte.");
             }
             user.setEmail(request.getEmail());
         }

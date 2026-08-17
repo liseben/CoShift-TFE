@@ -3,6 +3,9 @@ package com.coshift.api.service;
 import com.coshift.api.dto.TripRequest;
 import com.coshift.api.dto.TripResponse;
 import com.coshift.api.entity.*;
+import com.coshift.api.exception.ConflictException;
+import com.coshift.api.exception.ResourceNotFoundException;
+import com.coshift.api.exception.UnauthorizedException;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.repository.VehiculeRepository;
@@ -33,14 +36,14 @@ public class TripService {
                 .filter(t -> t.getStatus() == TripStatus.PLANNED || t.getStatus() == TripStatus.FULL)
                 .count();
         if (activeTrips >= 5) {
-            throw new IllegalStateException("Vous ne pouvez pas avoir plus de 5 trajets actifs simultanément.");
+            throw new ConflictException("Vous ne pouvez pas avoir plus de 5 trajets actifs simultanément.");
         }
 
         Vehicule vehicule = vehiculeRepository.findByUuid(request.getVehiculeUuid())
-                .orElseThrow(() -> new RuntimeException("Véhicule introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable."));
 
         if (!vehicule.getOwner().getId().equals(driver.getId())) {
-            throw new SecurityException("Ce véhicule ne vous appartient pas.");
+            throw new UnauthorizedException("Ce véhicule ne vous appartient pas.");
         }
 
         Trip trip = Trip.builder()
@@ -90,7 +93,7 @@ public class TripService {
     // F26 — Détail d'un trajet
     public TripResponse getTripByUuid(String uuid) {
         Trip trip = tripRepository.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("Trajet introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException("Trajet introuvable."));
         return TripResponse.from(trip);
     }
 
@@ -99,13 +102,13 @@ public class TripService {
     public TripResponse cancelTrip(String driverEmail, String uuid) {
         User driver = findUser(driverEmail);
         Trip trip = tripRepository.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("Trajet introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException("Trajet introuvable."));
 
         if (!trip.getDriver().getId().equals(driver.getId())) {
-            throw new SecurityException("Vous n'êtes pas le conducteur de ce trajet.");
+            throw new UnauthorizedException("Vous n'êtes pas le conducteur de ce trajet.");
         }
         if (trip.getDepartureTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Impossible d'annuler un trajet déjà passé.");
+            throw new ConflictException("Impossible d'annuler un trajet déjà passé.");
         }
 
         trip.setStatus(TripStatus.CANCELLED);
@@ -114,7 +117,7 @@ public class TripService {
 
     private User findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
     }
 
     private String blankToNull(String s) {

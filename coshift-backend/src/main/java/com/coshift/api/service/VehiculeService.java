@@ -4,6 +4,8 @@ import com.coshift.api.dto.VehiculeRequest;
 import com.coshift.api.dto.VehiculeResponse;
 import com.coshift.api.entity.User;
 import com.coshift.api.entity.Vehicule;
+import com.coshift.api.exception.ResourceNotFoundException;
+import com.coshift.api.exception.UnauthorizedException;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.repository.VehiculeRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,15 +71,15 @@ public class VehiculeService {
 
     private User findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
     }
 
     private Vehicule findOwnedVehicule(String email, String uuid) {
         User owner = findUser(email);
         Vehicule vehicule = vehiculeRepository.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("Véhicule introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable."));
         if (!vehicule.getOwner().getId().equals(owner.getId())) {
-            throw new SecurityException("Vous n'êtes pas propriétaire de ce véhicule.");
+            throw new UnauthorizedException("Vous n'êtes pas propriétaire de ce véhicule.");
         }
         return vehicule;
     }

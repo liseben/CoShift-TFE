@@ -24,7 +24,11 @@ import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Value;
 import java.security.SecureRandom;
 import java.util.Collections;
+import com.coshift.api.exception.BadRequestException;
+import com.coshift.api.exception.ConflictException;
+import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import java.time.LocalDateTime;
 
 @Service
@@ -82,21 +86,21 @@ public class AuthenticationService {
                         .build();
 
             } else {
-                throw new RuntimeException("Le Token Google est invalide.");
+                throw new UnauthorizedException("Le token Google est invalide.");
             }
         } catch (RuntimeException e) {
             // Permet de faire remonter notre message "Ce compte n'existe pas..." sans l'écraser
             throw e;
         } catch (Exception e) {
             log.error("Erreur lors de la vérification du Token Google : ", e);
-            throw new RuntimeException("Échec de l'authentification Google.");
+            throw new UnauthorizedException("Échec de l'authentification Google.");
         }
     }
 
     // --- INSCRIPTION (F4) ---
     public AuthenticationResponse register(RegisterRequest request) {
         if (repository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Un compte existe déjà avec cet email");
+            throw new ConflictException("Un compte existe déjà avec cet email.");
         }
 
         String code = generateVerificationCode();
@@ -125,7 +129,7 @@ public class AuthenticationService {
     // --- VÉRIFICATION EMAIL (F7) ---
     public AuthenticationResponse verifyEmail(VerifyEmailRequest request) {
         User user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Aucun compte associé à cet email."));
+                .orElseThrow(() -> new ResourceNotFoundException("Aucun compte associé à cet email."));
 
         if (user.isEmailVerified()) {
             var token = jwtService.generateToken(user);
@@ -137,12 +141,12 @@ public class AuthenticationService {
 
         if (user.getVerificationCode() == null
                 || !user.getVerificationCode().equals(request.getCode())) {
-            throw new RuntimeException("Code de vérification incorrect.");
+            throw new BadRequestException("Code de vérification incorrect.");
         }
 
         if (user.getVerificationCodeExpiry() == null
                 || user.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Ce code a expiré. Veuillez en demander un nouveau.");
+            throw new BadRequestException("Ce code a expiré. Veuillez en demander un nouveau.");
         }
 
         user.setEmailVerified(true);
@@ -160,10 +164,10 @@ public class AuthenticationService {
     // --- RENVOI DU CODE (F7) ---
     public AuthenticationResponse resendVerificationCode(String email) {
         User user = repository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Aucun compte associé à cet email."));
+                .orElseThrow(() -> new ResourceNotFoundException("Aucun compte associé à cet email."));
 
         if (user.isEmailVerified()) {
-            throw new RuntimeException("Ce compte est déjà vérifié.");
+            throw new ConflictException("Ce compte est déjà vérifié.");
         }
 
         String newCode = generateVerificationCode();
@@ -183,7 +187,7 @@ public class AuthenticationService {
         // Vérifier manuellement si le compte est activé avant de passer dans Spring Security
         // (pour renvoyer un message explicite plutôt qu'une erreur 401 générique)
         User user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email ou mot de passe incorrect."));
+                .orElseThrow(() -> new BadCredentialsException("Email ou mot de passe incorrect."));
 
         if (!user.isEmailVerified()) {
             throw new DisabledException("Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
