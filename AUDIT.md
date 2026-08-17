@@ -6,11 +6,15 @@ Rapport complet et lisible : voir l'artefact « Audit CoShift ».
 
 État de compilation :
 
-| Module | Commande | À l'audit | Après phase 1 |
+| Module | Commande | À l'audit | Aujourd'hui |
 |---|---|---|---|
 | `coshift-backend` | `mvn compile` | ✅ OK | ✅ OK |
-| `coshift-frontend` | `npm run build` | ❌ 3 erreurs | ✅ OK (516 modules) |
+| `coshift-frontend` | `npm run build` | ❌ 3 erreurs | ✅ OK (517 modules) |
+| `coshift-backend` | `mvn spring-boot:run` | ❌ ne démarrait pas | ✅ **démarre en 7,7 s** sur `:8081` |
 | `coshift-backend` | `mvn test` | ❌ ne démarre pas | ❌ ne démarre pas (**A21**) |
+
+Environnement local : WAMP / MySQL 5.7.23 sur `:3306`, backend sur `:8081`
+(le `:8080` est occupé par PEMHTTPD, la console web de PostgreSQL).
 
 ---
 
@@ -88,9 +92,15 @@ et annoter la classe de test avec `@ActiveProfiles("test")`.
 
 ## Phase 4 — Rendre le projet défendable
 
-- [ ] **A10** — `ddl-auto=update` + Flyway : aucune migration ne crée `users`, `trips`,
-      `vehicules`, `organizations` — Hibernate les génère. Le schéma n'est pas reproductible
-      depuis le dépôt. → `V0__baseline.sql` complet puis `ddl-auto=validate`.
+- [x] **A10** — ✅ **Corrigé.** `V1__Baseline_schema.sql` reconstruit les 7 tables depuis une
+      base vide, `ddl-auto` est passé en `validate`, et Flyway est réellement branché.
+      commits `7ded625`, `12f4760`, `05ac4e2`, `7b5b04e`.
+- [x] **A23** — ✅ **Corrigé.** *(découvert en corrigeant A10)* **Flyway n'avait jamais tourné.**
+      `flyway_schema_history` n'existait pas et les 5 migrations n'avaient jamais été exécutées :
+      Spring Boot 4 a modularisé ses auto-configurations, et sans
+      `org.springframework.boot:spring-boot-flyway` aucun bean Flyway n'est créé — **en silence**.
+      Tout le schéma provenait en réalité de `ddl-auto=update`.
+      → `flyway-core` remplacé par `spring-boot-starter-flyway`. commit `7ded625`.
 - [ ] **A9** — `@CrossOrigin(origins = "${app.cors.allowed-origins:*}")` sur les 4 contrôleurs :
       la propriété n'existe pas → `*`, ce qui prime sur la liste blanche de
       `SecurityConfiguration.java:64-76`. → Supprimer les annotations.
@@ -104,6 +114,12 @@ et annoter la classe de test avec `@ActiveProfiles("test")`.
       `index.html` est le gabarit Vite (`lang="en"`, titre `coshift-frontend`, favicon vite.svg).
       `MainLayout.tsx:127` : bouton « Téléchargez l'App » → `alert()`.
 - [ ] **N6** — Ni Swagger/OpenAPI, ni versionnage `/api/v1`.
+- [ ] **A22** — `LoginPage.tsx:108` appelle `POST /api/auth/forgot-password`, **endpoint
+      inexistant** côté backend. La réinitialisation de mot de passe échoue silencieusement.
+      → Soit implémenter le flux (réutiliser le mécanisme de code de F7), soit retirer le lien.
+- [ ] **A24** — La base tourne sur **MySQL 5.7.23** (WAMP), alors qu'Hibernate 7 et
+      Connector/J 9.5 visent MySQL 8. Fonctionne aujourd'hui, mais hors matrice supportée.
+      WAMP embarque un MySQL 8.3.0 : basculer dessus sécuriserait la stack.
 - [ ] **A18 / CT1** — Branche unique `main`, aucune PR, aucune CI.
       → `develop` + `feature/*`, pull requests, workflow GitHub Actions build + tests.
 - [ ] **A19** — `Organization` modélisée mais jamais rattachée à un trajet (V5 a rendu la colonne
