@@ -54,6 +54,13 @@ public class Booking {
     @Builder.Default
     private BookingStatus status = BookingStatus.PENDING;
 
+    /**
+     * Motif du dernier changement de statut : raison du refus saisie par le
+     * conducteur (F20) ou de l'annulation par le passager (F29).
+     */
+    @Column(name = "status_reason", length = 500)
+    private String statusReason;
+
     // --- AUDIT ---
 
     @CreationTimestamp
