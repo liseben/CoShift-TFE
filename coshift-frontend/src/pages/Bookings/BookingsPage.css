@@ -81,7 +81,7 @@
   border-radius: 16px;
 }
 
-.bk-empty-icon { color: #334155; margin-bottom: 16px; }
+.bk-empty-icon { color: var(--text-deco); margin-bottom: 16px; }
 
 .bk-empty h3 {
   margin: 0 0 8px;
@@ -91,7 +91,7 @@
 
 .bk-empty p {
   margin: 0 0 20px;
-  color: #64748b;
+  color: var(--text-faint);
   font-size: 0.9rem;
 }
 
@@ -121,7 +121,7 @@
 .bk-card.tone-wait { border-left-color: var(--warn); }
 .bk-card.tone-ok   { border-left-color: var(--ok); }
 .bk-card.tone-bad  { border-left-color: var(--error); }
-.bk-card.tone-off  { border-left-color: #64748b; }
+.bk-card.tone-off  { border-left-color: var(--text-faint); }
 .bk-card.tone-done { border-left-color: var(--accent); }
 
 .bk-card-head {
@@ -350,7 +350,7 @@
 }
 
 .bk-input:focus { border-color: var(--accent); }
-.bk-input::placeholder { color: #64748b; }
+.bk-input::placeholder { color: var(--text-faint); }
 
 .bk-reject-form .bk-actions { border-top: none; padding-top: 0; margin-top: 12px; }
 

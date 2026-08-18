@@ -23,7 +23,10 @@
 
 /* --- LA CARTE PRINCIPALE DÉCOLLÉE --- */
 .actus-floating-container {
-  background-color: #ffffff;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(var(--blur-card));
+  -webkit-backdrop-filter: blur(var(--blur-card));
   width: 95%;
   max-width: 75%; /* Ne prend pas toute la largeur de l'écran */
   border-radius: 24px; /* Bords bien ronds */
@@ -335,7 +338,7 @@
 }
 
 .page-info {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-soft);
     font-size: 0.9rem;
 }
 
@@ -358,7 +361,7 @@
 .empty-state {
     background: var(--surface-2);
     border-color: var(--border);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-soft);
 }
 
 /* --- SKELETON LOADING (Chargement Fantôme) --- */

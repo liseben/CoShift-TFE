@@ -105,7 +105,7 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.11em;
-  color: #64748b;
+  color: var(--text-faint);
   margin: 0 0 14px;
   font-weight: 600;
 }
@@ -213,7 +213,7 @@
 .td-chip.off {
   background: var(--surface-1);
   border-color: var(--border);
-  color: #64748b;
+  color: var(--text-faint);
   text-decoration: line-through;
 }
 
@@ -278,7 +278,7 @@
   align-items: center;
   justify-content: center;
   background: var(--surface-2);
-  color: #475569;
+  color: var(--text-faint);
 }
 
 /* ── Panneau de réservation ── */
@@ -394,7 +394,7 @@
 
 .td-hint {
   font-size: 0.77rem;
-  color: #64748b;
+  color: var(--text-faint);
   line-height: 1.5;
   margin: 12px 0 0;
   text-align: center;

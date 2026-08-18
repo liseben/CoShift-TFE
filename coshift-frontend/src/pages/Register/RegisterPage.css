@@ -43,7 +43,7 @@
 }
 
 .register-header p {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-soft);
   font-size: 0.95rem;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .register-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-faint);
 }
 
 .register-input:focus {
@@ -126,7 +126,7 @@
 .auth-footer {
   text-align: center;
   margin-top: 1.5rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-soft);
   font-size: 0.9rem;
 }
 

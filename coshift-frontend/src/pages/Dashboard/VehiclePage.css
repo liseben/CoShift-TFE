@@ -27,7 +27,7 @@
 }
 
 .vehicle-subtitle {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-muted);
   font-size: 0.875rem;
   margin: 0;
 }
@@ -38,7 +38,7 @@
   gap: 8px;
   padding: 10px 20px;
   background: linear-gradient(135deg, #2563eb, var(--accent-strong));
-  color: #fff;
+  color: var(--on-accent);
   border: none;
   border-radius: 12px;
   font-weight: 600;
@@ -82,19 +82,19 @@
 }
 
 .vehicle-empty-icon {
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-faint);
   margin-bottom: 4px;
 }
 
 .vehicle-empty h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-soft);
   margin: 0;
 }
 
 .vehicle-empty p {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-size: 0.875rem;
   margin: 0 0 8px;
 }
@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-faint);
 }
 
 /* Boutons d'action flottants */
@@ -164,13 +164,13 @@
 
 .vc-btn-edit {
   background: rgba(96, 165, 250, 0.85);
-  color: #fff;
+  color: var(--on-accent);
   backdrop-filter: blur(4px);
 }
 
 .vc-btn-delete {
   background: rgba(239, 68, 68, 0.8);
-  color: #fff;
+  color: var(--on-accent);
   backdrop-filter: blur(4px);
 }
 
@@ -190,7 +190,7 @@
 
 .vc-plate {
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   margin: 0 0 12px;
   font-family: 'Courier New', monospace;
   letter-spacing: 0.05em;
@@ -214,7 +214,7 @@
 }
 
 .vc-tag-seats {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-soft);
   border-color: var(--border);
   background: var(--surface-2);
 }
