@@ -39,7 +39,7 @@
   color: #057b8a; 
   opacity: 0.5;  /* 👈 Encore plus subtil */
   text-transform: uppercase;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter Variable', 'Inter', sans-serif;
   padding-right: 2rem; /* Espace entre les répétitions */ 
 }
 
