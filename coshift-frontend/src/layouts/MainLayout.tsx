@@ -204,7 +204,7 @@ export default function MainLayout() {
                         height: "35px",
                         borderRadius: "50%",
                         objectFit: "cover",
-                        border: "2px solid #ffaa00",
+                        border: "2px solid var(--primary-color)",
                       }}
                     />
                   ) : (
@@ -213,12 +213,12 @@ export default function MainLayout() {
                         width: "35px",
                         height: "35px",
                         borderRadius: "50%",
-                        backgroundColor: "#ffaa00",
+                        backgroundColor: "var(--primary-color)",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
                         fontWeight: "bold",
-                        color: "#0f172a",
+                        color: "var(--on-primary)",
                       }}
                     >
                       {user.firstname.charAt(0)}

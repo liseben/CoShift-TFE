@@ -122,7 +122,7 @@
 
 .category-btn.active {
   background: rgba(255, 140, 0, 0.1);
-  color: var(--coshift-orange);
+  color: var(--primary-color);
 }
 
 .cat-icon {
@@ -189,7 +189,7 @@
 
 .news-source {
   font-size: 0.85rem;
-  color: var(--coshift-orange);
+  color: var(--primary-color);
   font-weight: 700;
   margin-bottom: 0.8rem;
   text-transform: uppercase;
@@ -219,7 +219,7 @@
 }
 
 .read-more:hover {
-  color: var(--coshift-orange);
+  color: var(--primary-color);
 }
 
 /* RESPONSIVE (Mobiles) */
@@ -324,7 +324,7 @@
 }
 
 .pag-btn:not(:disabled):hover {
-    background: #ffaa00; /* La couleur primaire de CoShift */
+    background: var(--primary-color); /* La couleur primaire de CoShift */
     border-color: transparent;
     transform: translateY(-2px);
 }

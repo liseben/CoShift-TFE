@@ -84,14 +84,14 @@
 
 .register-input:focus {
   outline: none;
-  border-color: #ffaa00;
+  border-color: var(--primary-color);
   background: rgba(0, 0, 0, 0.4);
 }
 
 .register-button {
   padding: 1rem;
-  background-color: #e67e22;
-  color: #0f172a;
+  background-color: var(--primary-color);
+  color: var(--on-primary);
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -131,7 +131,7 @@
 }
 
 .auth-footer a {
-  color: #e67e22;
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: bold;
 }

@@ -28,6 +28,6 @@
   height: 1.2em; 
   display: flex;
   align-items: center; /* Centre le texte verticalement */
-  color: var(--coshift-orange); /* Ton bel orange pour faire ressortir le mot */
+  color: var(--primary-color); /* Ton bel orange pour faire ressortir le mot */
   padding-bottom: 0.1em; /* Ajustement optique si le texte a l'air trop bas */
 }
