@@ -230,9 +230,6 @@
   margin-right: 8px;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 /* ── Footer ── */
 .verify-footer {

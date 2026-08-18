@@ -112,23 +112,7 @@
 }
 
 /* Réutilisation des classes de Login pour l'erreur et le footer */
-.auth-error-message {
-  background: var(--error-wash);
-  border: 1px solid var(--error);
-  color: var(--error-soft);
-  padding: 15px;
-  border-radius: var(--r-sm);
-  margin-bottom: 20px;
-  text-align: center;
-  font-size: var(--fs-base);
-}
 
-.auth-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--text-soft);
-  font-size: var(--fs-base);
-}
 
 .auth-footer a {
   color: var(--accent);

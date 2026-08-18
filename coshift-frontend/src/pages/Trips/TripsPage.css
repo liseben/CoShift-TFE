@@ -22,20 +22,6 @@
 }
 
 /* ── En-tête ── */
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-soft);
-  padding: 7px 14px;
-  border-radius: var(--r-sm);
-  font-size: var(--fs-sm);
-  cursor: pointer;
-  transition: color 0.2s, background 0.2s;
-  margin-bottom: 8px;
-}
 .btn-back:hover { color: var(--text); background: rgba(255,255,255,0.08); }
 
 .trips-page-header {
@@ -87,26 +73,6 @@
   padding: 48px;
 }
 
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(96,165,250,0.2);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ================================================================
-   SEARCH HERO
-================================================================ */
-.search-hero {
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  padding: 32px 28px;
-  animation: fadeSlideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
-}
 
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(16px); }
@@ -158,7 +124,7 @@
   flex-shrink: 0;
 }
 
-.btn-search {
+.btn-trip-search {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -174,8 +140,8 @@
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(59,130,246,0.3);
 }
-.btn-search:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-.btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-trip-search:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.btn-trip-search:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Résultats ── */
 .results-count {
@@ -411,15 +377,6 @@
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 
-.input-group { display: flex; flex-direction: column; gap: 6px; }
-
-.input-label {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
 
 .trip-input {
   width: 100%;

@@ -121,7 +121,7 @@ const SearchTripsPage: React.FC = () => {
               <input className="sf-input" type="number" min={1} max={8} placeholder="Places"
                 value={form.seats} onChange={(e) => setForm({ ...form, seats: e.target.value })} />
             </div>
-            <button type="submit" className="btn-search" disabled={loading}>
+            <button type="submit" className="btn-trip-search" disabled={loading}>
               <FiSearch size={16} />
               {loading ? "Recherche..." : "Rechercher"}
             </button>

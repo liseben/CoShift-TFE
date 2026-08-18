@@ -5,6 +5,9 @@
 /* Source unique des jetons de conception (charte §6). */
 @import './styles/tokens.css';
 
+/* Motifs partages entre pages : spinner, champs, erreurs (charte §5.6). */
+@import './styles/components.css';
+
 * {
   box-sizing: border-box;
   margin: 0;
