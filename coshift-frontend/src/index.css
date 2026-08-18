@@ -28,3 +28,25 @@ html {
      laisse le reglage de taille du navigateur agir (WCAG 1.4.4). */
   font-size: 137.5%;
 }
+
+/* Le site compte 18 animations. Sans cette regle, un utilisateur ayant
+   demande la reduction du mouvement les subit toutes (charte §5.9). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Anneau de focus homogene pour la navigation au clavier (charte §5.11).
+   :focus-visible ne se declenche pas au clic souris : la souris ne voit
+   rien, le clavier voit tout. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--r-sm);
+}
