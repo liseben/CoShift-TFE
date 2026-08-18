@@ -39,7 +39,7 @@
 }
 
 .login-title {
-  color: white;
+  color: var(--text);
   margin-bottom: 0.5rem;
   font-size: var(--fs-3xl);
 }
@@ -50,8 +50,8 @@
 }
 
 .auth-error-message {
-  background: rgba(255, 50, 50, 0.1);
-  border: 1px solid rgba(255, 50, 50, 0.3);
+  background: var(--error-wash);
+  border: 1px solid var(--error);
   color: var(--error-soft);
   padding: 15px;
   border-radius: var(--r-sm);
@@ -75,7 +75,7 @@
 .input-label {
   margin-bottom: 0.5rem;
   font-weight: var(--fw-medium);
-  color: white;
+  color: var(--text);
   font-size: var(--fs-base);
 }
 
@@ -92,7 +92,7 @@
   padding: 0.8rem 2.5rem 0.8rem 1rem; /* Espace à droite pour l'icône */
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border);
-  color: white;
+  color: var(--text);
   border-radius: var(--r-sm);
   font-size: var(--fs-md);
   box-sizing: border-box;
@@ -123,7 +123,7 @@
 }
 
 .eye-button:hover {
-  color: white;
+  color: var(--text);
 }
 
 .auth-options {

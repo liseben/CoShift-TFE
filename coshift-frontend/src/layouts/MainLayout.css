@@ -246,7 +246,7 @@
   position: relative;
   overflow: hidden; 
   background-color: #003354; 
-  color: white;
+  color: var(--text);
   
   /* 👇 MODIFICATIONS ICI : 0.5rem en hauteur (pour qu'il respire) et 0.8rem en largeur (pour le raccourcir) */
   padding: 0.5rem 0.8rem; 

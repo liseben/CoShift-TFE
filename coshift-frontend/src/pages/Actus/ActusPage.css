@@ -164,7 +164,7 @@
   display: grid;
   grid-template-columns: 250px 1fr; /* Image à gauche, texte à droite */
   gap: 2rem;
-  background: white;
+  background: var(--surface-1);
   padding: 1.5rem;
   border-radius: var(--r-xl);
   border: 1px solid var(--border);
@@ -318,7 +318,7 @@
 .pag-btn {
     background: var(--surface-2);
     border: 1px solid var(--border-strong);
-    color: white;
+    color: var(--text);
     padding: 10px 20px;
     border-radius: var(--r-full);
     cursor: pointer;
@@ -343,15 +343,15 @@
 }
 
 .page-info strong {
-    color: white;
+    color: var(--text);
 }
 
 /* --- ERREUR & ÉTATS VIDES --- */
 .error-state, .empty-state {
     text-align: center;
     padding: 40px;
-    background: rgba(255, 50, 50, 0.1);
-    border: 1px solid rgba(255, 50, 50, 0.3);
+    background: var(--error-wash);
+    border: 1px solid var(--error);
     border-radius: var(--r-md);
     color: var(--error-soft);
     font-weight: var(--fw-medium);
