@@ -34,7 +34,7 @@
 
 .marquee-content span {
   font-size: 3vw;
-  font-weight: 900;
+  font-weight: var(--fw-extrabold);
   font-style: italic; /* 👈 Passage en italique */
   color: #057b8a; 
   opacity: 0.5;  /* 👈 Encore plus subtil */

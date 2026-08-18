@@ -29,7 +29,7 @@
   -webkit-backdrop-filter: blur(var(--blur-card));
   width: 95%;
   max-width: 75%; /* Ne prend pas toute la largeur de l'écran */
-  border-radius: 24px; /* Bords bien ronds */
+  border-radius: var(--r-xl); /* Bords bien ronds */
   padding: 3rem 4rem 5rem 4rem; /* Espace interne généreux */
   overflow: hidden;
   
@@ -60,14 +60,14 @@
 }
 
 .actus-header h1 {
-  font-size: 3rem;
+  font-size: var(--fs-3xl);
   color: var(--text);
   margin-bottom: 1rem;
   letter-spacing: -1px;
 }
 
 .actus-header p {
-  font-size: 1.2rem;
+  font-size: var(--fs-lg);
   color: var(--text-muted);
   max-width: 600px;
   margin: 0 auto;
@@ -88,7 +88,7 @@
 }
 
 .actus-sidebar h3 {
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-muted);
@@ -109,13 +109,13 @@
   padding: 1rem 1.2rem;
   border: none;
   background: transparent;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
   font-family: inherit;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
   color: var(--text);
 }
 
@@ -129,7 +129,7 @@
 }
 
 .cat-icon {
-  font-size: 1.2rem;
+  font-size: var(--fs-lg);
 }
 
 /* FLUX D'ACTUS (DROITE) */
@@ -143,14 +143,14 @@
 }
 
 .feed-header h2 {
-  font-size: 1.8rem;
+  font-size: var(--fs-xl);
   margin: 0;
   color: var(--text);
 }
 
 .article-count {
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .news-list {
@@ -166,7 +166,7 @@
   gap: 2rem;
   background: white;
   padding: 1.5rem;
-  border-radius: 20px;
+  border-radius: var(--r-xl);
   border: 1px solid var(--border);
   transition: all 0.3s ease;
 }
@@ -182,7 +182,7 @@
   height: 200px;
   background-size: cover;
   background-position: center;
-  border-radius: 12px;
+  border-radius: var(--r-md);
 }
 
 .news-content {
@@ -191,16 +191,16 @@
 }
 
 .news-source {
-  font-size: 0.85rem;
+  font-size: var(--fs-sm);
   color: var(--accent);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   margin-bottom: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .news-content h3 {
-  font-size: 1.4rem;
+  font-size: var(--fs-lg);
   margin: 0 0 1rem 0;
   line-height: 1.3;
   color: var(--text);
@@ -215,7 +215,7 @@
 
 .read-more {
   display: inline-block;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text);
   text-decoration: none;
   transition: color 0.2s ease;
@@ -320,10 +320,10 @@
     border: 1px solid var(--border-strong);
     color: white;
     padding: 10px 20px;
-    border-radius: 30px;
+    border-radius: var(--r-full);
     cursor: pointer;
     transition: all 0.3s ease;
-    font-weight: 500;
+    font-weight: var(--fw-medium);
 }
 
 .pag-btn:not(:disabled):hover {
@@ -339,7 +339,7 @@
 
 .page-info {
     color: var(--text-soft);
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
 }
 
 .page-info strong {
@@ -352,9 +352,9 @@
     padding: 40px;
     background: rgba(255, 50, 50, 0.1);
     border: 1px solid rgba(255, 50, 50, 0.3);
-    border-radius: 12px;
+    border-radius: var(--r-md);
     color: var(--error-soft);
-    font-weight: 500;
+    font-weight: var(--fw-medium);
     margin-top: 20px;
 }
 
@@ -395,11 +395,11 @@
 .skeleton-line {
     height: 15px;
     background: var(--surface-hover);
-    border-radius: 4px;
+    border-radius: var(--r-sm);
     animation: shimmer 1.5s infinite linear;
 }
 
-.skeleton-line.short { width: 30%; height: 20px; border-radius: 20px; }
+.skeleton-line.short { width: 30%; height: 20px; border-radius: var(--r-xl); }
 .skeleton-line.medium { width: 70%; }
 
 @keyframes shimmer {

@@ -25,16 +25,16 @@
 }
 
 .bk-title {
-  font-size: 1.9rem;
-  font-weight: 750;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
   letter-spacing: -0.02em;
   margin: 0 0 6px;
   color: var(--text);
 }
 
 .bk-title-sm {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
   margin: 0 0 5px;
   color: var(--text);
 }
@@ -42,7 +42,7 @@
 .bk-subtitle {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.92rem;
+  font-size: var(--fs-base);
 }
 
 .bk-alert {
@@ -50,8 +50,8 @@
   border: 1px solid rgba(248, 113, 113, 0.3);
   color: var(--error-soft);
   padding: 13px 17px;
-  border-radius: 11px;
-  font-size: 0.9rem;
+  border-radius: var(--r-md);
+  font-size: var(--fs-base);
   margin-bottom: 20px;
 }
 
@@ -78,21 +78,21 @@
   padding: 62px 24px;
   background: var(--surface-1);
   border: 1px dashed var(--border-strong);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
 }
 
 .bk-empty-icon { color: var(--text-deco); margin-bottom: 16px; }
 
 .bk-empty h3 {
   margin: 0 0 8px;
-  font-size: 1.1rem;
+  font-size: var(--fs-md);
   color: var(--text-soft);
 }
 
 .bk-empty p {
   margin: 0 0 20px;
   color: var(--text-faint);
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
 }
 
 /* ── Liste de cartes ── */
@@ -106,9 +106,9 @@
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-left: 3px solid var(--border-strong);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   padding: 20px 22px;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--blur-card));
   animation: bk-rise 0.32s ease both;
 }
 
@@ -134,12 +134,12 @@
 }
 
 .bk-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   padding: 5px 10px;
-  border-radius: 7px;
+  border-radius: var(--r-sm);
 }
 
 .bk-badge.tone-wait { background: rgba(251, 191, 36, 0.13); color: var(--warn-soft); }
@@ -152,7 +152,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.83rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   text-transform: capitalize;
 }
@@ -165,8 +165,8 @@
 }
 
 .bk-city {
-  font-size: 1.05rem;
-  font-weight: 650;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
   color: var(--text);
 }
 
@@ -174,9 +174,9 @@
 
 .bk-reason {
   background: var(--surface-1);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   padding: 9px 12px;
-  font-size: 0.84rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
   margin: 0 0 14px;
   font-style: italic;
@@ -212,13 +212,13 @@
   justify-content: center;
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: var(--on-accent);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .bk-person-name {
   margin: 0;
-  font-size: 0.96rem;
-  font-weight: 620;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
   color: var(--text);
 }
 
@@ -227,7 +227,7 @@
   align-items: center;
   gap: 4px;
   margin: 3px 0 0;
-  font-size: 0.81rem;
+  font-size: var(--fs-sm);
   color: var(--text-muted);
 }
 
@@ -237,11 +237,11 @@
   gap: 14px;
 }
 
-.bk-seats { font-size: 0.86rem; color: var(--text-muted); }
+.bk-seats { font-size: var(--fs-sm); color: var(--text-muted); }
 
 .bk-price {
-  font-size: 1.2rem;
-  font-weight: 750;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-extrabold);
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
@@ -254,9 +254,9 @@
   padding: 8px 13px;
   background: rgba(52, 211, 153, 0.09);
   border: 1px solid rgba(52, 211, 153, 0.25);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   color: var(--ok-soft);
-  font-size: 0.86rem;
+  font-size: var(--fs-sm);
   text-decoration: none;
   transition: background 0.18s ease;
 }
@@ -282,9 +282,9 @@
   align-items: center;
   gap: 7px;
   padding: 9px 16px;
-  border-radius: 9px;
-  font-size: 0.87rem;
-  font-weight: 600;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.18s ease;
@@ -341,10 +341,10 @@
   width: 100%;
   background: var(--surface-2);
   border: 1px solid var(--border-strong);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 10px 13px;
   color: var(--text);
-  font-size: 0.88rem;
+  font-size: var(--fs-sm);
   outline: none;
   transition: border-color 0.18s ease;
 }
@@ -354,7 +354,7 @@
 
 .bk-reject-form .bk-actions { border-top: none; padding-top: 0; margin-top: 12px; }
 
-@media (max-width: 620px) {
+@media (max-width: 640px) {
   .bk-body { flex-direction: column; align-items: flex-start; }
   .bk-actions { justify-content: stretch; }
   .bk-actions button { flex: 1; justify-content: center; }

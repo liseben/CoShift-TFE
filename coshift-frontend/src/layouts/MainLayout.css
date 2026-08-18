@@ -20,8 +20,8 @@
   align-items: center;
   padding: 1.5rem 5%;
   background: rgba(15, 26, 28, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(var(--blur-nav));
+  -webkit-backdrop-filter: blur(var(--blur-nav));
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -51,7 +51,7 @@
 /* --- TON LOGO INTACT --- */
 .logo {
   font-size: 3.8rem;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--accent);
   text-decoration: none;
   letter-spacing: -1px;
@@ -63,10 +63,10 @@
 .nav-item {
   text-decoration: none;
   color: var(--text);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: var(--nav-font-size);
   padding: 0.6rem 0.3rem;
-  border-radius: 12px; 
+  border-radius: var(--r-md); 
   
   font-size: 25px;
   
@@ -126,7 +126,7 @@
   right: 0;
   width: 600px; /* Un peu plus large pour que le texte respire */
   background: var(--surface-solid);
-  border-radius: 20px; /* Des bords bien ronds */
+  border-radius: var(--r-xl); /* Des bords bien ronds */
 
   /* Une ombre très douce mais très large pour l'effet "flottant" */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -154,7 +154,7 @@
 }
 
 .popover-icon {
-  font-size: 2.2rem;
+  font-size: var(--fs-2xl);
   margin-bottom: 0.5rem;
   background: var(--surface-2);
   width: 55px;
@@ -162,19 +162,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: var(--r-md);
 }
 
 .popover-section h4 {
   margin: 0;
   color: var(--text);
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-extrabold);
   letter-spacing: -0.5px;
 }
 
 .popover-section p {
-  font-size: 1.2rem;
+  font-size: var(--fs-lg);
   color: var(--text-muted);
   margin: 0 0 1rem 0;
   line-height: 1.4;
@@ -203,10 +203,10 @@
   align-items: center;
   width: 100%;
   padding: 0.8rem 1rem;
-  border-radius: 50px;
+  border-radius: var(--r-full);
   text-decoration: none;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -251,11 +251,11 @@
   /* 👇 MODIFICATIONS ICI : 0.5rem en hauteur (pour qu'il respire) et 0.8rem en largeur (pour le raccourcir) */
   padding: 0.5rem 0.8rem; 
   
-  border-radius: 90px;
-  font-weight: 700;
+  border-radius: var(--r-full);
+  font-weight: var(--fw-bold);
   
   /* 👇 MODIFICATION ICI : On réduit très légèrement la taille du texte pour gagner de la place */
-  font-size: 0.9rem; 
+  font-size: var(--fs-base); 
   white-space: nowrap; /* Empêche le texte de se couper sur deux lignes */
   
   border: none;
@@ -311,10 +311,10 @@
   background: none;
   border: 2px solid var(--border);
   padding: 0.5rem 0.8rem;
-  border-radius: 10px;
-  font-weight: 700;
+  border-radius: var(--r-md);
+  font-weight: var(--fw-bold);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: var(--fs-base);
   color: var(--text);
   cursor: pointer;
   display: flex;
@@ -350,7 +350,7 @@
   top: 125%;
   right: 0;
   background: var(--surface-solid);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
   border: 1px solid var(--border);
   display: flex;
@@ -368,7 +368,7 @@
   background: none;
   border: none;
   padding: 0.7rem 1rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text);
   cursor: pointer;
   text-align: left; /* Aligné à gauche c'est souvent plus élégant pour les listes */
@@ -418,7 +418,7 @@
 }
 
 /* DÈS QUE L'ÉCRAN EST PLUS PETIT QUE 1024px */
-@media (max-width: 1437px) {
+@media (max-width: 1200px) {
   
   /* 1. Le header devient un simple conteneur flex (Logo à gauche, Burger à droite) */
   .main-header {
@@ -442,7 +442,7 @@
     right: 5%; /* Alignée sur le bouton burger */
     width: 320px; /* Largeur fixe (et non 100% de l'écran) */
     background: var(--surface-solid);
-    border-radius: 16px;
+    border-radius: var(--r-lg);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); /* Ombre bien visible */
     padding: 1.5rem;
     border: 1px solid var(--border);
@@ -479,7 +479,7 @@
     border: 2px solid var(--border);
     margin-top: 10px;
     padding: 1.5rem;
-    border-radius: 12px;
+    border-radius: var(--r-md);
   }
 
   .popover-divider {

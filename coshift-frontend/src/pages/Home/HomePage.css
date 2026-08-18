@@ -25,9 +25,9 @@
   gap: 1.5rem;
   /* un léger effet de verre (Glassmorphism) derrière le texte pour le rendre plus lisible */
   background: var(--surface-hover);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(var(--blur-card));
   padding: 3rem;
-  border-radius: 24px;
+  border-radius: var(--r-xl);
   border: 1px solid var(--border-strong);
 }
 
@@ -35,16 +35,16 @@
   background-color: var(--accent-wash);
   color: var(--accent);
   padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.85rem;
+  border-radius: var(--r-xl);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .hero-title {
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
   line-height: 1.2;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .hero-subtitle {
-  font-size: 1.2rem;
+  font-size: var(--fs-lg);
   color: var(--text-muted);
   max-width: 600px;
 }
@@ -83,8 +83,8 @@
 }
 
 .input-group label {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
   color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
@@ -93,8 +93,8 @@
   width: 100%;
   padding: 0.8rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-md);
   outline: none;
   transition: border-color 0.2s ease;
 }
@@ -108,9 +108,9 @@
   color: var(--on-accent);
   border: none;
   padding: 0.9rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: background-color 0.2s ease;
   height: 47px; /* Alignement avec les inputs */

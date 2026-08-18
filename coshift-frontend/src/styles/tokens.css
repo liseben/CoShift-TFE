@@ -44,7 +44,13 @@
   --font: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
   --fs-xs:  0.75rem;   --fs-sm:  0.85rem;   --fs-base: 0.95rem;
   --fs-md:  1.05rem;   --fs-lg:  1.25rem;   --fs-xl:   1.6rem;   --fs-2xl: 2.2rem;
+  /* Palier d'affichage, hors des 7 tailles de la charte : les titres
+     heros montaient a 3.5rem, aucun jeton ne les couvrait. */
+  --fs-3xl: 3rem;
   --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;  --fw-bold: 700;
+  /* Graisse d'affichage : 12 titres etaient en 800, la ramener a 700 les
+     aurait tous allegis. Elle absorbe le 900 isole. */
+  --fw-extrabold: 800;
 
   /* ── Rayons ── */
   --r-sm: 8px;  --r-md: 12px;  --r-lg: 16px;  --r-xl: 20px;  --r-full: 999px;

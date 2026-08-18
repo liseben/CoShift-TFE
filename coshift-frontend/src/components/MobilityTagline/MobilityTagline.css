@@ -3,7 +3,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: clamp(1.5rem, 3vw, 2.5rem); /* Typographie responsive */
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   color: var(--text);
   overflow: hidden; /* Empêche les autres mots de dépasser en haut/bas */
 }
