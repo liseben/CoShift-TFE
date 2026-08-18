@@ -1,0 +1,67 @@
+/* =========================================================================
+   CoShift — jetons de conception
+   Source unique de verite. Voir CHARTE_GRAPHIQUE.md §6.
+   Aucune valeur brute ne doit etre ecrite ailleurs : toujours var(--*).
+   ========================================================================= */
+
+:root {
+  /* ── Fonds ── */
+  --bg:            #0f1a1c;
+  --surface-1:     rgba(255, 255, 255, 0.04);
+  --surface-2:     rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --surface-solid: #131f22;
+  --on-accent:     #0b1416;
+
+  /* ── Bordures ── */
+  --border:        rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --divider:       rgba(255, 255, 255, 0.07);
+
+  /* ── Texte — plancher AA respecte ── */
+  --text:          #f1f5f9;   /* 16,18:1 */
+  --text-soft:     #cbd5e1;   /* 11,94:1 */
+  --text-muted:    #94a3b8;   /*  6,91:1 — plancher pour tout texte < 24px */
+  --text-faint:    #7d8b9c;   /*  5,10:1 — remplace #64748b, desormais conforme AA */
+  --text-deco:     #5b6b7a;   /*  3,23:1 — decoratif uniquement (icones, >= 24px) */
+
+  /* ── Accent ── */
+  --accent:        #60a5fa;
+  --accent-strong: #3b82f6;
+  --accent-soft:   #93c5fd;
+  --accent-wash:   rgba(96, 165, 250, 0.12);
+
+  /* ── Semantique ── */
+  --ok:    #34d399;  --ok-soft:    #6ee7b7;  --ok-wash:    rgba(52, 211, 153, 0.13);
+  --warn:  #fbbf24;  --warn-soft:  #fcd34d;  --warn-wash:  rgba(251, 191, 36, 0.13);
+  --error: #f87171;  --error-soft: #fca5a5;  --error-wash: rgba(248, 113, 113, 0.13);
+
+  /* ── Espacements — grille de 4 ── */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-8: 32px;  --sp-10: 40px;
+
+  /* ── Typographie — ratio 1.125 ── */
+  --font: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --fs-xs:  0.75rem;   --fs-sm:  0.85rem;   --fs-base: 0.95rem;
+  --fs-md:  1.05rem;   --fs-lg:  1.25rem;   --fs-xl:   1.6rem;   --fs-2xl: 2.2rem;
+  --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;  --fw-bold: 700;
+
+  /* ── Rayons ── */
+  --r-sm: 8px;  --r-md: 12px;  --r-lg: 16px;  --r-xl: 20px;  --r-full: 999px;
+
+  /* ── Elevation ── */
+  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --elev-2: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --elev-accent: 0 9px 22px -10px rgba(96, 165, 250, 0.6);
+  --focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.45);
+
+  /* ── Verre ── */
+  --blur-card: 12px;
+  --blur-nav:  20px;
+
+  /* ── Mouvement ── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 0.18s;  --dur-base: 0.25s;
+}
+
+/* Points de rupture retenus : 640px (mobile), 900px (tablette), 1200px (large) */

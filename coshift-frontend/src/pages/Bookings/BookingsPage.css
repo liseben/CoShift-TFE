@@ -2,9 +2,9 @@
 
 .bk-container {
   min-height: 100vh;
-  background: #0f1a1c;
+  background: var(--bg);
   padding: 100px 20px 60px;
-  color: #e2e8f0;
+  color: var(--text);
 }
 
 .bk-inner {
@@ -13,7 +13,7 @@
 }
 
 /* Variante utilisée quand l'écran est intégré comme onglet du dashboard. */
-.bk-embedded { color: #e2e8f0; }
+.bk-embedded { color: var(--text); }
 
 .bk-header {
   display: flex;
@@ -29,26 +29,26 @@
   font-weight: 750;
   letter-spacing: -0.02em;
   margin: 0 0 6px;
-  color: #f1f5f9;
+  color: var(--text);
 }
 
 .bk-title-sm {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 5px;
-  color: #f1f5f9;
+  color: var(--text);
 }
 
 .bk-subtitle {
   margin: 0;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.92rem;
 }
 
 .bk-alert {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.3);
-  color: #fca5a5;
+  color: var(--error-soft);
   padding: 13px 17px;
   border-radius: 11px;
   font-size: 0.9rem;
@@ -65,7 +65,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid rgba(96, 165, 250, 0.2);
-  border-top-color: #60a5fa;
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: bk-spin 0.8s linear infinite;
 }
@@ -76,8 +76,8 @@
 .bk-empty {
   text-align: center;
   padding: 62px 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: var(--surface-1);
+  border: 1px dashed var(--border-strong);
   border-radius: 16px;
 }
 
@@ -86,7 +86,7 @@
 .bk-empty h3 {
   margin: 0 0 8px;
   font-size: 1.1rem;
-  color: #cbd5e1;
+  color: var(--text-soft);
 }
 
 .bk-empty p {
@@ -103,9 +103,9 @@
 }
 
 .bk-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-left: 3px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
   border-radius: 14px;
   padding: 20px 22px;
   backdrop-filter: blur(12px);
@@ -118,11 +118,11 @@
 }
 
 /* La couleur du liseré encode le statut : lisible d'un coup d'oeil. */
-.bk-card.tone-wait { border-left-color: #fbbf24; }
-.bk-card.tone-ok   { border-left-color: #34d399; }
-.bk-card.tone-bad  { border-left-color: #f87171; }
+.bk-card.tone-wait { border-left-color: var(--warn); }
+.bk-card.tone-ok   { border-left-color: var(--ok); }
+.bk-card.tone-bad  { border-left-color: var(--error); }
 .bk-card.tone-off  { border-left-color: #64748b; }
-.bk-card.tone-done { border-left-color: #60a5fa; }
+.bk-card.tone-done { border-left-color: var(--accent); }
 
 .bk-card-head {
   display: flex;
@@ -142,18 +142,18 @@
   border-radius: 7px;
 }
 
-.bk-badge.tone-wait { background: rgba(251, 191, 36, 0.13); color: #fcd34d; }
-.bk-badge.tone-ok   { background: rgba(52, 211, 153, 0.13); color: #6ee7b7; }
-.bk-badge.tone-bad  { background: rgba(248, 113, 113, 0.13); color: #fca5a5; }
-.bk-badge.tone-off  { background: rgba(148, 163, 184, 0.13); color: #94a3b8; }
-.bk-badge.tone-done { background: rgba(96, 165, 250, 0.13); color: #93c5fd; }
+.bk-badge.tone-wait { background: rgba(251, 191, 36, 0.13); color: var(--warn-soft); }
+.bk-badge.tone-ok   { background: rgba(52, 211, 153, 0.13); color: var(--ok-soft); }
+.bk-badge.tone-bad  { background: rgba(248, 113, 113, 0.13); color: var(--error-soft); }
+.bk-badge.tone-off  { background: rgba(148, 163, 184, 0.13); color: var(--text-muted); }
+.bk-badge.tone-done { background: rgba(96, 165, 250, 0.13); color: var(--accent-soft); }
 
 .bk-date {
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: 0.83rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   text-transform: capitalize;
 }
 
@@ -167,17 +167,17 @@
 .bk-city {
   font-size: 1.05rem;
   font-weight: 650;
-  color: #f1f5f9;
+  color: var(--text);
 }
 
-.bk-arrow { color: #60a5fa; flex-shrink: 0; }
+.bk-arrow { color: var(--accent); flex-shrink: 0; }
 
 .bk-reason {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-1);
   border-radius: 8px;
   padding: 9px 12px;
   font-size: 0.84rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin: 0 0 14px;
   font-style: italic;
 }
@@ -210,8 +210,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  color: #0f1a1c;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: var(--on-accent);
   font-weight: 800;
 }
 
@@ -219,7 +219,7 @@
   margin: 0;
   font-size: 0.96rem;
   font-weight: 620;
-  color: #f1f5f9;
+  color: var(--text);
 }
 
 .bk-person-meta {
@@ -228,7 +228,7 @@
   gap: 4px;
   margin: 3px 0 0;
   font-size: 0.81rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .bk-figures {
@@ -237,12 +237,12 @@
   gap: 14px;
 }
 
-.bk-seats { font-size: 0.86rem; color: #94a3b8; }
+.bk-seats { font-size: 0.86rem; color: var(--text-muted); }
 
 .bk-price {
   font-size: 1.2rem;
   font-weight: 750;
-  color: #60a5fa;
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
@@ -255,7 +255,7 @@
   background: rgba(52, 211, 153, 0.09);
   border: 1px solid rgba(52, 211, 153, 0.25);
   border-radius: 9px;
-  color: #6ee7b7;
+  color: var(--ok-soft);
   font-size: 0.86rem;
   text-decoration: none;
   transition: background 0.18s ease;
@@ -270,7 +270,7 @@
   gap: 10px;
   margin-top: 16px;
   padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
 
@@ -291,8 +291,8 @@
 }
 
 .bk-btn-primary {
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  color: #0b1416;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: var(--on-accent);
   border: none;
 }
 
@@ -302,9 +302,9 @@
 }
 
 .bk-btn-ghost {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text-soft);
 }
 
 .bk-btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
@@ -312,7 +312,7 @@
 .bk-btn-danger {
   background: rgba(248, 113, 113, 0.1);
   border-color: rgba(248, 113, 113, 0.3);
-  color: #fca5a5;
+  color: var(--error-soft);
 }
 
 .bk-btn-danger:hover { background: rgba(248, 113, 113, 0.18); }
@@ -320,7 +320,7 @@
 .bk-btn-accept {
   background: rgba(52, 211, 153, 0.14);
   border-color: rgba(52, 211, 153, 0.35);
-  color: #6ee7b7;
+  color: var(--ok-soft);
 }
 
 .bk-btn-accept:hover { background: rgba(52, 211, 153, 0.24); }
@@ -334,22 +334,22 @@
 .bk-reject-form {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-top: 1px solid var(--border);
 }
 
 .bk-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
   border-radius: 9px;
   padding: 10px 13px;
-  color: #e2e8f0;
+  color: var(--text);
   font-size: 0.88rem;
   outline: none;
   transition: border-color 0.18s ease;
 }
 
-.bk-input:focus { border-color: #60a5fa; }
+.bk-input:focus { border-color: var(--accent); }
 .bk-input::placeholder { color: #64748b; }
 
 .bk-reject-form .bk-actions { border-top: none; padding-top: 0; margin-top: 12px; }

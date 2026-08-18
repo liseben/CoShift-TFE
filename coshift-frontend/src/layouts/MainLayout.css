@@ -25,7 +25,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border);
 }
 
 /* Alignements de la grille */
@@ -52,7 +52,7 @@
 .logo {
   font-size: 3.8rem;
   font-weight: 800;
-  color: var(--primary-color);
+  color: var(--accent);
   text-decoration: none;
   letter-spacing: -1px;
   font-style: italic;
@@ -62,7 +62,7 @@
 /* --- NAVIGATION DYNAMIQUE --- */
 .nav-item {
   text-decoration: none;
-  color: var(--text-main);
+  color: var(--text);
   font-weight: 700;
   font-size: var(--nav-font-size);
   padding: 0.6rem 0.3rem;
@@ -79,15 +79,15 @@
 
 /* Effet au survol (le contenant) */
 .nav-item:hover {
-  background-color: var(--primary-color);
-  color: var(--on-primary);
+  background-color: var(--accent);
+  color: var(--on-accent);
   transform: translateY(-6px);
 }
 
 /* Effet Dynamique au Clic (ressort) */
 .nav-item:active {
   transform: scale(0.92);
-  background-color: var(--primary-hover);
+  background-color: var(--accent-strong);
 }
 
 /* Bouton Connexion (reset pour se comporter comme un nav-item) */
@@ -99,7 +99,7 @@
 
 /* FOOTER NETTOYÉ */
 .main-footer {
-  background-color: var(--surface-opaque);
+  background-color: var(--surface-solid);
   padding: clamp(4rem, 8vw, 8rem) 2rem 4rem 2rem;
   text-align: center;
   color: var(--text-muted);
@@ -125,12 +125,12 @@
   top: calc(100% + 15px); 
   right: 0;
   width: 600px; /* Un peu plus large pour que le texte respire */
-  background: var(--surface-opaque);
+  background: var(--surface-solid);
   border-radius: 20px; /* Des bords bien ronds */
 
   /* Une ombre très douce mais très large pour l'effet "flottant" */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   
   display: flex;
   padding: 3rem 1.5rem;
@@ -167,7 +167,7 @@
 
 .popover-section h4 {
   margin: 0;
-  color: var(--text-main);
+  color: var(--text);
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -183,7 +183,7 @@
 /* Le trait de séparation plus subtil */
 .popover-divider {
   width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--border-color), transparent);
+  background: linear-gradient(to bottom, transparent, var(--border), transparent);
   margin: 0;
 }
 
@@ -216,21 +216,21 @@
 
 /* Bouton principal (Se connecter / Dashboard) */
 .popover-btn.btn-primary {
-  background: var(--primary-color);
-  color: var(--on-primary);
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
 }
 
 .popover-btn.btn-primary:hover {
-  background: var(--primary-hover);
+  background: var(--accent-strong);
   transform: translateY(-2px);
 }
 
 /* Bouton secondaire (S'inscrire / Se déconnecter) */
 .popover-btn.btn-outline {
   background: var(--surface-2);
-  border: 2px solid var(--border-color);
-  color: var(--text-main);
+  border: 2px solid var(--border);
+  color: var(--text);
 }
 
 .popover-btn.btn-outline:hover {
@@ -278,7 +278,7 @@
   left: 50%;
   width: 0;
   height: 0;
-  background-color: var(--primary-color);
+  background-color: var(--accent);
   border-radius: 50%;
   transform: translate(-60%, -5%); /* Centre le cercle */
   transition: width 0.15s ease-out, height 0.15s ease-out; /* Vitesse du remplissage */
@@ -292,7 +292,7 @@
 }
 
 .btn-download-app:hover {
-  color: var(--on-primary); /* Contraste sur l'aplat bleu qui remplit le bouton */
+  color: var(--on-accent); /* Contraste sur l'aplat bleu qui remplit le bouton */
   transform: translateY(-8px); /* Soulèvement subtil (j'ai remis -2px car -10px était un peu extrême) */
   box-shadow: 0 6px 15px rgba(96, 165, 250, 0.35); /* L'ombre prend l'accent */
 }
@@ -309,13 +309,13 @@
 
 .btn-lang-trigger {
   background: none;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   padding: 0.5rem 0.8rem;
   border-radius: 10px;
   font-weight: 700;
   font-family: inherit;
   font-size: 0.95rem;
-  color: var(--text-main);
+  color: var(--text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -324,8 +324,8 @@
 }
 
 .btn-lang-trigger:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: var(--accent);
+  color: var(--accent);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(96, 165, 250, 0.18);
 }
@@ -349,10 +349,10 @@
   position: absolute;
   top: 125%;
   right: 0;
-  background: var(--surface-opaque);
+  background: var(--surface-solid);
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -369,7 +369,7 @@
   border: none;
   padding: 0.7rem 1rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text);
   cursor: pointer;
   text-align: left; /* Aligné à gauche c'est souvent plus élégant pour les listes */
   font-family: inherit;
@@ -378,11 +378,11 @@
 
 .lang-option:hover {
   background: var(--surface-hover);
-  color: var(--primary-color);
+  color: var(--accent);
 }
 
 .lang-option.active {
-  color: var(--primary-color);
+  color: var(--accent);
   background: rgba(96, 165, 250, 0.10);
 }
 
@@ -407,7 +407,7 @@
   display: none;
   background: transparent;
   border: none;
-  color: var(--text-main);
+  color: var(--text);
   cursor: pointer;
   z-index: 1005;
 }
@@ -441,11 +441,11 @@
     top: calc(100% + 10px); /* S'affiche un peu en dessous du header */
     right: 5%; /* Alignée sur le bouton burger */
     width: 320px; /* Largeur fixe (et non 100% de l'écran) */
-    background: var(--surface-opaque);
+    background: var(--surface-solid);
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); /* Ombre bien visible */
     padding: 1.5rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     z-index: 1000;
     transform-origin: top right; /* L'animation partira de l'icône */
   }
@@ -476,7 +476,7 @@
     position: static; /* Il n'est plus flottant, il prend sa place dans la liste */
     width: 100%;
     box-shadow: none;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--border);
     margin-top: 10px;
     padding: 1.5rem;
     border-radius: 12px;
@@ -485,7 +485,7 @@
   .popover-divider {
     width: 100%;
     height: 1px;
-    background: var(--border-color);
+    background: var(--border);
     margin: 1rem 0;
   }
 }

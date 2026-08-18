@@ -20,10 +20,10 @@
 }
 
 .register-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   padding: 2.5rem;
   border-radius: 24px;
   box-shadow: 0 25px 50px -12px rgba(158, 46, 46, 0.5);
@@ -70,7 +70,7 @@
   width: 100%;
   padding: 0.8rem 2.5rem 0.8rem 1rem;
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   color: white;
   border-radius: 8px;
   font-size: 1rem;
@@ -84,14 +84,14 @@
 
 .register-input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: var(--accent);
   background: rgba(0, 0, 0, 0.4);
 }
 
 .register-button {
   padding: 1rem;
-  background-color: var(--primary-color);
-  color: var(--on-primary);
+  background-color: var(--accent);
+  color: var(--on-accent);
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -115,7 +115,7 @@
 .auth-error-message {
   background: rgba(255, 50, 50, 0.1);
   border: 1px solid rgba(255, 50, 50, 0.3);
-  color: #ffcccc;
+  color: var(--error-soft);
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -131,7 +131,7 @@
 }
 
 .auth-footer a {
-  color: var(--primary-color);
+  color: var(--accent);
   text-decoration: none;
   font-weight: bold;
 }
