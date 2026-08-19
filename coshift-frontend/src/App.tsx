@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/Home/HomePage";
 import ActusPage from "./pages/Actus/ActusPage";
+import ArticlePage from "./pages/Actus/ArticlePage";
 import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from "./pages/Register/RegisterPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
@@ -38,6 +39,8 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="entreprises" element={<EntreprisesPage />} />
           <Route path="actus" element={<ActusPage />} />
+          {/* Doit rester APRES la route fixe "actus". */}
+          <Route path="actus/:id" element={<ArticlePage />} />
           <Route path="a-propos" element={<AboutPage />} />
           <Route path="blog" element={<BlogPage />} />
           <Route path="login" element={<LoginPage />} />

@@ -1,29 +1,10 @@
 /**
- * Vocabulaire partagé des statuts de réservation.
+ * Formatage des dates de trajet, partagé par les écrans de réservation.
  *
- * Les libellés sont volontairement écrits du point de vue de l'utilisateur —
- * « En attente du conducteur » plutôt que « PENDING » — et centralisés ici pour
- * que les deux écrans (passager et conducteur) racontent la même histoire.
+ * Le vocabulaire des statuts vivait ici ; il a rejoint le composant
+ * StatusBadge, qui est désormais seul à traduire BookingStatus et
+ * TripStatus en libellés et en couleurs.
  */
-export type BookingStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "CANCELLED"
-  | "REJECTED"
-  | "COMPLETED";
-
-export const STATUS_LABELS: Record<BookingStatus, { label: string; tone: string }> = {
-  PENDING:   { label: "En attente du conducteur", tone: "wait" },
-  CONFIRMED: { label: "Confirmée",                tone: "ok" },
-  CANCELLED: { label: "Annulée",                  tone: "off" },
-  REJECTED:  { label: "Refusée",                  tone: "bad" },
-  COMPLETED: { label: "Terminée",                 tone: "done" },
-};
-
-export function statusOf(status: string) {
-  return STATUS_LABELS[status as BookingStatus] ?? { label: status, tone: "off" };
-}
-
 export function formatTripDate(iso: string): string {
   const d = new Date(iso);
   return (

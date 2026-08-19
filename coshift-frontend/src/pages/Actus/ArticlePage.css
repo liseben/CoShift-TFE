@@ -1,0 +1,91 @@
+/* Page article — colonne de lecture. */
+
+.ar { margin-inline: auto; }
+
+.ar__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.ar__tag {
+  padding: 4px var(--sp-3);
+  background: var(--brand-wash);
+  color: var(--brand);
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+}
+
+.ar__tag:hover { text-decoration: none; background: var(--brand); color: var(--on-brand); }
+
+.ar__title {
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-tight);
+  margin-bottom: var(--sp-4);
+}
+
+.ar__source {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-6);
+}
+
+.ar__source strong { color: var(--text-soft); }
+
+/* Ratio réservé : l'image ne fait pas sauter le texte en arrivant. */
+.ar__image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--r-lg);
+  margin-bottom: var(--sp-6);
+  background: var(--surface-sunk);
+}
+
+.ar__body {
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+  margin-bottom: var(--sp-8);
+}
+
+/* ── Renvoi vers la source ── */
+.ar__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  background: var(--surface-sunk);
+}
+
+.ar__cta-text {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* ── Articles liés ── */
+.ar__related-title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.ar__related-date {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+}
+
+.ar__related-headline {
+  font-size: var(--fs-base);
+  line-height: var(--lh-snug);
+}

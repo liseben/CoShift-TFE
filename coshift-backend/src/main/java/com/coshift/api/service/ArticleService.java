@@ -1,6 +1,7 @@
 package com.coshift.api.service;
 
 import com.coshift.api.entity.Article;
+import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.repository.ArticleRepository;
 import com.coshift.api.util.TitleNormalizer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -227,5 +228,11 @@ public class ArticleService {
     // Utilisé par le Controller !
     public List<Article> getAllArticles() {
         return articleRepository.findAllByOrderByDateDesc();
+    }
+
+    /** Un article isolé, pour la page de détail. */
+    public Article getArticleById(String id) {
+        return articleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Article introuvable."));
     }
 }

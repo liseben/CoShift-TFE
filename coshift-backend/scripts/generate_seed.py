@@ -173,28 +173,36 @@ DESCRIPTIONS = [
 ]
 
 # Sujets d'actualité mobilité. Les intitulés sont rédigés pour ce jeu de test.
+#
+# La catégorie n'est pas libre : ArticleService.classifyArticle() n'en produit
+# que quatre — mobilite, ecologie, entreprises, technologie — et ce sont les
+# seules que le filtre de la page Actus sait interroger. En inventer d'autres
+# donnerait des articles invisibles dans l'interface.
 ARTICLE_SUJETS = [
-    ("Le covoiturage domicile-travail progresse de {n} % en Wallonie", "Covoiturage"),
-    ("Les entreprises de plus de {n} salariés devront publier un plan de mobilité", "Réglementation"),
-    ("Une bande de covoiturage testée sur l'axe {a} — {b}", "Infrastructure"),
-    ("{a} : le parking de délestage double sa capacité", "Infrastructure"),
-    ("Prime de {n} euros par mois pour les navetteurs qui partagent leur voiture", "Incitants"),
-    ("Le trafic aux heures de pointe recule de {n} % autour de {a}", "Trafic"),
-    ("Les bornes de recharge se multiplient sur les parkings d'entreprise", "Électrique"),
-    ("Voiture électrique : l'autonomie réelle reste le premier frein à l'achat", "Électrique"),
-    ("{a} déploie {n} nouvelles places de stationnement partagé", "Infrastructure"),
-    ("Mobilité douce : le vélo gagne du terrain sur les trajets de moins de 5 km", "Vélo"),
-    ("Le budget mobilité séduit {n} % des employeurs interrogés", "Incitants"),
-    ("Télétravail et covoiturage : les deux leviers qui font baisser les émissions", "Environnement"),
-    ("Un employeur sur {n} finance désormais l'abonnement de ses salariés", "Incitants"),
-    ("Les navetteurs de {a} passent en moyenne {n} minutes dans les bouchons", "Trafic"),
-    ("Autopartage : le parc s'étoffe dans les villes moyennes", "Autopartage"),
-    ("Les campus universitaires repensent l'accès en voiture", "Universités"),
-    ("Émissions du transport : l'objectif {n} reste hors d'atteinte sans report modal", "Environnement"),
-    ("Comment les festivals organisent le retour des festivaliers sans voiture", "Événementiel"),
-    ("Zone de basses émissions : ce qui change pour les navetteurs", "Réglementation"),
-    ("{a} — {b} : la liaison ferroviaire renforcée aux heures de pointe", "Train"),
+    ("Le covoiturage domicile-travail progresse de {n} % en Wallonie", "mobilite"),
+    ("Les entreprises de plus de {n} salariés devront publier un plan de mobilité", "entreprises"),
+    ("Une bande de covoiturage testée sur l'axe {a} — {b}", "mobilite"),
+    ("{a} : le parking de délestage double sa capacité", "mobilite"),
+    ("Prime de {n} euros par mois pour les navetteurs qui partagent leur voiture", "entreprises"),
+    ("Le trafic aux heures de pointe recule de {n} % autour de {a}", "mobilite"),
+    ("Les bornes de recharge se multiplient sur les parkings d'entreprise", "technologie"),
+    ("Voiture électrique : l'autonomie réelle reste le premier frein à l'achat", "technologie"),
+    ("{a} déploie {n} nouvelles places de stationnement partagé", "mobilite"),
+    ("Mobilité douce : le vélo gagne du terrain sur les trajets de moins de 5 km", "ecologie"),
+    ("Le budget mobilité séduit {n} % des employeurs interrogés", "entreprises"),
+    ("Télétravail et covoiturage : les deux leviers qui font baisser les émissions", "ecologie"),
+    ("Un employeur sur {n} finance désormais l'abonnement de ses salariés", "entreprises"),
+    ("Les navetteurs de {a} passent en moyenne {n} minutes dans les bouchons", "mobilite"),
+    ("Autopartage : le parc s'étoffe dans les villes moyennes", "technologie"),
+    ("Les campus universitaires repensent l'accès en voiture", "entreprises"),
+    ("Émissions du transport : l'objectif {n} reste hors d'atteinte sans report modal", "ecologie"),
+    ("Comment les festivals organisent le retour des festivaliers sans voiture", "ecologie"),
+    ("Zone de basses émissions : ce qui change pour les navetteurs", "ecologie"),
+    ("{a} — {b} : la liaison ferroviaire renforcée aux heures de pointe", "mobilite"),
 ]
+
+# Les quatre seules valeurs acceptées, reprises de ArticleService.
+CATEGORIES_VALIDES = {"mobilite", "ecologie", "entreprises", "technologie"}
 
 SOURCES = [
     "Bulletin Mobilité", "Le Navetteur", "Transport & Territoires",
@@ -495,6 +503,13 @@ def check(orgs, users, members, vehicles, trips, bookings, articles):
         errs.append("plaques en double")
     if len({a["url"] for a in articles}) != len(articles):
         errs.append("URL d'articles en double")
+
+    hors = {a["category"] for a in articles} - CATEGORIES_VALIDES
+    if hors:
+        errs.append(f"catégories inconnues du filtre de la page Actus : {sorted(hors)}")
+    manquantes = CATEGORIES_VALIDES - {a["category"] for a in articles}
+    if manquantes:
+        errs.append(f"catégories sans aucun article : {sorted(manquantes)}")
 
     return errs
 
