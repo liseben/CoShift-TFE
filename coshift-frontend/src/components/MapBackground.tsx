@@ -9,7 +9,9 @@ import * as turf from "@turf/turf";
 
 const SIBELGA_TEAL = "#00B4C5";
 const SIBELGA_NAVY = "#003354";
-const SIBELGA_BG = "#001b2e";
+/* Fond du bloc de carte. Repris du jeton applicatif : la charte est
+   claire, un bleu nuit ferait tache autour de la carte. */
+const MAP_SURROUND = "var(--surface-sunk)";
 
 const routeCoordinates = [
   [4.3517, 50.8503],
@@ -122,7 +124,7 @@ export default function MapBackground() {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: SIBELGA_BG,
+        backgroundColor: MAP_SURROUND,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -134,10 +136,10 @@ export default function MapBackground() {
         style={{
           width: "85%",
           height: "75%",
-          borderRadius: "24px",
+          borderRadius: "var(--r-xl)",
           overflow: "hidden",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-          border: `1px solid rgba(255, 255, 255, 0.05)`,
+          boxShadow: "var(--elev-3)",
+          border: "1px solid var(--border)",
           position: "relative",
         }}
       >

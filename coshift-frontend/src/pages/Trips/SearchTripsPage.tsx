@@ -1,28 +1,14 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaCar, FaBolt, FaLeaf, FaGasPump } from "react-icons/fa";
-import { FiSearch, FiArrowRight } from "react-icons/fi";
+import { useState, useEffect, useCallback, type ReactElement } from "react";
+import { useSearchParams } from "react-router-dom";
+import { FaStar, FaBolt, FaLeaf, FaGasPump, FaSuitcase, FaDog, FaMusic } from "react-icons/fa";
+import { FiArrowRight, FiSearch } from "react-icons/fi";
 import axios from "axios";
-import "./TripsPage.css";
-
 import { API_BASE } from "../../config/api";
-
-interface DriverSummary {
-  uuid: string;
-  firstname: string;
-  lastname: string;
-  pictureUrl?: string;
-  averageRating: number;
-  tripsCount: number;
-}
-
-interface VehicleSummary {
-  brand: string;
-  model: string;
-  seats: number;
-  energy: string;
-  photoUrl?: string;
-}
+import TripSearchForm, {
+  EMPTY_CRITERIA, type TripCriteria,
+} from "../../components/TripSearchForm/TripSearchForm";
+import { Alert, Avatar, Card, EmptyState, Spinner } from "../../components/ui";
+import "./TripsPage.css";
 
 interface Trip {
   uuid: string;
@@ -38,189 +24,199 @@ interface Trip {
   acceptsPets: boolean;
   musicAllowed: boolean;
   talkingAllowed: boolean;
-  driver: DriverSummary;
-  vehicule: VehicleSummary;
+  driver: {
+    uuid: string;
+    firstname: string;
+    lastname: string;
+    pictureUrl?: string;
+    averageRating: number;
+    tripsCount: number;
+  };
+  vehicule: { brand: string; model: string; seats: number; energy: string };
 }
 
-const ENERGY_ICONS: Record<string, React.ReactElement> = {
-  ELECTRIC: <FaBolt style={{ color: "#34d399" }} />,
-  HYBRID:   <FaLeaf style={{ color: "#60a5fa" }} />,
-  GASOLINE: <FaGasPump style={{ color: "#fbbf24" }} />,
-  DIESEL:   <FaGasPump style={{ color: "#f87171" }} />,
-  LPG:      <FaGasPump style={{ color: "#a78bfa" }} />,
+const ENERGY: Record<string, { icon: ReactElement; label: string }> = {
+  ELECTRIC: { icon: <FaBolt />, label: "Électrique" },
+  HYBRID:   { icon: <FaLeaf />, label: "Hybride" },
+  GASOLINE: { icon: <FaGasPump />, label: "Essence" },
+  DIESEL:   { icon: <FaGasPump />, label: "Diesel" },
+  LPG:      { icon: <FaGasPump />, label: "GPL" },
 };
 
-const SearchTripsPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ departure: "", arrival: "", date: "", seats: "" });
-  const [trips, setTrips]         = useState<Trip[] | null>(null);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState<string | null>(null);
-
-  const token = () => localStorage.getItem("coshift_token") ?? "";
-
-  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true); setError(null);
-    try {
-      const params: Record<string, string> = {};
-      if (form.departure) params.departure = form.departure;
-      if (form.arrival)   params.arrival   = form.arrival;
-      if (form.date)      params.date      = form.date;
-      if (form.seats)     params.seats     = form.seats;
-
-      const res = await axios.get(`${API_BASE}/api/trips/search`, {
-        params,
-        headers: { Authorization: `Bearer ${token()}` },
-      });
-      setTrips(res.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? "Une erreur est survenue lors de la recherche.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })
-      + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-  };
-
+const formatDate = (iso: string) => {
+  const d = new Date(iso);
   return (
-    <div className="trips-container">
-      <div className="trips-inner">
-
-        {/* ── En-tête ── */}
-        <div className="search-hero">
-          <h1 className="trips-page-title">Trouver un trajet</h1>
-          <p className="trips-page-subtitle">
-            Recherchez parmi les trajets disponibles et réservez votre place.
-          </p>
-
-          {/* ── Formulaire de recherche ── */}
-          <form onSubmit={handleSearch} className="search-bar-form">
-            <div className="search-field">
-              <FaMapMarkerAlt className="sf-icon" />
-              <input className="sf-input" placeholder="Départ (ville)"
-                value={form.departure} onChange={(e) => setForm({ ...form, departure: e.target.value })} />
-            </div>
-            <div className="search-divider">→</div>
-            <div className="search-field">
-              <FaMapMarkerAlt className="sf-icon" style={{ color: "#60a5fa" }} />
-              <input className="sf-input" placeholder="Arrivée (ville)"
-                value={form.arrival} onChange={(e) => setForm({ ...form, arrival: e.target.value })} />
-            </div>
-            <div className="search-field">
-              <FaCalendarAlt className="sf-icon" />
-              <input className="sf-input" type="date"
-                value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-            </div>
-            <div className="search-field narrow">
-              <FaUsers className="sf-icon" />
-              <input className="sf-input" type="number" min={1} max={8} placeholder="Places"
-                value={form.seats} onChange={(e) => setForm({ ...form, seats: e.target.value })} />
-            </div>
-            <button type="submit" className="btn-trip-search" disabled={loading}>
-              <FiSearch size={16} />
-              {loading ? "Recherche..." : "Rechercher"}
-            </button>
-          </form>
-        </div>
-
-        {error && <div className="trips-alert">{error}</div>}
-
-        {/* ── Résultats ── */}
-        {trips !== null && (
-          <div className="search-results">
-            <p className="results-count">
-              {trips.length === 0
-                ? "Aucun trajet disponible pour ces critères."
-                : `${trips.length} trajet${trips.length > 1 ? "s" : ""} disponible${trips.length > 1 ? "s" : ""}`}
-            </p>
-
-            <div className="trip-cards">
-              {trips.map((t) => (
-                <div key={t.uuid} className="trip-card" onClick={() => navigate(`/trips/${t.uuid}`)}>
-
-                  <div className="tc-route">
-                    <div className="tc-city">
-                      <span className="tc-dot dep" />
-                      <div>
-                        <p className="tc-city-name">{t.departureCity}</p>
-                        {t.departureAddress && <p className="tc-address">{t.departureAddress}</p>}
-                      </div>
-                    </div>
-                    <div className="tc-line" />
-                    <div className="tc-city">
-                      <span className="tc-dot arr" />
-                      <div>
-                        <p className="tc-city-name">{t.arrivalCity}</p>
-                        {t.arrivalAddress && <p className="tc-address">{t.arrivalAddress}</p>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="tc-meta">
-                    <span className="tc-date">📅 {formatDate(t.departureTime)}</span>
-                  </div>
-
-                  <div className="tc-footer">
-                    <div className="tc-driver">
-                      {t.driver.pictureUrl ? (
-                        <img src={t.driver.pictureUrl} className="tc-avatar" alt="" />
-                      ) : (
-                        <div className="tc-avatar-initial">
-                          {t.driver.firstname.charAt(0)}
-                        </div>
-                      )}
-                      <div>
-                        <p className="tc-driver-name">{t.driver.firstname} {t.driver.lastname}</p>
-                        <p className="tc-driver-rating">
-                          {t.driver.averageRating > 0
-                            ? <><FaStar size={10} style={{ color: "#fbbf24" }} /> {t.driver.averageRating.toFixed(1)}</>
-                            : "Nouveau conducteur"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="tc-right">
-                      <div className="tc-vehicle">
-                        {ENERGY_ICONS[t.vehicule.energy] ?? <FaCar />}
-                        <span>{t.vehicule.brand} {t.vehicule.model}</span>
-                      </div>
-                      <div className="tc-seats">
-                        <FaUsers size={11} /> {t.availableSeats} place{t.availableSeats > 1 ? "s" : ""}
-                      </div>
-                    </div>
-
-                    <div className="tc-price-block">
-                      <span className="tc-price">{t.pricePerSeat.toFixed(2)} €</span>
-                      <span className="tc-price-label">/ place</span>
-                    </div>
-
-                    <button className="tc-cta" onClick={(e) => { e.stopPropagation(); navigate(`/trips/${t.uuid}`); }}>
-                      Voir <FiArrowRight size={13} />
-                    </button>
-                  </div>
-
-                  {/* Préférences */}
-                  <div className="tc-prefs">
-                    {t.acceptsLuggage   && <span className="pref-chip">🧳 Bagages</span>}
-                    {t.acceptsPets      && <span className="pref-chip">🐾 Animaux</span>}
-                    {t.musicAllowed     && <span className="pref-chip">🎵 Musique</span>}
-                    {t.talkingAllowed   && <span className="pref-chip">💬 Discussion</span>}
-                  </div>
-
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </div>
-    </div>
+    d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) +
+    " à " +
+    d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
   );
 };
 
-export default SearchTripsPage;
+export default function SearchTripsPage() {
+  const [params, setParams] = useSearchParams();
+  const [trips, setTrips] = useState<Trip[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  /* Les critères vivent dans l'URL : la recherche est partageable, et le
+     retour arrière du navigateur redonne les résultats précédents. */
+  const criteria: TripCriteria = {
+    ...EMPTY_CRITERIA,
+    ...Object.fromEntries(params.entries()),
+  };
+
+  const run = useCallback(async (c: TripCriteria) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const query: Record<string, string> = {};
+      if (c.departure) query.departure = c.departure;
+      if (c.arrival) query.arrival = c.arrival;
+      if (c.date) query.date = c.date;
+      if (c.seats) query.seats = c.seats;
+
+      const res = await axios.get<Trip[]>(`${API_BASE}/api/trips/search`, {
+        params: query,
+        headers: { Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}` },
+      });
+
+      /* L'API ne filtre que par jour. L'heure choisie sert de borne basse,
+         appliquée ici pour que le champ ne soit pas décoratif. */
+      const filtered = c.time
+        ? res.data.filter((t) => {
+            const d = new Date(t.departureTime);
+            const mins = d.getHours() * 60 + d.getMinutes();
+            const [h, m] = c.time.split(":").map(Number);
+            return mins >= h * 60 + m;
+          })
+        : res.data;
+
+      setTrips(filtered);
+    } catch (err) {
+      setError(
+        (axios.isAxiosError(err) && err.response?.data?.message) ||
+          "Une erreur est survenue lors de la recherche.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Une recherche arrivant depuis l'accueil se lance d'elle-même.
+  useEffect(() => {
+    if (params.toString()) run(criteria);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const submit = (c: TripCriteria) => {
+    setParams(new URLSearchParams(Object.entries(c).filter(([, v]) => v !== "")));
+    run(c);
+  };
+
+  return (
+    <div className="container page stack-8">
+      <header>
+        <h1>Trouver un trajet</h1>
+        <p className="trips__lead">
+          Recherchez parmi les trajets disponibles et réservez votre place.
+        </p>
+      </header>
+
+      <TripSearchForm initial={criteria} onSubmit={submit} loading={loading} />
+
+      {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
+
+      {loading ? (
+        <Spinner size="lg" center showLabel label="Recherche des trajets" />
+      ) : trips === null ? (
+        <EmptyState
+          icon={<FiSearch />}
+          title="Lancez une recherche"
+          description="Indiquez au moins une ville de départ ou d'arrivée pour voir les trajets disponibles."
+        />
+      ) : trips.length === 0 ? (
+        <EmptyState
+          icon={<FiSearch />}
+          title="Aucun trajet pour ces critères"
+          description="Élargissez la date ou l'heure de départ, ou retirez le filtre sur le nombre de places."
+        />
+      ) : (
+        <>
+          <p className="trips__count">
+            {trips.length} trajet{trips.length > 1 ? "s" : ""} disponible
+            {trips.length > 1 ? "s" : ""}
+          </p>
+
+          <div className="grid-auto">
+            {trips.map((t) => {
+              const energy = ENERGY[t.vehicule.energy];
+              const name = `${t.driver.firstname} ${t.driver.lastname}`;
+              return (
+                <Card
+                  key={t.uuid}
+                  to={`/trips/${t.uuid}`}
+                  title={
+                    <span className="trips__route">
+                      {t.departureCity}
+                      <FiArrowRight aria-hidden="true" />
+                      {t.arrivalCity}
+                    </span>
+                  }
+                  action={<span className="trips__price">{t.pricePerSeat.toFixed(2)} €</span>}
+                >
+                  <p className="trips__when">{formatDate(t.departureTime)}</p>
+
+                  <div className="trips__driver">
+                    <Avatar src={t.driver.pictureUrl} name={name} size="sm" />
+                    <div>
+                      <p className="trips__driver-name">{name}</p>
+                      <p className="trips__meta">
+                        {t.driver.averageRating > 0 ? (
+                          <>
+                            <FaStar aria-hidden="true" className="trips__star" />
+                            {t.driver.averageRating.toFixed(1)}
+                          </>
+                        ) : (
+                          "Nouveau conducteur"
+                        )}
+                        {" · "}
+                        {t.vehicule.brand} {t.vehicule.model}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ul className="trips__tags">
+                    <li className="trips__tag trips__tag--seats">
+                      {t.availableSeats} place{t.availableSeats > 1 ? "s" : ""}
+                    </li>
+                    {energy && (
+                      <li className="trips__tag">
+                        <span aria-hidden="true">{energy.icon}</span> {energy.label}
+                      </li>
+                    )}
+                    {t.acceptsLuggage && (
+                      <li className="trips__tag"><FaSuitcase aria-hidden="true" /> Bagages</li>
+                    )}
+                    {t.acceptsPets && (
+                      <li className="trips__tag"><FaDog aria-hidden="true" /> Animaux</li>
+                    )}
+                    {t.musicAllowed && (
+                      <li className="trips__tag"><FaMusic aria-hidden="true" /> Musique</li>
+                    )}
+                  </ul>
+
+                  {/* Pas de bouton ici : la carte entière est déjà le lien.
+                      Un <button> dans un <a> est invalide et double la
+                      tabulation. */}
+                  <p className="trips__cta" aria-hidden="true">
+                    Voir le trajet <FiArrowRight />
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

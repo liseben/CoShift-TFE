@@ -1,0 +1,37 @@
+.tsf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  width: 100%;
+}
+
+/* Cinq champs qui se réorganisent seuls : trois colonnes en large,
+   deux en tablette, une seule au téléphone. Aucune media query. */
+.tsf__fields {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+}
+
+.tsf__submit { align-self: flex-start; }
+
+/* ── Variante posée sur le fond de carte ── */
+.tsf--hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--elev-3);
+  padding: var(--sp-6);
+}
+
+.tsf--page {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-1);
+  padding: var(--sp-5);
+}
+
+@media (max-width: 640px) {
+  .tsf__submit { align-self: stretch; }
+}

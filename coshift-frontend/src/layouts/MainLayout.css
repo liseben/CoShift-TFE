@@ -1,490 +1,305 @@
-:root {
-  /* Utilisation de clamp pour une taille qui varie entre 1rem et 1.2rem selon l'écran */
-  --nav-font-size: clamp(1.1rem, 1.2vw + 0.5rem, 1.3rem);
-}
+/* =========================================================================
+   Ossature du site : en-tête, navigation, pied de page.
+   ========================================================================= */
 
 .layout-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* =========================================
-   HEADER & NAVIGATION
-========================================= */
+.layout-container > main { flex: 1; }
 
-/* --- HEADER GRID --- */
+/* ── En-tête ── */
 .main-header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr; /* Centrage parfait du menu */
-  align-items: center;
-  padding: 1.5rem 5%;
-  background: var(--surface);
   position: sticky;
   top: 0;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  padding: var(--sp-4) var(--gutter);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 
-/* Alignements de la grille */
-.header-left {
+.header-left { display: flex; align-items: center; flex-shrink: 0; }
+
+.header-menus-wrapper {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-6);
+  flex: 1;
+  min-width: 0;
 }
 
 .header-center {
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+  align-items: center;
+  gap: var(--sp-1);
+  min-width: 0;
 }
 
 .header-right {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: clamp(1rem, 2vw, 1.5rem);
+  gap: var(--sp-3);
+  flex-shrink: 0;
 }
 
-
-/* --- NAVIGATION DYNAMIQUE --- */
+/* ── Éléments de navigation ── */
 .nav-item {
-  text-decoration: none;
-  color: var(--text);
-  font-weight: var(--fw-bold);
-  font-size: var(--nav-font-size);
-  padding: 0.6rem 0.3rem;
-  border-radius: var(--r-md); 
-  
-  font-size: 25px;
-  
-  /* Transition fluide pour le hover et le clic */
-  transition: background-color 0.3s ease, color 0.3s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  display: inline-block;
-  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-md);
+  color: var(--text-soft);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
 }
 
-/* Effet au survol (le contenant) */
 .nav-item:hover {
-  background-color: var(--brand);
-  color: var(--on-brand);
-  transform: translateY(-6px);
+  background: var(--surface-sunk);
+  color: var(--brand);
+  text-decoration: none;
 }
 
-/* Effet Dynamique au Clic (ressort) */
-.nav-item:active {
-  transform: scale(0.92);
-  background-color: var(--brand-hover);
-}
-
-/* Bouton Connexion (reset pour se comporter comme un nav-item) */
 .btn-login-trigger {
   border: none;
   background: none;
   font-family: inherit;
+  cursor: pointer;
 }
 
-/* FOOTER NETTOYÉ */
-.main-footer {
-  background-color: var(--surface);
-  padding: clamp(4rem, 8vw, 8rem) 2rem 4rem 2rem;
-  text-align: center;
-  color: var(--text-muted);
-  position: relative;
-  /* Correction : Un seul margin-top et un seul z-index */
-  border-top: 1px solid var(--border);
-  z-index: 3;
+/* ── Bouton de téléchargement ── */
+.btn-download-app {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: 0 var(--sp-4);
+  background: var(--brand);
+  color: var(--on-brand);
+  border: none;
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
 }
 
-/* POPOVER (Reste inchangé mais vérifié) */
-/* =========================================
-   POPOVER DE CONNEXION (Style SaaS Premium)
-========================================= */
+.btn-download-app:hover { background: var(--brand-hover); }
 
-.login-wrapper {
-  position: relative;
+/* ── Sélecteur de langue ── */
+.lang-wrapper { position: relative; }
+
+.btn-lang-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: 0 var(--sp-3);
+  background: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--text-soft);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
 }
+
+.btn-lang-trigger:hover { border-color: var(--brand); color: var(--brand); }
+
+.chevron { transition: transform var(--dur-base) var(--ease); }
+.btn-lang-trigger.open .chevron { transform: rotate(180deg); }
+
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  right: 0;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--elev-3);
+  overflow: hidden;
+  z-index: 1002;
+}
+
+.lang-option {
+  min-height: var(--tap);
+  padding: 0 var(--sp-4);
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.lang-option:hover { background: var(--surface-sunk); color: var(--brand); }
+.lang-option.active {
+  background: var(--brand-wash);
+  color: var(--brand);
+  font-weight: var(--fw-semibold);
+}
+
+/* ── Panneau de connexion ── */
+.login-wrapper { position: relative; }
 
 .login-popover {
   position: absolute;
-  /* On le place juste en dessous du bouton avec un petit espace */
-  top: calc(100% + 15px); 
+  top: calc(100% + var(--sp-3));
   right: 0;
-  width: 600px; /* Un peu plus large pour que le texte respire */
-  background: var(--surface);
-  border-radius: var(--r-xl); /* Des bords bien ronds */
-
-  /* Une ombre très douce mais très large pour l'effet "flottant" */
-  box-shadow: var(--elev-3);
-  border: 1px solid var(--border);
-  
+  width: min(520px, calc(100vw - var(--sp-8)));
   display: flex;
-  padding: 3rem 1.5rem;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--elev-3);
   z-index: 1001;
-  
-  /* On réutilise l'animation de bas en haut du menu langue ! */
-  animation: slideFromBottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  
-  /* L'origine de l'animation en haut à droite pour un effet d'ouverture naturel */
-  transform-origin: top right; 
 }
 
-/* --- Les Colonnes (Connexion / Inscription) --- */
 .popover-section {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Aligné à gauche, plus facile à lire */
-  gap: 0.5rem;
-  padding: 0 1rem;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  min-width: 0;
 }
 
 .popover-icon {
-  font-size: var(--fs-2xl);
-  margin-bottom: 0.5rem;
-  background: var(--surface-sunk);
-  width: 55px;
-  height: 55px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--sp-2);
+  background: var(--brand-wash);
   border-radius: var(--r-md);
+  font-size: var(--fs-lg);
 }
 
-.popover-section h4 {
-  margin: 0;
-  color: var(--text);
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-extrabold);
-  letter-spacing: -0.5px;
-}
+.popover-section h4 { font-size: var(--fs-md); }
 
 .popover-section p {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-sm);
   color: var(--text-muted);
-  margin: 0 0 1rem 0;
-  line-height: 1.4;
+  margin-bottom: var(--sp-3);
 }
 
-/* Le trait de séparation plus subtil */
-.popover-divider {
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--border), transparent);
-  margin: 0;
-}
+.popover-divider { width: 1px; background: var(--border); }
 
-/* --- LE CONTENEUR QUI GÈRE L'ESPACE --- */
 .popover-actions {
   display: flex;
   flex-direction: column;
+  gap: var(--sp-2);
   width: 100%;
-  gap: 12px; /* 👈 C'est ici qu'on gère l'espace exact entre les deux boutons ! */
-  margin-top: 10px;
+  margin-top: auto;
 }
 
-/* --- Les Boutons du Popover (Base) --- */
 .popover-btn {
   display: flex;
-  justify-content: center;
   align-items: center;
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border-radius: var(--r-full);
-  text-decoration: none;
-  font-size: var(--fs-md);
-  font-weight: var(--fw-bold);
+  justify-content: center;
+  min-height: var(--tap);
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin: 0;
-  box-sizing: border-box;
+  border: 1px solid transparent;
 }
 
-/* Bouton principal (Se connecter / Dashboard) */
-.popover-btn.btn-primary {
-  background: var(--brand);
-  color: var(--on-brand);
-  border: none;
-}
+.popover-btn.btn-primary { background: var(--brand); color: var(--on-brand); }
+.popover-btn.btn-primary:hover { background: var(--brand-hover); text-decoration: none; }
 
-.popover-btn.btn-primary:hover {
-  background: var(--brand-hover);
-  transform: translateY(-2px);
-}
-
-/* Bouton secondaire (S'inscrire / Se déconnecter) */
 .popover-btn.btn-outline {
-  background: var(--surface-sunk);
-  border: 2px solid var(--border);
-  color: var(--text);
-}
-
-.popover-btn.btn-outline:hover {
-  transform: translateY(-2px);
-}
-
-.popover-btn:active {
-  transform: scale(0.95);
-}
-
-/* --- BOUTON TÉLÉCHARGER L'APP --- */
-.btn-download-app {
-  position: relative;
-  overflow: hidden; 
-  background-color: var(--brand-hover); 
-  color: var(--text);
-  
-  /* 👇 MODIFICATIONS ICI : 0.5rem en hauteur (pour qu'il respire) et 0.8rem en largeur (pour le raccourcir) */
-  padding: 0.5rem 0.8rem; 
-  
-  border-radius: var(--r-full);
-  font-weight: var(--fw-bold);
-  
-  /* 👇 MODIFICATION ICI : On réduit très légèrement la taille du texte pour gagner de la place */
-  font-size: var(--fs-base); 
-  white-space: nowrap; /* Empêche le texte de se couper sur deux lignes */
-  
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: inherit;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 1; 
-}
-
-/* Le cercle d'accent qui va grandir */
-.btn-download-app::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background-color: var(--brand);
-  border-radius: 50%;
-  transform: translate(-60%, -5%); /* Centre le cercle */
-  transition: width 0.15s ease-out, height 0.15s ease-out; /* Vitesse du remplissage */
-  z-index: -1; /* Place le cercle derrière le texte */
-}
-
-/* L'effet au survol */
-.btn-download-app:hover::before {
-  width: 300px; /* Devient assez grand pour couvrir tout le bouton */
-  height: 300px;
-}
-
-.btn-download-app:hover {
-  color: var(--on-brand); /* Contraste sur l'aplat bleu qui remplit le bouton */
-  transform: translateY(-8px); /* Soulèvement subtil (j'ai remis -2px car -10px était un peu extrême) */
-  box-shadow: 0 6px 15px var(--brand-wash); /* L'ombre prend l'accent */
-}
-
-/* Effet au clic (Enfoncement) */
-.btn-download-app:active {
-  transform: scale(0.95);
-}
-
-/* --- CUSTOM SÉLECTEUR DE LANGUE --- */
-.lang-wrapper {
-  position: relative;
-}
-
-.btn-lang-trigger {
-  background: none;
-  border: 2px solid var(--border);
-  padding: 0.5rem 0.8rem;
-  border-radius: var(--r-md);
-  font-weight: var(--fw-bold);
-  font-family: inherit;
-  font-size: var(--fs-base);
-  color: var(--text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem; /* Espace entre le globe, le texte et la flèche */
-  transition: all 0.3s ease;
-}
-
-.btn-lang-trigger:hover {
-  border-color: var(--brand);
-  color: var(--brand);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--brand-wash);
-}
-
-.btn-lang-trigger:active {
-  transform: scale(0.92);
-}
-
-/* 🔄 La Flèche et sa Rotation */
-.chevron {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Quand le bouton a la classe "open", on tourne le chevron à 180° */
-.btn-lang-trigger.open .chevron {
-  transform: rotate(-180deg);
-}
-
-/* ⬆️ Le Menu Déroulant (Animation du bas vers le haut) */
-.lang-dropdown {
-  position: absolute;
-  top: 125%;
-  right: 0;
   background: var(--surface);
-  border-radius: var(--r-md);
-  box-shadow: var(--elev-3);
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 90px;
-  z-index: 1002;
-  
-  /* On appelle notre animation personnalisée */
-  animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Les options du menu */
-.lang-option {
-  background: none;
-  border: none;
-  padding: 0.7rem 1rem;
-  font-weight: var(--fw-bold);
+  border-color: var(--border-strong);
   color: var(--text);
-  cursor: pointer;
-  text-align: left; /* Aligné à gauche c'est souvent plus élégant pour les listes */
-  font-family: inherit;
-  transition: background 0.2s ease, color 0.2s ease;
+}
+.popover-btn.btn-outline:hover { background: var(--surface-sunk); text-decoration: none; }
+
+/* ── Pied de page ── */
+.main-footer {
+  padding: var(--sp-12) var(--gutter);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 }
 
-.lang-option:hover {
-  background: var(--surface-hover);
-  color: var(--brand);
-}
-
-.lang-option.active {
-  color: var(--brand);
-  background: var(--brand-wash);
-}
-
-/* 🎬 L'animation Keyframes (Glissement du bas vers le haut) */
-@keyframes slideUpFade {
-  from {
-    opacity: 0;
-    transform: translateY(35px) scale(0.01); /* Le menu démarre 15px plus bas */
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0); /* Et remonte à sa place naturelle */
-  }
-}
-
-/* =========================================
-   RESPONSIVE MOBILE (MENU DÉROULANT À DROITE)
-========================================= */
-
-/* Le bouton hamburger caché par défaut sur PC */
+/* ── Bascule mobile ── */
 .mobile-toggle-btn {
   display: none;
-  background: transparent;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  background: none;
   border: none;
   color: var(--text);
   cursor: pointer;
-  z-index: 1005;
 }
 
-/* Astuce : sur PC, ce wrapper n'influence pas la grille */
-.header-menus-wrapper {
-  display: contents;
-}
+/* =========================================================================
+   Sous 900px, la navigation se replie dans un panneau déroulant.
+   ========================================================================= */
+@media (max-width: 900px) {
+  .mobile-toggle-btn { display: flex; }
 
-/* DÈS QUE L'ÉCRAN EST PLUS PETIT QUE 1024px */
-@media (max-width: 1200px) {
-  
-  /* 1. Le header devient un simple conteneur flex (Logo à gauche, Burger à droite) */
-  .main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative; /* Point d'ancrage crucial pour la boîte déroulante */
-  }
-
-  /* 2. On affiche le bouton Burger */
-  .mobile-toggle-btn {
-    display: flex;
-    align-items: center;
-  }
-
-  /* 3. Le wrapper devient une petite BOÎTE DÉROULANTE alignée à droite */
   .header-menus-wrapper {
-    display: none; /* Cachée par défaut */
+    display: none;
     position: absolute;
-    top: calc(100% + 10px); /* S'affiche un peu en dessous du header */
-    right: 5%; /* Alignée sur le bouton burger */
-    width: 320px; /* Largeur fixe (et non 100% de l'écran) */
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-4);
+    padding: var(--sp-5) var(--gutter) var(--sp-8);
     background: var(--surface);
-    border-radius: var(--r-lg);
-    box-shadow: var(--elev-3); /* Ombre bien visible */
-    padding: 1.5rem;
-    border: 1px solid var(--border);
-    z-index: 1000;
-    transform-origin: top right; /* L'animation partira de l'icône */
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--elev-3);
+    max-height: calc(100dvh - 72px);
+    overflow-y: auto;
   }
 
-  /* 4. Quand le state isMobileMenuOpen est true, on affiche la boîte */
-  .header-menus-wrapper.open {
-    display: flex;
+  .header-menus-wrapper.open { display: flex; }
+
+  .header-center,
+  .header-right {
     flex-direction: column;
-    gap: 1.5rem;
-    animation: popMenu 0.2s ease-out forwards;
-  }
-
-  /* 5. On empile proprement les éléments à l'intérieur */
-  .header-center, .header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    gap: 1rem;
-  }
-
-  .nav-item {
+    align-items: stretch;
+    gap: var(--sp-2);
     width: 100%;
   }
 
-  /* 6. Le Popover de connexion "fusionne" avec la boîte mobile pour ne pas déborder */
+  .nav-item { justify-content: flex-start; font-size: var(--fs-base); }
+
   .login-popover {
-    position: static; /* Il n'est plus flottant, il prend sa place dans la liste */
+    position: static;
     width: 100%;
+    flex-direction: column;
     box-shadow: none;
-    border: 2px solid var(--border);
-    margin-top: 10px;
-    padding: 1.5rem;
-    border-radius: var(--r-md);
+    padding: var(--sp-4);
   }
 
-  .popover-divider {
-    width: 100%;
-    height: 1px;
-    background: var(--border);
-    margin: 1rem 0;
-  }
-}
-
-/* L'animation : la boîte apparaît et grandit légèrement depuis le bouton */
-@keyframes popMenu {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  .popover-divider { width: 100%; height: 1px; }
 }
