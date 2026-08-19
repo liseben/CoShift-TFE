@@ -10,8 +10,8 @@
 .spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid var(--accent-wash);
-  border-top-color: var(--accent);
+  border: 3px solid var(--brand-wash);
+  border-top-color: var(--brand);
   border-radius: var(--r-full);
   animation: spin 0.75s linear infinite;
 }
@@ -51,9 +51,9 @@
 }
 
 .auth-error-message {
-  background: var(--error-wash);
-  border: 1px solid var(--error);
-  color: var(--error-soft);
+  background: var(--danger-wash);
+  border: 1px solid var(--danger);
+  color: var(--danger);
   padding: var(--sp-4);
   border-radius: var(--r-sm);
   margin-bottom: var(--sp-4);
@@ -65,7 +65,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  background: var(--surface-2);
+  background: var(--surface-sunk);
   border: 1px solid var(--border);
   color: var(--text-soft);
   padding: var(--sp-2) var(--sp-4);

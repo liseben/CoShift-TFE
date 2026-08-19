@@ -23,10 +23,8 @@
 
 /* --- LA CARTE PRINCIPALE DÉCOLLÉE --- */
 .actus-floating-container {
-  background-color: var(--surface-1);
+  background-color: var(--surface);
   border: 1px solid var(--border);
-  backdrop-filter: blur(var(--blur-card));
-  -webkit-backdrop-filter: blur(var(--blur-card));
   width: 95%;
   max-width: 75%; /* Ne prend pas toute la largeur de l'écran */
   border-radius: var(--r-xl); /* Bords bien ronds */
@@ -56,7 +54,7 @@
   text-align: center;
   margin-bottom: 4rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid var(--divider); /* Sépare doucement le titre du contenu */
+  border-bottom: 1px solid var(--border); /* Sépare doucement le titre du contenu */
 }
 
 .actus-header h1 {
@@ -125,7 +123,7 @@
 
 .category-btn.active {
   background: rgba(255, 140, 0, 0.1);
-  color: var(--accent);
+  color: var(--brand);
 }
 
 .cat-icon {
@@ -164,7 +162,7 @@
   display: grid;
   grid-template-columns: 250px 1fr; /* Image à gauche, texte à droite */
   gap: 2rem;
-  background: var(--surface-1);
+  background: var(--surface);
   padding: 1.5rem;
   border-radius: var(--r-xl);
   border: 1px solid var(--border);
@@ -192,7 +190,7 @@
 
 .news-source {
   font-size: var(--fs-sm);
-  color: var(--accent);
+  color: var(--brand);
   font-weight: var(--fw-bold);
   margin-bottom: 0.8rem;
   text-transform: uppercase;
@@ -222,7 +220,7 @@
 }
 
 .read-more:hover {
-  color: var(--accent);
+  color: var(--brand);
 }
 
 /* RESPONSIVE (Mobiles) */
@@ -316,7 +314,7 @@
 }
 
 .pag-btn {
-    background: var(--surface-2);
+    background: var(--surface-sunk);
     border: 1px solid var(--border-strong);
     color: var(--text);
     padding: 10px 20px;
@@ -327,7 +325,7 @@
 }
 
 .pag-btn:not(:disabled):hover {
-    background: var(--accent); /* La couleur primaire de CoShift */
+    background: var(--brand); /* La couleur primaire de CoShift */
     border-color: transparent;
     transform: translateY(-2px);
 }
@@ -350,16 +348,16 @@
 .error-state, .empty-state {
     text-align: center;
     padding: 40px;
-    background: var(--error-wash);
-    border: 1px solid var(--error);
+    background: var(--danger-wash);
+    border: 1px solid var(--danger);
     border-radius: var(--r-md);
-    color: var(--error-soft);
+    color: var(--danger);
     font-weight: var(--fw-medium);
     margin-top: 20px;
 }
 
 .empty-state {
-    background: var(--surface-2);
+    background: var(--surface-sunk);
     border-color: var(--border);
     color: var(--text-soft);
 }
@@ -373,7 +371,7 @@
 
 .skeleton {
     display: flex;
-    background: var(--surface-2) !important;
+    background: var(--surface-sunk) !important;
     border-color: transparent !important;
     pointer-events: none;
 }

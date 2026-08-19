@@ -1,73 +1,101 @@
 /* =========================================================================
    CoShift — jetons de conception
-   Source unique de verite. Voir CHARTE_GRAPHIQUE.md §6.
-   Aucune valeur brute ne doit etre ecrite ailleurs : toujours var(--*).
+   Source unique de verite. Aucune valeur brute ailleurs : toujours var(--*).
+
+   PARTI PRIS : clair, aere, lisible. Chaque couleur porte une information,
+   aucune n'est decorative.
+
+     bleu   la route, le trajet, la confiance institutionnelle (B2B)
+     vert   le partage : place libre, reservation acceptee, gain ecologique
+     ambre  l'attente : demande en cours, depart imminent
+     rouge  la rupture : annule, refuse, complet
+
+   Tous les couples texte/fond sont verifies au calcul de luminance WCAG 2.1
+   et atteignent AA au minimum.
    ========================================================================= */
 
 :root {
   /* ── Fonds ── */
-  --bg:            #0f1a1c;
-  --surface-1:     rgba(255, 255, 255, 0.04);
-  --surface-2:     rgba(255, 255, 255, 0.06);
-  --surface-hover: rgba(255, 255, 255, 0.09);
-  --surface-solid: #131f22;
-  --on-accent:     #0b1416;
+  --bg:            #F7F9FC;   /* Fond applicatif, bleute tres pale */
+  --surface:       #FFFFFF;   /* Cartes, panneaux, champs */
+  --surface-sunk:  #EEF2F8;   /* Zones en retrait, pistes, separateurs pleins */
+  --surface-hover: #F2F6FC;
 
   /* ── Bordures ── */
-  --border:        rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --divider:       rgba(255, 255, 255, 0.07);
+  --border:        #E3E9F0;
+  --border-strong: #CBD5E1;
 
-  /* ── Texte — plancher AA respecte ── */
-  --text:          #f1f5f9;   /* 16,18:1 */
-  --text-soft:     #cbd5e1;   /* 11,94:1 */
-  --text-muted:    #94a3b8;   /*  6,91:1 — plancher pour tout texte < 24px */
-  --text-faint:    #7d8b9c;   /*  5,10:1 — remplace #64748b, desormais conforme AA */
-  --text-deco:     #5b6b7a;   /*  3,23:1 — decoratif uniquement (icones, >= 24px) */
+  /* ── Texte ── */
+  --text:       #0F1F33;   /* 15,75:1 — AAA */
+  --text-soft:  #3D4E63;   /*  8,07:1 — AAA */
+  --text-muted: #5E7085;   /*  4,82:1 — AA, plancher pour tout texte < 24px */
 
-  /* ── Accent ── */
-  --accent:        #60a5fa;
-  --accent-strong: #3b82f6;
-  --accent-soft:   #93c5fd;
-  --accent-wash:   rgba(96, 165, 250, 0.12);
+  /* ── Bleu : la route ── */
+  --brand:         #1D4ED8;   /* 6,35:1 */
+  --brand-hover:   #1E40AF;   /* 8,27:1 */
+  --brand-wash:    #E8EFFD;   /* Fond de pastille, etat actif */
+  --brand-on-dark: #7DA3F5;   /* Sur fond sombre (pied de page, logo inverse) */
+  --on-brand:      #FFFFFF;   /* 6,70:1 sur --brand */
 
-  /* ── Semantique ── */
-  --ok:    #34d399;  --ok-soft:    #6ee7b7;  --ok-wash:    rgba(52, 211, 153, 0.13);
-  --warn:  #fbbf24;  --warn-soft:  #fcd34d;  --warn-wash:  rgba(251, 191, 36, 0.13);
-  --error: #f87171;  --error-soft: #fca5a5;  --error-wash: rgba(248, 113, 113, 0.13);
+  /* ── Vert : le partage ── */
+  --eco:         #0F7A3D;   /* 5,14:1 */
+  --eco-hover:   #0B5E2E;
+  --eco-wash:    #E8F6EE;
+  --eco-on-dark: #4ADE80;
+  --on-eco:      #FFFFFF;   /* 5,42:1 sur --eco */
 
-  /* ── Espacements — grille de 4 ── */
+  /* ── Ambre : l'attente ── */
+  --pending:      #9A5B00;   /* 5,14:1 */
+  --pending-wash: #FFF6E5;
+
+  /* ── Rouge : la rupture ── */
+  --danger:      #B3261E;   /* 6,20:1 */
+  --danger-wash: #FDECEA;
+  --on-danger:   #FFFFFF;
+
+  /* ── Espacements — grille de 4, genereuse ── */
   --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
   --sp-5: 20px;  --sp-6: 24px;  --sp-8: 32px;  --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
 
-  /* ── Typographie — ratio 1.125 ── */
-  --font: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --fs-xs:  0.75rem;   --fs-sm:  0.85rem;   --fs-base: 0.95rem;
-  --fs-md:  1.05rem;   --fs-lg:  1.25rem;   --fs-xl:   1.6rem;   --fs-2xl: 2.2rem;
-  /* Palier d'affichage, hors des 7 tailles de la charte : les titres
-     heros montaient a 3.5rem, aucun jeton ne les couvrait. */
-  --fs-3xl: 3rem;
-  --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;  --fw-bold: 700;
-  /* Graisse d'affichage : 12 titres etaient en 800, la ramener a 700 les
-     aurait tous allegis. Elle absorbe le 900 isole. */
-  --fw-extrabold: 800;
+  /* ── Largeurs de conteneur ── */
+  --w-prose:  68ch;    /* Colonne de lecture : article, texte long */
+  --w-form:   440px;   /* Formulaire centre : connexion, inscription */
+  --w-app:    1180px;  /* Grilles applicatives : tableau de bord, listes */
+  --w-wide:   1360px;  /* Sections de la page d'accueil */
+  --gutter:   clamp(16px, 4vw, 32px);
+
+  /* ── Typographie ── */
+  --font-display: 'Outfit Variable', 'Outfit', system-ui, sans-serif;
+  --font:         'Inter Variable', 'Inter', system-ui, sans-serif;
+
+  --fs-xs:   0.75rem;  --fs-sm:  0.875rem;  --fs-base: 1rem;
+  --fs-md:   1.125rem; --fs-lg:  1.375rem;  --fs-xl:   1.75rem;
+  --fs-2xl:  2.25rem;  --fs-3xl: 3rem;
+
+  --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;
+  --fw-bold: 700;    --fw-extrabold: 800;
+
+  --lh-tight: 1.15;  --lh-snug: 1.35;  --lh-base: 1.6;
 
   /* ── Rayons ── */
-  --r-sm: 8px;  --r-md: 12px;  --r-lg: 16px;  --r-xl: 20px;  --r-full: 999px;
+  --r-sm: 8px;  --r-md: 12px;  --r-lg: 16px;  --r-xl: 24px;  --r-full: 999px;
 
-  /* ── Elevation ── */
-  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --elev-2: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
-  --elev-accent: 0 9px 22px -10px rgba(96, 165, 250, 0.6);
-  --focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.45);
-
-  /* ── Verre ── */
-  --blur-card: 12px;
-  --blur-nav:  20px;
+  /* ── Elevation — douce, en couches, propre au mode clair ── */
+  --elev-1: 0 1px 2px rgba(15, 31, 51, 0.06),
+            0 1px 3px rgba(15, 31, 51, 0.08);
+  --elev-2: 0 4px 8px -2px rgba(15, 31, 51, 0.08),
+            0 2px 4px -2px rgba(15, 31, 51, 0.06);
+  --elev-3: 0 12px 24px -6px rgba(15, 31, 51, 0.12),
+            0 4px 8px -4px rgba(15, 31, 51, 0.08);
+  --focus-ring: 0 0 0 3px rgba(29, 78, 216, 0.35);
 
   /* ── Mouvement ── */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur-fast: 0.18s;  --dur-base: 0.25s;
+  --dur-fast: 0.15s;  --dur-base: 0.22s;
+
+  /* ── Cible tactile minimale (WCAG 2.5.8) ── */
+  --tap: 44px;
 }
 
-/* Points de rupture retenus : 640px (mobile), 900px (tablette), 1200px (large) */
+/* Points de rupture : 640px (mobile), 900px (tablette), 1200px (large) */

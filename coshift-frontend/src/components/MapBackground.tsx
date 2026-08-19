@@ -151,7 +151,7 @@ export default function MapBackground() {
             pitch: 70,
             bearing: 0,
           }}
-          mapStyle="mapbox://styles/mapbox/dark-v11"
+          mapStyle="mapbox://styles/mapbox/light-v11"
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
           interactive={false}
           // On désactive les rendus dupliqués du monde pour alléger la carte graphique

@@ -1,55 +1,12 @@
-/* Fonte variable Inter — sans cet import, 'Inter' n'est jamais chargee et les
-   graisses non standard retombent sur la pile systeme (charte §5.2). */
+/* Fontes variables. Outfit porte les titres et le logo, Inter l'interface. */
+@import '@fontsource-variable/outfit';
 @import '@fontsource-variable/inter';
 
-/* Source unique des jetons de conception (charte §6). */
+/* Jetons de conception : couleurs, echelles, elevations. */
 @import './styles/tokens.css';
 
-/* Motifs partages entre pages : spinner, champs, erreurs (charte §5.6). */
+/* Socle : reinitialisation, typographie, conteneurs, accessibilite. */
+@import './styles/base.css';
+
+/* Motifs partages entre pages. */
 @import './styles/components.css';
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: var(--font);
-  background-color: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-html {
-  /* 137,5 % de 16px = les memes 22px qu'avant, mais l'unite relative
-     laisse le reglage de taille du navigateur agir (WCAG 1.4.4). */
-  font-size: 137.5%;
-}
-
-/* Le site compte 18 animations. Sans cette regle, un utilisateur ayant
-   demande la reduction du mouvement les subit toutes (charte §5.9). */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Anneau de focus homogene pour la navigation au clavier (charte §5.11).
-   :focus-visible ne se declenche pas au clic souris : la souris ne voit
-   rien, le clavier voit tout. */
-:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--r-sm);
-}

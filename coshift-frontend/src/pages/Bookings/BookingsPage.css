@@ -48,7 +48,7 @@
 .bk-alert {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.3);
-  color: var(--error-soft);
+  color: var(--danger);
   padding: 13px 17px;
   border-radius: var(--r-md);
   font-size: var(--fs-base);
@@ -63,7 +63,7 @@
 
 
 
-.bk-empty-icon { color: var(--text-deco); margin-bottom: 16px; }
+.bk-empty-icon { color: var(--text-muted); margin-bottom: 16px; }
 
 .bk-empty h3 {
   margin: 0 0 8px;
@@ -73,7 +73,7 @@
 
 .bk-empty p {
   margin: 0 0 20px;
-  color: var(--text-faint);
+  color: var(--text-muted);
   font-size: var(--fs-base);
 }
 
@@ -85,12 +85,11 @@
 }
 
 .bk-card {
-  background: var(--surface-1);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-left: 3px solid var(--border-strong);
   border-radius: var(--r-lg);
   padding: 20px 22px;
-  backdrop-filter: blur(var(--blur-card));
   animation: bk-rise 0.32s ease both;
 }
 
@@ -100,11 +99,11 @@
 }
 
 /* La couleur du liseré encode le statut : lisible d'un coup d'oeil. */
-.bk-card.tone-wait { border-left-color: var(--warn); }
-.bk-card.tone-ok   { border-left-color: var(--ok); }
-.bk-card.tone-bad  { border-left-color: var(--error); }
-.bk-card.tone-off  { border-left-color: var(--text-faint); }
-.bk-card.tone-done { border-left-color: var(--accent); }
+.bk-card.tone-wait { border-left-color: var(--pending); }
+.bk-card.tone-ok   { border-left-color: var(--eco); }
+.bk-card.tone-bad  { border-left-color: var(--danger); }
+.bk-card.tone-off  { border-left-color: var(--text-muted); }
+.bk-card.tone-done { border-left-color: var(--brand); }
 
 .bk-card-head {
   display: flex;
@@ -124,11 +123,11 @@
   border-radius: var(--r-sm);
 }
 
-.bk-badge.tone-wait { background: rgba(251, 191, 36, 0.13); color: var(--warn-soft); }
-.bk-badge.tone-ok   { background: rgba(52, 211, 153, 0.13); color: var(--ok-soft); }
-.bk-badge.tone-bad  { background: rgba(248, 113, 113, 0.13); color: var(--error-soft); }
+.bk-badge.tone-wait { background: var(--pending-wash); color: var(--pending); }
+.bk-badge.tone-ok   { background: var(--eco-wash); color: var(--eco); }
+.bk-badge.tone-bad  { background: rgba(248, 113, 113, 0.13); color: var(--danger); }
 .bk-badge.tone-off  { background: rgba(148, 163, 184, 0.13); color: var(--text-muted); }
-.bk-badge.tone-done { background: rgba(96, 165, 250, 0.13); color: var(--accent-soft); }
+.bk-badge.tone-done { background: var(--brand-wash); color: var(--brand); }
 
 .bk-date {
   display: flex;
@@ -152,10 +151,10 @@
   color: var(--text);
 }
 
-.bk-arrow { color: var(--accent); flex-shrink: 0; }
+.bk-arrow { color: var(--brand); flex-shrink: 0; }
 
 .bk-reason {
-  background: var(--surface-1);
+  background: var(--surface);
   border-radius: var(--r-sm);
   padding: 9px 12px;
   font-size: var(--fs-sm);
@@ -186,14 +185,14 @@
   flex-shrink: 0;
 }
 
-.bk-avatar { object-fit: cover; border: 2px solid rgba(96, 165, 250, 0.35); }
+.bk-avatar { object-fit: cover; border: 2px solid var(--brand-wash); }
 
 .bk-avatar-initial {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+  color: var(--on-brand);
   font-weight: var(--fw-extrabold);
 }
 
@@ -224,7 +223,7 @@
 .bk-price {
   font-size: var(--fs-lg);
   font-weight: var(--fw-extrabold);
-  color: var(--accent);
+  color: var(--brand);
   font-variant-numeric: tabular-nums;
 }
 
@@ -234,16 +233,16 @@
   gap: 7px;
   margin-top: 14px;
   padding: 8px 13px;
-  background: rgba(52, 211, 153, 0.09);
-  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: var(--eco-wash);
+  border: 1px solid var(--eco-wash);
   border-radius: var(--r-sm);
-  color: var(--ok-soft);
+  color: var(--eco);
   font-size: var(--fs-sm);
   text-decoration: none;
   transition: background 0.18s ease;
 }
 
-.bk-contact:hover { background: rgba(52, 211, 153, 0.16); }
+.bk-contact:hover { background: var(--eco-wash); }
 
 /* ── Actions ── */
 .bk-actions {
@@ -273,8 +272,8 @@
 }
 
 .bk-btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+  color: var(--on-brand);
   border: none;
 }
 
@@ -284,7 +283,7 @@
 }
 
 .bk-btn-ghost {
-  background: var(--surface-2);
+  background: var(--surface-sunk);
   border-color: var(--border-strong);
   color: var(--text-soft);
 }
@@ -294,18 +293,18 @@
 .bk-btn-danger {
   background: rgba(248, 113, 113, 0.1);
   border-color: rgba(248, 113, 113, 0.3);
-  color: var(--error-soft);
+  color: var(--danger);
 }
 
 .bk-btn-danger:hover { background: rgba(248, 113, 113, 0.18); }
 
 .bk-btn-accept {
-  background: rgba(52, 211, 153, 0.14);
-  border-color: rgba(52, 211, 153, 0.35);
-  color: var(--ok-soft);
+  background: var(--eco-wash);
+  border-color: var(--eco-wash);
+  color: var(--eco);
 }
 
-.bk-btn-accept:hover { background: rgba(52, 211, 153, 0.24); }
+.bk-btn-accept:hover { background: var(--eco-wash); }
 
 .bk-btn-primary:disabled,
 .bk-btn-ghost:disabled,
@@ -321,7 +320,7 @@
 
 .bk-input {
   width: 100%;
-  background: var(--surface-2);
+  background: var(--surface-sunk);
   border: 1px solid var(--border-strong);
   border-radius: var(--r-sm);
   padding: 10px 13px;
@@ -331,8 +330,8 @@
   transition: border-color 0.18s ease;
 }
 
-.bk-input:focus { border-color: var(--accent); }
-.bk-input::placeholder { color: var(--text-faint); }
+.bk-input:focus { border-color: var(--brand); }
+.bk-input::placeholder { color: var(--text-muted); }
 
 .bk-reject-form .bk-actions { border-top: none; padding-top: 0; margin-top: 12px; }
 

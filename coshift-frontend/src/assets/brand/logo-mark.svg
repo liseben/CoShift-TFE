@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48"
+     fill="none" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"
+     role="img" aria-label="CoShift">
+  <title>CoShift</title>
+  <!-- Deux trajets distincts, l'un du conducteur, l'autre du passager. -->
+  <path d="M8 11 C 19 11, 21 24, 29 24" stroke="#1D4ED8"/>
+  <path d="M8 37 C 19 37, 21 24, 29 24" stroke="#1D4ED8" opacity="0.55"/>
+  <!-- Ils fusionnent : le trajet partage, en vert, est le gain ecologique. -->
+  <path d="M29 24 H 41" stroke="#0F7A3D"/>
+  <path d="M35.5 18.5 L 41 24 L 35.5 29.5" stroke="#0F7A3D"/>
+  <!-- Les deux points de depart. -->
+  <circle cx="8" cy="11" r="3.2" fill="#1D4ED8" stroke="none"/>
+  <circle cx="8" cy="37" r="3.2" fill="#1D4ED8" stroke="none" opacity="0.55"/>
+</svg>

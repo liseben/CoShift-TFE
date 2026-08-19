@@ -33,15 +33,15 @@
 }
 
 .td-success {
-  background: rgba(52, 211, 153, 0.1);
-  border: 1px solid rgba(52, 211, 153, 0.3);
-  color: var(--ok-soft);
+  background: var(--eco-wash);
+  border: 1px solid var(--eco-wash);
+  color: var(--eco);
 }
 
 .td-alert {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.3);
-  color: var(--error-soft);
+  color: var(--danger);
 }
 
 @keyframes td-slide {
@@ -64,18 +64,17 @@
 }
 
 .td-card {
-  background: var(--surface-1);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 26px;
-  backdrop-filter: blur(var(--blur-card));
 }
 
 .td-section-label {
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.11em;
-  color: var(--text-faint);
+  color: var(--text-muted);
   margin: 0 0 14px;
   font-weight: var(--fw-semibold);
 }
@@ -84,7 +83,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--accent);
+  color: var(--brand);
   font-size: var(--fs-sm);
   margin: 0 0 22px;
   text-transform: capitalize;
@@ -118,13 +117,13 @@
   flex-shrink: 0;
 }
 
-.td-dot.dep { background: var(--ok); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.15); }
-.td-dot.arr { background: var(--accent); box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15); }
+.td-dot.dep { background: var(--eco); box-shadow: 0 0 0 4px var(--eco-wash); }
+.td-dot.arr { background: var(--brand); box-shadow: 0 0 0 4px var(--brand-wash); }
 
 .td-line {
   width: 2px;
   height: 34px;
-  background: linear-gradient(180deg, var(--ok), var(--accent));
+  background: linear-gradient(180deg, var(--eco), var(--brand));
   margin: 4px 0 4px 63px;
   opacity: 0.5;
 }
@@ -175,15 +174,15 @@
 }
 
 .td-chip.on {
-  background: rgba(52, 211, 153, 0.09);
-  border-color: rgba(52, 211, 153, 0.25);
-  color: var(--ok-soft);
+  background: var(--eco-wash);
+  border-color: var(--eco-wash);
+  color: var(--eco);
 }
 
 .td-chip.off {
-  background: var(--surface-1);
+  background: var(--surface);
   border-color: var(--border);
-  color: var(--text-faint);
+  color: var(--text-muted);
   text-decoration: line-through;
 }
 
@@ -209,8 +208,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+  color: var(--on-brand);
   font-weight: var(--fw-extrabold);
   font-size: var(--fs-lg);
 }
@@ -247,16 +246,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-2);
-  color: var(--text-faint);
+  background: var(--surface-sunk);
+  color: var(--text-muted);
 }
 
 /* ── Panneau de réservation ── */
 .td-aside { position: sticky; top: 100px; }
 
 .td-booking-card {
-  border-color: rgba(96, 165, 250, 0.22);
-  background: rgba(96, 165, 250, 0.05);
+  border-color: var(--brand-wash);
+  background: var(--brand-wash);
 }
 
 .td-price-row {
@@ -268,7 +267,7 @@
 .td-price {
   font-size: var(--fs-2xl);
   font-weight: var(--fw-extrabold);
-  color: var(--accent);
+  color: var(--brand);
   letter-spacing: -0.02em;
 }
 
@@ -294,7 +293,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--surface-2);
+  background: var(--surface-sunk);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   padding: 6px;
@@ -313,7 +312,7 @@
   transition: background 0.18s ease;
 }
 
-.td-seat-picker button:hover:not(:disabled) { background: rgba(96, 165, 250, 0.25); }
+.td-seat-picker button:hover:not(:disabled) { background: var(--brand-wash); }
 .td-seat-picker button:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .td-seat-picker span {
@@ -347,8 +346,8 @@
   padding: 13px;
   border: none;
   border-radius: var(--r-md);
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
+  color: var(--on-brand);
   font-size: var(--fs-base);
   font-weight: var(--fw-bold);
   cursor: pointer;
@@ -364,14 +363,14 @@
 
 .td-hint {
   font-size: var(--fs-xs);
-  color: var(--text-faint);
+  color: var(--text-muted);
   line-height: 1.5;
   margin: 12px 0 0;
   text-align: center;
 }
 
 .td-unavailable {
-  background: var(--surface-1);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   padding: 14px;

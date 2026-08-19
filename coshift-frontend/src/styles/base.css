@@ -1,0 +1,160 @@
+/* =========================================================================
+   CoShift — socle et mise en page
+   Reinitialisation, rythme typographique, conteneurs, grilles.
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* 100 % = la taille choisie par l'utilisateur dans son navigateur.
+     Toute valeur figee en px ici casserait le reglage (WCAG 1.4.4). */
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  color: var(--text);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Empeche tout debordement horizontal : la cause n°1 du scroll lateral
+     sur mobile est un enfant plus large que son parent. */
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  text-wrap: balance;          /* Evite les titres a mot orphelin */
+  color: var(--text);
+}
+
+h1 { font-size: var(--fs-2xl); }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-lg); }
+h4 { font-size: var(--fs-md); }
+
+p { text-wrap: pretty; }
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+a:hover { text-decoration: underline; }
+
+/* Les medias ne debordent jamais de leur conteneur. */
+img, svg, video, canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Les mots tres longs (adresses, e-mails) cassent plutot que de deborder. */
+p, h1, h2, h3, h4, li, td, dd {
+  overflow-wrap: break-word;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; }
+
+/* =========================================================================
+   CONTENEURS
+   Un seul mecanisme de largeur : une classe, une intention. Fini les
+   `max-width` en dur recopies de page en page.
+   ========================================================================= */
+
+.container {
+  width: 100%;
+  max-width: var(--w-app);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container--prose { max-width: var(--w-prose); }
+.container--form  { max-width: var(--w-form); }
+.container--wide  { max-width: var(--w-wide); }
+.container--flush { padding-inline: 0; }
+
+/* Rythme vertical d'une page : meme respiration partout. */
+.page {
+  padding-block: var(--sp-12) var(--sp-20);
+}
+
+.stack   { display: flex; flex-direction: column; gap: var(--sp-4); }
+.stack-6 { display: flex; flex-direction: column; gap: var(--sp-6); }
+.stack-8 { display: flex; flex-direction: column; gap: var(--sp-8); }
+
+/* Grille auto-adaptative : jamais de media query pour un simple pavage.
+   Le `min()` empeche le debordement sous 320px, ou 300px serait deja trop. */
+.grid-auto {
+  display: grid;
+  gap: var(--sp-6);
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+}
+
+/* =========================================================================
+   ACCESSIBILITE
+   ========================================================================= */
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--r-sm);
+}
+
+/* Cible tactile minimale sur les commandes interactives (WCAG 2.5.8). */
+button, a[role="button"], input[type="checkbox"], input[type="radio"] {
+  min-height: var(--tap);
+}
+
+button.is-inline, a.is-inline { min-height: auto; }
+
+/* Lien d'evitement : premier element focusable, invisible jusqu'au focus. */
+.skip-link {
+  position: absolute;
+  left: var(--sp-4);
+  top: calc(-1 * var(--sp-20));
+  z-index: 2000;
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  box-shadow: var(--elev-3);
+  transition: top var(--dur-base) var(--ease);
+}
+
+.skip-link:focus-visible { top: var(--sp-4); }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

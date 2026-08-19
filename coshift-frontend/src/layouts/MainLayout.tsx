@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import MarqueeText from "../components/marqueeText/MarqueeText";
+import Logo from "../components/Logo/Logo";
 import { useAuth } from "../context/AuthContext";
 import { FiGlobe } from "react-icons/fi";
 import "./MainLayout.css";
@@ -62,8 +63,8 @@ export default function MainLayout() {
       {/* HEADER */}
       <header className="main-header">
         <div className="header-left">
-          <Link to="/" className="logo">
-            CoShift
+          <Link to="/" aria-label="CoShift, accueil">
+            <Logo size={34} />
           </Link>
         </div>
 
