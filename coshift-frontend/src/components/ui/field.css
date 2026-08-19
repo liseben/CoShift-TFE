@@ -1,0 +1,97 @@
+/* Habillage commun a Input, Select et Textarea.
+   Defini une seule fois : trois champs, un seul jeu de regles. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;          /* Permet au champ de retrecir dans une grille */
+}
+
+.field__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-soft);
+}
+
+/* L'asterisque seule ne suffit pas : le mot est lu par les lecteurs d'ecran. */
+.field__required {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+.field__control {
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  transition: border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease);
+}
+
+.field__control::placeholder { color: var(--text-muted); }
+
+.field__control:hover:not(:disabled) { border-color: var(--text-muted); }
+
+.field__control:focus-visible {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: var(--focus-ring);
+}
+
+.field__control:disabled {
+  background: var(--surface-sunk);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.field--invalid .field__control {
+  border-color: var(--danger);
+}
+
+.field--invalid .field__control:focus-visible {
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.3);
+}
+
+/* Message d'aide et message d'erreur : places sous le champ, jamais en
+   haut de page — l'utilisateur doit voir la cause a l'endroit du probleme. */
+.field__hint {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--danger);
+}
+
+/* ── Textarea ── */
+.field__control--textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: var(--lh-base);
+}
+
+/* ── Select : chevron dessine en CSS, pas d'image a charger ── */
+.field__control--select {
+  appearance: none;
+  padding-right: var(--sp-10);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(50% + 2px),
+    calc(100% - 14px) calc(50% + 2px);
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}

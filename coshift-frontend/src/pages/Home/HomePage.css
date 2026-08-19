@@ -31,7 +31,7 @@
   border: 1px solid var(--border-strong);
 }
 
-.badge {
+.hero-pill {
   background-color: var(--brand-wash);
   color: var(--brand);
   padding: 0.4rem 1rem;

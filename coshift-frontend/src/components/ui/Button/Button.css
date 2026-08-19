@@ -1,0 +1,99 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  font-family: var(--font);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+
+.btn:hover { text-decoration: none; }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Tailles — la hauteur minimale garantit la cible tactile ── */
+.btn--sm { min-height: 36px; padding: 0 var(--sp-3); font-size: var(--fs-sm); }
+.btn--md { min-height: var(--tap); padding: 0 var(--sp-5); font-size: var(--fs-base); }
+.btn--lg { min-height: 52px; padding: 0 var(--sp-8); font-size: var(--fs-md); }
+
+.btn--block { width: 100%; }
+
+/* ── Variantes ── */
+.btn--primary {
+  background: var(--brand);
+  color: var(--on-brand);
+  box-shadow: var(--elev-1);
+}
+.btn--primary:hover:not(:disabled) { background: var(--brand-hover); box-shadow: var(--elev-2); }
+
+.btn--eco {
+  background: var(--eco);
+  color: var(--on-eco);
+  box-shadow: var(--elev-1);
+}
+.btn--eco:hover:not(:disabled) { background: var(--eco-hover); box-shadow: var(--elev-2); }
+
+.btn--danger {
+  background: var(--danger);
+  color: var(--on-danger);
+  box-shadow: var(--elev-1);
+}
+.btn--danger:hover:not(:disabled) { filter: brightness(0.92); }
+
+.btn--secondary {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.btn--secondary:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-soft);
+}
+.btn--ghost:hover:not(:disabled) { background: var(--surface-sunk); color: var(--text); }
+
+/* ── Chargement ── */
+.btn.is-loading { cursor: progress; }
+
+.btn__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--r-full);
+  opacity: 0.85;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.btn__icon {
+  display: inline-flex;
+  font-size: 1.15em;
+  flex-shrink: 0;
+}
+
+/* Sous 640px, un bouton isole prend la largeur : plus facile a viser. */
+@media (max-width: 640px) {
+  .btn--lg { width: 100%; }
+}

@@ -10,6 +10,7 @@ import SearchTripsPage from "./pages/Trips/SearchTripsPage";
 import CreateTripPage from "./pages/Trips/CreateTripPage";
 import TripDetailPage from "./pages/Trips/TripDetailPage";
 import MyBookingsPage from "./pages/Bookings/MyBookingsPage";
+import StyleguidePage from "./pages/Styleguide/StyleguidePage";
 
 // Pages fictives temporaires pour éviter les erreurs
 const EntreprisesPage = () => (
@@ -49,6 +50,8 @@ function App() {
               seraient interprétés comme des identifiants de trajet. */}
           <Route path="trips/:uuid" element={<TripDetailPage />} />
           <Route path="bookings" element={<MyBookingsPage />} />
+          {/* Planche des composants : reference visuelle et support du rapport. */}
+          <Route path="styleguide" element={<StyleguidePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

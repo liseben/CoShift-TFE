@@ -1,0 +1,70 @@
+.card {
+  display: block;
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-1);
+  color: inherit;
+  min-width: 0;              /* Autorise le retrecissement en grille */
+  overflow-wrap: break-word; /* Une adresse longue ne deborde pas */
+}
+
+.card--pad-sm { padding: var(--sp-4); }
+.card--pad-md { padding: var(--sp-6); }
+.card--pad-lg { padding: var(--sp-8); }
+
+/* ── Carte cliquable ── */
+.card--link {
+  text-decoration: none;
+  transition: box-shadow var(--dur-base) var(--ease),
+              border-color var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
+}
+
+.card--link:hover {
+  box-shadow: var(--elev-3);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.card--link:active { transform: translateY(0); }
+
+/* ── Liseres de statut ── */
+.card--brand,
+.card--eco,
+.card--pending,
+.card--danger {
+  border-left-width: 4px;
+}
+
+.card--brand   { border-left-color: var(--brand); }
+.card--eco     { border-left-color: var(--eco); }
+.card--pending { border-left-color: var(--pending); }
+.card--danger  { border-left-color: var(--danger); }
+
+/* ── En-tete ── */
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.card__title {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  margin: 0;
+  min-width: 0;
+}
+
+.card__action {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}

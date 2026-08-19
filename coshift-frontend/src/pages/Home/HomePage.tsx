@@ -10,7 +10,7 @@ export default function HomePage() {
       {/* HERO SECTION - On s'assure qu'elle est au-dessus avec le z-index dans le CSS */}
       <section className="hero-section">
         <div className="hero-content">
-          <span className="badge">B2B & Campus</span>
+          <span className="hero-pill">B2B & Campus</span>
           <h1 className="hero-title">
             Partagez vos trajets quotidiens avec{" "}
             <span className="highlight">CoShift</span>

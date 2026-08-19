@@ -1,0 +1,96 @@
+.modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: rgba(15, 31, 51, 0.45);
+  animation: modal-fade var(--dur-base) var(--ease);
+}
+
+.modal {
+  width: 100%;
+  max-height: calc(100dvh - var(--sp-8));
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--elev-3);
+  animation: modal-rise var(--dur-base) var(--ease);
+}
+
+.modal--sm { max-width: 420px; }
+.modal--md { max-width: 560px; }
+.modal--lg { max-width: 780px; }
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-6) var(--sp-6) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal__title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  margin: 0;
+  min-width: 0;
+}
+
+.modal__close {
+  background: none;
+  border: none;
+  font-size: var(--fs-xl);
+  line-height: 1;
+  color: var(--text-muted);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.modal__close:hover { color: var(--text); background: var(--surface-sunk); }
+
+/* Seul le corps defile : l'en-tete et le pied restent accessibles. */
+.modal__body {
+  padding: var(--sp-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-6) var(--sp-6);
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-rise {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Sur mobile, la modale se colle en bas : plus proche du pouce. */
+@media (max-width: 640px) {
+  .modal__overlay { align-items: flex-end; padding: 0; }
+
+  .modal {
+    max-width: none;
+    max-height: 92dvh;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+  }
+
+  .modal__foot { flex-direction: column-reverse; }
+  .modal__foot > * { width: 100%; }
+}
