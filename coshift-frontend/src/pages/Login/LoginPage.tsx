@@ -1,330 +1,211 @@
 import { GoogleLogin } from "@react-oauth/google";
-import React, { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
-import "./LoginPage.css";
-
 import { API_BASE } from "../../config/api";
+import { Alert, Button, Input } from "../../components/ui";
+import "../Auth/auth.css";
 
+type View = "login" | "forgot";
 
-const LoginPage: React.FC = () => {
+export default function LoginPage() {
   const { login } = useAuth();
-  const [view, setView] = useState<"login" | "forgot">("login");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-
-  const [forgotEmail, setForgotEmail] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  // États pour la communication avec le backend
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+  const [view, setView] = useState<View>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
 
-    try {
-      // Appel API vers ton backend Spring Boot
-      const response = await axios.post(`${API_BASE}/api/auth/login`, {
-        email,
-        password,
-      });
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-      const token = response.data.token;
-      if (token) {
-        // 1. On lance la connexion
-        login(token);
-
-        // 2. On attend un tout petit peu (optionnel mais plus sûr) pour que le contexte s'initialise
-        // Puis on redirige vers l'accueil ("/")
-        setTimeout(() => {
-          navigate("/");
-        }, 100);
-      }
-    } catch (err: any) {
-      console.error("Erreur de connexion :", err);
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        setError("Email ou mot de passe incorrect.");
-      } else {
-        setError("Impossible de joindre le serveur. Veuillez réessayer.");
-      }
-      setIsLoading(false); // On arrête le chargement seulement en cas d'erreur
-    }
+  const enter = (token: string) => {
+    login(token);
+    navigate("/");
   };
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const googleToken = credentialResponse.credential;
-
-      const response = await axios.post(`${API_BASE}/api/auth/google`, {
-        token: googleToken,
-      });
-
-      const token = response.data.token;
-      if (token) {
-        // 1. On lance la connexion
-        login(token);
-
-        // 2. Redirection vers l'accueil
-        setTimeout(() => {
-          navigate("/");
-        }, 100);
-      }
-    } catch (err: any) {
-      console.error("Erreur Google :", err);
-
-      // 1. Si ton GlobalExceptionHandler Spring Boot renvoie un JSON avec un champ 'message'
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      }
-      // 2. Fallback explicite si le backend renvoie juste un statut 401 (Unauthorized)
-      else if (err.response?.status === 401 || err.response?.status === 403) {
-        setError("Cet utilisateur n'existe pas. Veuillez créer un compte.");
-      }
-      // 3. Si c'est une autre erreur (serveur éteint, pas de connexion, etc.)
-      else {
-        setError("Échec de la connexion avec Google. Veuillez réessayer.");
-      }
-
-      setIsLoading(false);
-    }
-  };
-
-  const handleForgotSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
-    setSuccessMessage(null);
-
     try {
-      // Préparation de l'appel API (on créera cette route côté Spring Boot plus tard)
-      await axios.post(`${API_BASE}/api/auth/forgot-password`, {
-        email: forgotEmail,
-      });
-
-      setSuccessMessage(
-        "Si ce compte existe, un email avec les instructions a été envoyé.",
+      const { data } = await axios.post(`${API_BASE}/api/auth/login`, { email, password });
+      if (data.token) enter(data.token);
+    } catch (err) {
+      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+      setError(
+        status === 401 || status === 403
+          ? "E-mail ou mot de passe incorrect."
+          : "Impossible de joindre le serveur. Veuillez réessayer.",
       );
-      setForgotEmail(""); // On vide le champ
-    } catch (err: any) {
-      console.error("Erreur récupération :", err);
+      setLoading(false);
+    }
+  };
+
+  const handleGoogle = async (credential: string | undefined) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data } = await axios.post(`${API_BASE}/api/auth/google`, { token: credential });
+      if (data.token) enter(data.token);
+    } catch (err) {
+      const res = axios.isAxiosError(err) ? err.response : undefined;
+      setError(
+        res?.data?.message ??
+          (res?.status === 401 || res?.status === 403
+            ? "Cet utilisateur n'existe pas. Veuillez créer un compte."
+            : "Échec de la connexion avec Google. Veuillez réessayer."),
+      );
+      setLoading(false);
+    }
+  };
+
+  const handleForgot = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await axios.post(`${API_BASE}/api/auth/forgot-password`, { email: forgotEmail });
+      setSuccess("Si ce compte existe, un e-mail contenant les instructions vient d'être envoyé.");
+      setForgotEmail("");
+    } catch {
       setError("Impossible de contacter le serveur. Veuillez réessayer.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const switchView = (newView: "login" | "forgot") => {
-    setView(newView);
+  const switchView = (next: View) => {
+    setView(next);
     setError(null);
-    setSuccessMessage(null);
+    setSuccess(null);
   };
-  
+
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h2 className="login-title">
-            {view === "login" ? "Connexion CoShift" : "Mot de passe oublié"}
-          </h2>
-          <p>
+    <div className="auth">
+      <div className="auth__card">
+        <header className="auth__head">
+          <h1 className="auth__title">
+            {view === "login" ? "Connexion" : "Mot de passe oublié"}
+          </h1>
+          <p className="auth__lead">
             {view === "login"
               ? "Connectez-vous pour proposer ou trouver un trajet."
-              : "Entrez votre adresse email pour recevoir un lien de réinitialisation."}
+              : "Indiquez votre adresse pour recevoir un lien de réinitialisation."}
           </p>
-        </div>
+        </header>
 
-        {error && <div className="auth-error-message">⚠️ {error}</div>}
-        {successMessage && (
-          <div className="auth-success-message">✅ {successMessage}</div>
-        )}
+        {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
+        {success && <Alert tone="success">{success}</Alert>}
 
-        {/* --- DÉBUT DE LA CONDITION D'AFFICHAGE --- */}
         {view === "login" ? (
           <>
-            {/* --- LE NOUVEAU BOUTON GOOGLE --- */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "20px",
-              }}
-            >
+            <div className="auth__google">
               <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() =>
-                  setError(
-                    "La fenêtre Google a été fermée ou une erreur est survenue.",
-                  )
-                }
-                theme="filled_black"
+                onSuccess={(r) => handleGoogle(r.credential)}
+                onError={() => setError("La fenêtre Google s'est fermée ou une erreur est survenue.")}
                 shape="pill"
                 text="continue_with"
               />
             </div>
 
-            <div
-              style={{
-                textAlign: "center",
-                color: "rgba(255,255,255,0.5)",
-                marginBottom: "20px",
-                fontSize: "0.9rem",
-              }}
-            >
-              — OU —
-            </div>
+            <p className="auth__sep">ou</p>
 
-            <form onSubmit={handleSubmit} className="login-form">
-              <div className="input-group">
-                <label className="input-label">Email</label>
-                <input
-                  type="email"
-                  className="login-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+            <form onSubmit={handleSubmit} className="auth__form">
+              <Input
+                label="Adresse e-mail"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setError(null)}
+                placeholder="prenom.nom@entreprise.be"
+                required
+              />
+
+              <div className="auth__password">
+                <Input
+                  label="Mot de passe"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setError(null)}
                   required
-                  placeholder="elisabeth@blabla.be"
                 />
+                <button
+                  type="button"
+                  className="auth__eye"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                  <EyeIcon off={showPassword} />
+                </button>
               </div>
 
-              <div className="input-group">
-                <label className="input-label">Mot de passe</label>
-                <div className="password-wrapper">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="login-input"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setError(null)}
-                    required
-                    placeholder="Votre mot de passe"
-                  />
-
-                  <button
-                    type="button"
-                    className="eye-button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={
-                      showPassword
-                        ? "Masquer le mot de passe"
-                        : "Afficher le mot de passe"
-                    }
-                  >
-                    {/* ... (Tes icônes SVG restent identiques) ... */}
-                    {showPassword ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                        <line x1="1" y1="1" x2="23" y2="23"></line>
-                      </svg>
-                    ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="auth-options">
-                <label className="remember-me">
+              <div className="auth__options">
+                <label className="auth__remember">
                   <input type="checkbox" /> Se souvenir de moi
                 </label>
-                {/* ICI : Le lien devient un span qui déclenche la vue "forgot" */}
-                <span
-                  className="forgot-password"
-                  onClick={() => switchView("forgot")}
-                  style={{ cursor: "pointer" }}
-                >
+                <button type="button" className="auth__link" onClick={() => switchView("forgot")}>
                   Mot de passe oublié ?
-                </span>
+                </button>
               </div>
 
-              <button
-                type="submit"
-                className={`login-button ${isLoading ? "loading" : ""}`}
-                disabled={isLoading}
-              >
-                {isLoading ? "Connexion en cours..." : "Se connecter"}
-              </button>
+              <Button type="submit" size="lg" block loading={loading}>
+                Se connecter
+              </Button>
             </form>
-
-            
           </>
         ) : (
-          /* --- LE FORMULAIRE QUI MANQUAIT : MOT DE PASSE OUBLIÉ --- */
-          <form onSubmit={handleForgotSubmit} className="login-form">
-            <div className="input-group">
-              <label className="input-label">Email de récupération</label>
-              <input
-                type="email"
-                className="login-input"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                onFocus={() => {
-                  setError(null);
-                  setSuccessMessage(null);
-                }}
-                required
-                placeholder="elisabeth.benga@entreprise.be"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className={`login-button ${isLoading ? "loading" : ""}`}
-              disabled={isLoading}
-            >
-              {isLoading ? "Envoi en cours..." : "Envoyer le lien"}
-            </button>
-
-            <button
-              type="button"
-              className="back-button"
-              onClick={() => switchView("login")}
-            >
+          <form onSubmit={handleForgot} className="auth__form">
+            <Input
+              label="Adresse e-mail"
+              type="email"
+              autoComplete="email"
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+              onFocus={() => { setError(null); setSuccess(null); }}
+              placeholder="prenom.nom@entreprise.be"
+              required
+            />
+            <Button type="submit" size="lg" block loading={loading}>
+              Envoyer le lien
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => switchView("login")}>
               ← Retour à la connexion
-            </button>
+            </Button>
           </form>
         )}
-        {/* --- FIN DE LA CONDITION D'AFFICHAGE --- */}
 
-        <div className="auth-footer">
-          <p>
-            Nouveau sur CoShift ? <Link to="/register">Créer un compte</Link>
-          </p>
-        </div>
+        <p className="auth__foot">
+          Nouveau sur CoShift ? <Link to="/register">Créer un compte</Link>
+        </p>
       </div>
     </div>
   );
-};
+}
 
-export default LoginPage;
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {off ? (
+        <>
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </>
+      ) : (
+        <>
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      )}
+    </svg>
+  );
+}

@@ -1,0 +1,140 @@
+/* Habillage commun aux pages Connexion, Inscription et Vérification.
+   Une seule definition pour trois ecrans qui partagent la meme structure. */
+
+.auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 180px);
+  padding: var(--sp-10) var(--gutter);
+}
+
+.auth__card {
+  width: 100%;
+  max-width: var(--w-form);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--elev-3);
+  padding: var(--sp-10) var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.auth__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  text-align: center;
+}
+
+.auth__title {
+  font-size: var(--fs-xl);
+  margin: 0;
+}
+
+.auth__lead {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  max-width: 34ch;
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* Separateur « ou », trace en CSS plutot qu'avec des tirets typographiques. */
+.auth__sep {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.auth__sep::before,
+.auth__sep::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth__google {
+  display: flex;
+  justify-content: center;
+}
+
+.auth__options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+}
+
+.auth__remember {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.auth__remember input { width: 18px; height: 18px; min-height: auto; accent-color: var(--brand); }
+
+.auth__link {
+  background: none;
+  border: none;
+  color: var(--brand);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  min-height: auto;
+  padding: 0;
+}
+
+.auth__link:hover { text-decoration: underline; }
+
+.auth__foot {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: var(--sp-5);
+}
+
+.auth__foot a { font-weight: var(--fw-semibold); }
+
+/* ── Champ mot de passe avec bascule d'affichage ── */
+.auth__password { position: relative; }
+
+.auth__password .field__control { padding-right: 48px; }
+
+.auth__eye {
+  position: absolute;
+  right: var(--sp-2);
+  bottom: 3px;
+  width: 38px;
+  height: 38px;
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.auth__eye:hover { color: var(--text); background: var(--surface-sunk); }
+
+@media (max-width: 640px) {
+  .auth__card { padding: var(--sp-8) var(--sp-5); }
+}

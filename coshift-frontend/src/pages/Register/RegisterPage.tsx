@@ -1,245 +1,147 @@
-import React, { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from "../../config/api";
+import { Alert, Button, Input } from "../../components/ui";
+import "../Auth/auth.css";
 import "./RegisterPage.css";
 
-import { API_BASE } from "../../config/api";
-
-const RegisterPage: React.FC = () => {
-  const [firstname, setFirstname] = useState<string>("");
-  const [lastname, setLastname] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] =
-    useState<boolean>(false);
-
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+export default function RegisterPage() {
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [show, setShow] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  /* Validation par champ : l'erreur s'affiche sous le champ fautif plutot
+     qu'en un bloc unique en haut du formulaire. */
+  const passwordError =
+    password.length > 0 && password.length < 6
+      ? "Au moins 6 caractères."
+      : undefined;
+  const confirmError =
+    confirm.length > 0 && confirm !== password
+      ? "Les deux mots de passe diffèrent."
+      : undefined;
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // 1. Vérification côté Front-End
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+    if (passwordError || confirmError || password !== confirm) {
+      setError("Corrigez les champs signalés avant de continuer.");
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
-
     try {
-      // 2. Appel API vers ton backend Spring Boot
       await axios.post(`${API_BASE}/api/auth/register`, {
         firstname,
         lastname,
         email,
         password,
       });
-
-      // 3. L'inscription ne renvoie plus de token — l'utilisateur doit vérifier son email
+      // L'inscription ne renvoie pas de jeton : l'e-mail doit d'abord etre verifie.
       navigate(`/verify-email?email=${encodeURIComponent(email)}`);
-    } catch (err: any) {
-      console.error("Erreur d'inscription :", err);
-      // Si le backend renvoie une erreur (ex: email déjà pris)
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else if (err.response?.status === 403 || err.response?.status === 401) {
-        setError("Un compte existe peut-être déjà avec cet email.");
-      } else {
-        setError("Impossible de joindre le serveur. Veuillez réessayer.");
-      }
+    } catch (err) {
+      const res = axios.isAxiosError(err) ? err.response : undefined;
+      setError(
+        res?.data?.message ??
+          (res?.status === 403 || res?.status === 401
+            ? "Un compte existe peut-être déjà avec cette adresse."
+            : "Impossible de joindre le serveur. Veuillez réessayer."),
+      );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <div className="register-header">
-          <h2 className="register-title">Rejoindre CoShift</h2>
-          <p>Créez votre compte pour commencer à covoiturer.</p>
-        </div>
+    <div className="auth">
+      <div className="auth__card">
+        <header className="auth__head">
+          <h1 className="auth__title">Rejoindre CoShift</h1>
+          <p className="auth__lead">Créez votre compte pour commencer à covoiturer.</p>
+        </header>
 
-        {error && <div className="auth-error-message">⚠️ {error}</div>}
+        {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
 
-        <form onSubmit={handleSubmit} className="register-form">
-          {/* Grille pour mettre Prénom et Nom côte à côte */}
-          <div className="name-grid">
-            <div className="input-group">
-              <label className="input-label">Prénom</label>
-              <input
-                type="text"
-                className="register-input"
-                value={firstname}
-                onChange={(e) => setFirstname(e.target.value)}
-                required
-                placeholder="Jean"
-              />
-            </div>
-            <div className="input-group">
-              <label className="input-label">Nom</label>
-              <input
-                type="text"
-                className="register-input"
-                value={lastname}
-                onChange={(e) => setLastname(e.target.value)}
-                required
-                placeholder="Dupont"
-              />
-            </div>
-          </div>
-
-          <div className="input-group">
-            <label className="input-label">Email professionnel</label>
-            <input
-              type="email"
-              className="register-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+        <form onSubmit={handleSubmit} className="auth__form">
+          <div className="register__names">
+            <Input
+              label="Prénom"
+              autoComplete="given-name"
+              value={firstname}
+              onChange={(e) => setFirstname(e.target.value)}
+              placeholder="Jean"
               required
-              placeholder="jean.dupont@entreprise.be"
+            />
+            <Input
+              label="Nom"
+              autoComplete="family-name"
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
+              placeholder="Dupont"
+              required
             />
           </div>
 
-          <div className="input-group">
-            <label className="input-label">Mot de passe</label>
-            <div className="password-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                className="register-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Minimum 6 caractères"
-              />
-              <button
-                type="button"
-                className="eye-button"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={
-                  showPassword
-                    ? "Masquer le mot de passe"
-                    : "Afficher le mot de passe"
-                }
-              >
-                {/* Icônes SVG (Identiques au login) */}
-                {showPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                )}
-              </button>
-            </div>
+          <Input
+            label="E-mail professionnel"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="jean.dupont@entreprise.be"
+            hint="C'est cette adresse qui vous rattache à votre organisation."
+            required
+          />
+
+          <div className="auth__password">
+            <Input
+              label="Mot de passe"
+              type={show ? "text" : "password"}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={passwordError}
+              hint={passwordError ? undefined : "6 caractères minimum."}
+              required
+            />
+            <button
+              type="button"
+              className="auth__eye"
+              onClick={() => setShow((v) => !v)}
+              aria-label={show ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+            >
+              {show ? "◎" : "○"}
+            </button>
           </div>
 
-          <div className="input-group">
-            <label className="input-label">Confirmer le mot de passe</label>
-            <div className="password-wrapper">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                className="register-input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="Retapez votre mot de passe"
-              />
-              <button
-                type="button"
-                className="eye-button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label={
-                  showConfirmPassword
-                    ? "Masquer le mot de passe"
-                    : "Afficher le mot de passe"
-                }
-              >
-                {showConfirmPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
+          <Input
+            label="Confirmer le mot de passe"
+            type={show ? "text" : "password"}
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            error={confirmError}
+            required
+          />
 
-          <button
-            type="submit"
-            className={`register-button ${isLoading ? "loading" : ""}`}
-            disabled={isLoading}
-          >
-            {isLoading ? "Création en cours..." : "Créer mon compte"}
-          </button>
+          <Button type="submit" size="lg" block loading={loading}>
+            Créer mon compte
+          </Button>
         </form>
 
-        <div className="auth-footer">
-          <p>
-            Vous avez déjà un compte ? <Link to="/login">Se connecter</Link>
-          </p>
-        </div>
+        <p className="auth__foot">
+          Déjà inscrit ? <Link to="/login">Se connecter</Link>
+        </p>
       </div>
     </div>
   );
-};
-
-export default RegisterPage;
+}
