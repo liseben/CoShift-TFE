@@ -39,6 +39,17 @@ N_VEHICLES = 112
 N_TRIPS = 150
 N_ARTICLES = 100
 
+# Décalage appliqué à tous les identifiants du jeu de test.
+#
+# Une base de développement contient presque toujours quelques lignes créées
+# à la main pendant les essais, qui occupent les identifiants 1, 2, 3… Insérer
+# le jeu à partir de 1 provoque alors une violation de clé primaire, et Flyway
+# marque la migration en échec — l'application refuse ensuite de démarrer.
+#
+# En partant de 1001, le jeu cohabite avec les données existantes au lieu de
+# leur rentrer dedans. L'AUTO_INCREMENT reprend au-dessus après insertion.
+ID_OFFSET = 1000
+
 # ─────────────────────────────────────────────────────────────────────────────
 #  Vocabulaire de base
 # ─────────────────────────────────────────────────────────────────────────────
@@ -255,7 +266,7 @@ def build():
     # ── Organisations ──
     for i, (name, slug, kind) in enumerate(ORGANISATIONS, start=1):
         orgs.append({
-            "id": i, "uuid": uuid_for("0a1", i), "name": name, "slug": slug,
+            "id": ID_OFFSET + i, "uuid": uuid_for("0a1", i), "name": name, "slug": slug,
             "kind": kind, "domain": f"{slug}.be",
             "created": dt(TODAY - timedelta(days=random.randint(400, 900)), 9, 0),
         })
@@ -279,7 +290,7 @@ def build():
         rating = 0.0 if trips_count == 0 else round(random.uniform(3.6, 5.0), 1)
 
         users.append({
-            "id": i, "uuid": uuid_for("0b2", i), "email": email,
+            "id": ID_OFFSET + i, "uuid": uuid_for("0b2", i), "email": email,
             "firstname": prenom, "lastname": nom,
             "phone": f"+324{random.randint(70, 99)}{random.randint(100000, 999999)}",
             "role": "ADMIN" if i <= 2 else "USER",
@@ -288,7 +299,7 @@ def build():
             "created": dt(TODAY - timedelta(days=random.randint(30, 700)),
                           random.randint(8, 20), random.choice([0, 15, 30, 45])),
         })
-        members.append((i, org["id"]))
+        members.append((ID_OFFSET + i, org["id"]))
 
     # Un utilisateur sur cinq appartient à une seconde organisation
     # (consultant, étudiant en alternance, prestataire).
@@ -313,7 +324,7 @@ def build():
                 plates.add(plate)
                 break
         vehicles.append({
-            "id": i, "uuid": uuid_for("0c3", i), "brand": brand, "model": model,
+            "id": ID_OFFSET + i, "uuid": uuid_for("0c3", i), "brand": brand, "model": model,
             "plate": plate, "seats": seats, "energy": random.choice(energies),
             "owner_id": owner["id"],
             "created": dt(TODAY - timedelta(days=random.randint(20, 600)), 10, 0),
@@ -353,7 +364,7 @@ def build():
             status = random.choices(["PLANNED", "FULL", "CANCELLED"], [82, 12, 6])[0]
 
         trips.append({
-            "id": i, "uuid": uuid_for("0d4", i),
+            "id": ID_OFFSET + i, "uuid": uuid_for("0d4", i),
             "dep": dep, "arr": arr,
             # Guillemets doubles obligatoires ici : en Python, 'de l''Industrie'
             # concatène deux littéraux et fait disparaître l'apostrophe.
@@ -428,7 +439,7 @@ def build():
                 ])
 
             bookings.append({
-                "id": bid, "uuid": uuid_for("0e5", bid),
+                "id": ID_OFFSET + bid, "uuid": uuid_for("0e5", bid),
                 "trip_id": t["id"], "passenger_id": p["id"],
                 "seats": seats_booked,
                 "total": round(seats_booked * t["price"], 2),
@@ -470,6 +481,45 @@ def build():
 def check(orgs, users, members, vehicles, trips, bookings, articles):
     errs = []
     tri = {t["id"]: t for t in trips}
+
+    # ── Clés étrangères ──
+    # Contrôle ajouté après un incident réel : le décalage des identifiants
+    # avait été appliqué partout sauf au rattachement des membres, qui
+    # pointait alors vers des utilisateurs inexistants. MySQL l'aurait
+    # refusé, et Flyway aurait marqué la migration en échec.
+    ids_users = {u["id"] for u in users}
+    ids_orgs = {o["id"] for o in orgs}
+    ids_veh = {v["id"] for v in vehicles}
+    ids_trips = {t["id"] for t in trips}
+
+    for u, o in members:
+        if u not in ids_users:
+            errs.append(f"organization_members : utilisateur {u} inexistant")
+        if o not in ids_orgs:
+            errs.append(f"organization_members : organisation {o} inexistante")
+    for v in vehicles:
+        if v["owner_id"] not in ids_users:
+            errs.append(f"vehicule {v['id']} : proprietaire {v['owner_id']} inexistant")
+    for t in trips:
+        if t["driver_id"] not in ids_users:
+            errs.append(f"trajet {t['id']} : conducteur inexistant")
+        if t["vehicule_id"] not in ids_veh:
+            errs.append(f"trajet {t['id']} : vehicule inexistant")
+        if t["org_id"] is not None and t["org_id"] not in ids_orgs:
+            errs.append(f"trajet {t['id']} : organisation inexistante")
+    for b in bookings:
+        if b["trip_id"] not in ids_trips:
+            errs.append(f"reservation {b['id']} : trajet inexistant")
+        if b["passenger_id"] not in ids_users:
+            errs.append(f"reservation {b['id']} : passager inexistant")
+
+    # Tous les identifiants doivent rester au-dessus du décalage, sans quoi
+    # ils entrent en collision avec les lignes déjà présentes en base.
+    for nom, jeu in (("users", ids_users), ("organizations", ids_orgs),
+                     ("vehicules", ids_veh), ("trips", ids_trips),
+                     ("bookings", {b["id"] for b in bookings})):
+        if jeu and min(jeu) <= ID_OFFSET:
+            errs.append(f"{nom} : identifiant {min(jeu)} sous le decalage {ID_OFFSET}")
 
     for b in bookings:
         t = tri[b["trip_id"]]
