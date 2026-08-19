@@ -1,238 +1,68 @@
-/* ===================================================================
-   VehiclePage — Charte CoShift (Dark Glassmorphism)
-   =================================================================== */
+/* Gestion des véhicules — onglet du tableau de bord. */
 
-.vehicle-page {
+.vc__header {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
-  animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* ── En-tête ── */
-.vehicle-header {
-  display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: var(--sp-4);
   flex-wrap: wrap;
-  gap: 16px;
 }
 
-.vehicle-title {
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-bold);
-  color: var(--text);
-  margin: 0 0 4px;
-  letter-spacing: -0.02em;
-}
-
-.vehicle-subtitle {
+.vc__lead {
   color: var(--text-muted);
   font-size: var(--fs-sm);
-  margin: 0;
+  margin-top: var(--sp-1);
 }
 
-.btn-add-vehicle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
-  color: var(--on-brand);
-  border: none;
-  border-radius: var(--r-md);
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-sm);
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  white-space: nowrap;
-}
-
-.btn-add-vehicle:hover { opacity: 0.9; transform: translateY(-1px); }
-
-/* ── Alerte ── */
-.vehicle-alert {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: var(--danger);
-  padding: 12px 16px;
-  border-radius: var(--r-md);
-  font-size: var(--fs-sm);
-}
-
-/* ── Loading ── */
-.vehicle-loading {
-  display: flex;
-  justify-content: center;
-  padding: 48px 0;
-}
-
-/* ── État vide ── */
-.vehicle-empty {
-  text-align: center;
-  padding: 60px 24px;
-  background: var(--surface);
-  border: 1.5px dashed var(--border);
-  border-radius: var(--r-xl);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.vehicle-empty-icon {
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.vehicle-empty h3 {
-  font-size: var(--fs-md);
-  font-weight: var(--fw-semibold);
-  color: var(--text-soft);
-  margin: 0;
-}
-
-.vehicle-empty p {
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
-  margin: 0 0 8px;
-}
-
-/* ── Grille de cartes ── */
-.vehicle-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.vehicle-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.vehicle-card:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
-}
-
-/* Photo / placeholder */
-.vehicle-card-header {
-  position: relative;
-}
-
-.vehicle-photo {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  display: block;
-}
-
-.vehicle-photo-placeholder {
-  width: 100%;
-  height: 160px;
-  background: linear-gradient(135deg, var(--brand-wash), var(--brand-wash));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-}
-
-/* Boutons d'action flottants */
-.vehicle-card-actions {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 6px;
-}
-
-.vc-btn-edit, .vc-btn-delete {
-  width: 32px;
-  height: 32px;
+/* La plaque se lit comme une plaque : espacée, en capitales. */
+.vc__plate {
+  display: inline-block;
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-4);
+  background: var(--surface-sunk);
+  border: 1px solid var(--border-strong);
   border-radius: var(--r-sm);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.2s;
-}
-
-.vc-btn-edit {
-  background: rgba(96, 165, 250, 0.85);
-  color: var(--on-brand);
-}
-
-.vc-btn-delete {
-  background: rgba(239, 68, 68, 0.8);
-  color: var(--on-brand);
-}
-
-.vc-btn-edit:hover, .vc-btn-delete:hover { opacity: 0.8; }
-
-/* Corps de la carte */
-.vehicle-card-body {
-  padding: 16px;
-}
-
-.vc-name {
-  font-size: var(--fs-md);
+  font-family: var(--font-display);
   font-weight: var(--fw-bold);
-  color: var(--text);
-  margin: 0 0 4px;
-}
-
-.vc-plate {
   font-size: var(--fs-sm);
-  color: var(--text-muted);
-  margin: 0 0 12px;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.vc-tags {
+.vc__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--sp-2);
+  list-style: none;
+  margin-bottom: var(--sp-4);
 }
 
-.vc-tag {
+.vc__tag {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: var(--r-sm);
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-semibold);
-  border: 1px solid;
-}
-
-.vc-tag-seats {
-  color: var(--text-soft);
-  border-color: var(--border);
+  gap: var(--sp-2);
+  padding: 4px var(--sp-3);
   background: var(--surface-sunk);
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
+  color: var(--text-soft);
 }
 
-/* ── Select dans la modale ── */
-.modal-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2360a5fa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
-  cursor: pointer;
+.vc__tag--eco     { background: var(--eco-wash);     color: var(--eco); }
+.vc__tag--pending { background: var(--pending-wash); color: var(--pending); }
+.vc__tag--danger  { background: var(--danger-wash);  color: var(--danger); }
+.vc__tag--brand   { background: var(--brand-wash);   color: var(--brand); }
+
+.vc__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
 }
 
-.modal-select option {
-  background: var(--surface);
-  color: var(--text);
-}
-
-@media (max-width: 640px) {
-  .vehicle-grid { grid-template-columns: 1fr; }
-  .vehicle-header { flex-direction: column; }
+.vc__grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
 }
