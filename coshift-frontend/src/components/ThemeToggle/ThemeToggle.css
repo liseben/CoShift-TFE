@@ -1,0 +1,64 @@
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  min-height: var(--tap);
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.theme-toggle__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 54px;
+  height: 28px;
+  padding: 0 7px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-full);
+  transition: background var(--dur-base) var(--ease),
+              border-color var(--dur-base) var(--ease);
+}
+
+.theme-toggle:hover .theme-toggle__track { border-color: var(--brand); }
+
+.theme-toggle__icon {
+  position: relative;
+  z-index: 1;
+  width: 13px;
+  height: 13px;
+  transition: color var(--dur-base) var(--ease), opacity var(--dur-base) var(--ease);
+}
+
+/* L'icône du mode actif s'efface : le curseur la couvre de toute façon,
+   et c'est la destination du clic qui doit rester lisible. */
+.theme-toggle__icon--sun  { color: var(--pending); }
+.theme-toggle__icon--moon { color: var(--text-muted); opacity: 0.55; }
+
+.theme-toggle.is-dark .theme-toggle__icon--sun  { opacity: 0.45; }
+.theme-toggle.is-dark .theme-toggle__icon--moon { color: var(--brand); opacity: 1; }
+
+.theme-toggle__knob {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%);
+  background: var(--surface);
+  border-radius: var(--r-full);
+  box-shadow: var(--elev-1);
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.theme-toggle.is-dark .theme-toggle__knob {
+  transform: translate(26px, -50%);
+}

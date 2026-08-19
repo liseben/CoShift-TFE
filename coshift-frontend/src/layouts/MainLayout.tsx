@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import MarqueeText from "../components/marqueeText/MarqueeText";
 import Logo from "../components/Logo/Logo";
+import ThemeToggle from "../components/ThemeToggle/ThemeToggle";
+import { Avatar } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { FiGlobe } from "react-icons/fi";
 import "./MainLayout.css";
@@ -123,6 +125,7 @@ export default function MainLayout() {
           </nav>
 
           <div className="header-right action-buttons">
+            <ThemeToggle />
             <button
               className="btn-download-app"
               onClick={() =>
@@ -185,46 +188,14 @@ export default function MainLayout() {
                 <button
                   className="btn-profile-trigger"
                   onClick={() => setShowLoginMenu(!showLoginMenu)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "white",
-                  }}
+                  aria-label="Mon profil"
                 >
-                  {/* La photo de profil (ou l'initiale par défaut) */}
-                  {user.pictureUrl ? (
-                    <img
-                      src={user.pictureUrl}
-                      alt="Profil"
-                      style={{
-                        width: "35px",
-                        height: "35px",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "2px solid var(--primary-color)",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "35px",
-                        height: "35px",
-                        borderRadius: "50%",
-                        backgroundColor: "var(--primary-color)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontWeight: "bold",
-                        color: "var(--on-primary)",
-                      }}
-                    >
-                      {user.firstname.charAt(0)}
-                    </div>
-                  )}
+                  <Avatar
+                    src={user.pictureUrl}
+                    name={`${user.firstname} ${user.lastname}`}
+                    size="sm"
+                    verified={user.emailVerified}
+                  />
 
                   <span className="nav-item">Mon profil</span>
                 </button>
@@ -270,12 +241,7 @@ export default function MainLayout() {
 
                         <button
                           onClick={handleLogout}
-                          className="popover-btn btn-outline"
-                          style={{
-                            color: "#df1515",
-                            borderColor: "#ffebeb",
-                            backgroundColor: "#f7f5f5",
-                          }}
+                          className="popover-btn btn-logout"
                         >
                           Se déconnecter
                         </button>

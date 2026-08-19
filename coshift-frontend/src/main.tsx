@@ -5,6 +5,7 @@ import "./index.css";
 // 1. L'import Google
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // 2. Ta clé magique
 const GOOGLE_CLIENT_ID =
@@ -14,9 +15,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     {/* 3. On enveloppe l'App */}
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>,
 );

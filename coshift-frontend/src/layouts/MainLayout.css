@@ -77,13 +77,19 @@
   cursor: pointer;
 }
 
-/* ── Bouton de téléchargement ── */
+/* ── Bouton de téléchargement ──
+   Le cercle de remplissage part du centre au survol. Il vit dans un
+   pseudo-élément placé derrière le texte, et n'anime que sa largeur et
+   sa hauteur au sein d'un conteneur qui le rogne. */
 .btn-download-app {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;      /* Contient le z-index du pseudo-élément */
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
   min-height: var(--tap);
-  padding: 0 var(--sp-4);
+  padding: 0 var(--sp-5);
   background: var(--brand);
   color: var(--on-brand);
   border: none;
@@ -92,10 +98,43 @@
   font-weight: var(--fw-semibold);
   white-space: nowrap;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease);
+  transition: box-shadow var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
 }
 
-.btn-download-app:hover { background: var(--brand-hover); }
+.btn-download-app::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+  background: var(--brand-hover);
+  border-radius: var(--r-full);
+  transition: width var(--dur-base) ease-out, height var(--dur-base) ease-out;
+}
+
+.btn-download-app:hover::before,
+.btn-download-app:focus-visible::before {
+  width: 260px;
+  height: 260px;
+}
+
+.btn-download-app:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-2);
+}
+
+.btn-download-app:active { transform: translateY(0) scale(0.97); }
+
+/* Le remplissage est un effet de confort : sous préférence de mouvement
+   réduit, on garde le changement de couleur sans l'animation. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-download-app::before { transition: none; }
+  .btn-download-app:hover { background: var(--brand-hover); transform: none; }
+}
 
 /* ── Sélecteur de langue ── */
 .lang-wrapper { position: relative; }
@@ -234,6 +273,30 @@
   color: var(--text);
 }
 .popover-btn.btn-outline:hover { background: var(--surface-sunk); text-decoration: none; }
+
+.popover-btn.btn-logout {
+  background: var(--danger-wash);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.popover-btn.btn-logout:hover { background: var(--danger); color: var(--on-danger); }
+
+/* ── Déclencheur du menu profil ── */
+.btn-profile-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: 0 var(--sp-2);
+  background: none;
+  border: none;
+  border-radius: var(--r-full);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btn-profile-trigger:hover { background: var(--surface-sunk); }
 
 /* ── Pied de page ── */
 .main-footer {

@@ -20,6 +20,36 @@
       content="Publiez vos trajets, réservez ceux de vos collègues, suivez vos réservations."
     />
     <meta name="twitter:card" content="summary" />
+
+    <!--
+      Résolution du thème AVANT le premier rendu.
+
+      Ce script doit rester en ligne et bloquant : s'il était chargé en
+      module différé, la page s'afficherait d'abord en clair puis
+      basculerait, produisant un flash blanc désagréable — et aveuglant
+      pour quelqu'un qui a justement choisi le mode sombre.
+
+      Il écrit toujours une valeur explicite dans data-theme, y compris
+      quand elle vient de la préférence système. Le CSS n'a ainsi qu'un
+      seul bloc sombre à maintenir.
+    -->
+    <script>
+      (function () {
+        try {
+          var choix = localStorage.getItem("coshift_theme");
+          var theme =
+            choix === "light" || choix === "dark"
+              ? choix
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {
+          // Stockage indisponible (navigation privée stricte) : on reste en clair.
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

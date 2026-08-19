@@ -2,56 +2,87 @@
    CoShift — jetons de conception
    Source unique de verite. Aucune valeur brute ailleurs : toujours var(--*).
 
-   PARTI PRIS : clair, aere, lisible. Chaque couleur porte une information,
-   aucune n'est decorative.
+   PARTI PRIS : chaque couleur porte une information, aucune n'est
+   decorative.
 
      bleu   la route, le trajet, la confiance institutionnelle (B2B)
      vert   le partage : place libre, reservation acceptee, gain ecologique
      ambre  l'attente : demande en cours, depart imminent
      rouge  la rupture : annule, refuse, complet
 
-   Tous les couples texte/fond sont verifies au calcul de luminance WCAG 2.1
-   et atteignent AA au minimum.
+   DEUX THEMES. Le clair reste la reference ; le sombre reprend les memes
+   roles avec des teintes eclaircies, parce qu'un bleu profond sur fond
+   sombre devient illisible.
+
+   Le theme est toujours ecrit en clair dans data-theme sur <html>, y
+   compris quand il vient de la preference systeme : un script en tete de
+   index.html le resout avant le premier rendu. C'est ce qui evite le
+   flash de theme au chargement, et ce qui permet de n'ecrire le bloc
+   sombre qu'une seule fois.
+
+   Tous les couples texte/fond sont verifies au calcul de luminance
+   WCAG 2.1 et atteignent AA au minimum.
    ========================================================================= */
 
 :root {
+  color-scheme: light;
+
   /* ── Fonds ── */
-  --bg:            #F7F9FC;   /* Fond applicatif, bleute tres pale */
-  --surface:       #FFFFFF;   /* Cartes, panneaux, champs */
-  --surface-sunk:  #EEF2F8;   /* Zones en retrait, pistes, separateurs pleins */
-  --surface-hover: #F2F6FC;
+  --bg:            #F4F7FB;   /* Legerement bleute : le blanc pur fatigue */
+  --surface:       #FFFFFF;
+  --surface-sunk:  #EDF2F8;
+  --surface-hover: #F1F5FA;
 
   /* ── Bordures ── */
-  --border:        #E3E9F0;
-  --border-strong: #CBD5E1;
+  --border:        #E1E8F0;
+  --border-strong: #C7D2E0;
 
   /* ── Texte ── */
-  --text:       #0F1F33;   /* 15,75:1 — AAA */
-  --text-soft:  #3D4E63;   /*  8,07:1 — AAA */
-  --text-muted: #5E7085;   /*  4,82:1 — AA, plancher pour tout texte < 24px */
+  --text:       #0F1F33;   /* 15,46:1 */
+  --text-soft:  #3D4E63;   /*  7,92:1 */
+  --text-muted: #5E7085;   /*  4,73:1 — plancher pour tout texte < 24px */
 
   /* ── Bleu : la route ── */
-  --brand:         #1D4ED8;   /* 6,35:1 */
-  --brand-hover:   #1E40AF;   /* 8,27:1 */
-  --brand-wash:    #E8EFFD;   /* Fond de pastille, etat actif */
-  --brand-on-dark: #7DA3F5;   /* Sur fond sombre (pied de page, logo inverse) */
-  --on-brand:      #FFFFFF;   /* 6,70:1 sur --brand */
+  --brand:         #1D4ED8;   /* 6,24:1 */
+  --brand-hover:   #1E40AF;
+  --brand-wash:    #E7EEFD;
+  --brand-on-dark: #7DA3F5;
+  --on-brand:      #FFFFFF;
 
   /* ── Vert : le partage ── */
-  --eco:         #0F7A3D;   /* 5,14:1 */
+  --eco:         #0F7A3D;   /* 5,05:1 */
   --eco-hover:   #0B5E2E;
-  --eco-wash:    #E8F6EE;
+  --eco-wash:    #E6F5EC;
   --eco-on-dark: #4ADE80;
-  --on-eco:      #FFFFFF;   /* 5,42:1 sur --eco */
+  --on-eco:      #FFFFFF;
 
   /* ── Ambre : l'attente ── */
-  --pending:      #9A5B00;   /* 5,14:1 */
-  --pending-wash: #FFF6E5;
+  --pending:      #9A5B00;   /* 5,05:1 */
+  --pending-wash: #FDF3E3;
 
   /* ── Rouge : la rupture ── */
-  --danger:      #B3261E;   /* 6,20:1 */
-  --danger-wash: #FDECEA;
+  --danger:      #B3261E;   /* 6,08:1 */
+  --danger-wash: #FCEBE9;
   --on-danger:   #FFFFFF;
+
+  /* ── Elevation — douce, en couches ── */
+  --elev-1: 0 1px 2px rgba(15, 31, 51, 0.06),
+            0 1px 3px rgba(15, 31, 51, 0.08);
+  --elev-2: 0 4px 8px -2px rgba(15, 31, 51, 0.08),
+            0 2px 4px -2px rgba(15, 31, 51, 0.06);
+  --elev-3: 0 12px 24px -6px rgba(15, 31, 51, 0.12),
+            0 4px 8px -4px rgba(15, 31, 51, 0.08);
+  --focus-ring: 0 0 0 3px rgba(29, 78, 216, 0.35);
+
+  /* ── Voile de modale ── */
+  --scrim: rgba(15, 31, 51, 0.45);
+
+  /* ── Style de carte Mapbox correspondant au theme ── */
+  --map-style: "light";
+
+  /* =======================================================================
+     Ce qui suit ne depend pas du theme.
+     ======================================================================= */
 
   /* ── Espacements — grille de 4, genereuse ── */
   --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
@@ -59,10 +90,10 @@
   --sp-12: 48px; --sp-16: 64px; --sp-20: 80px;
 
   /* ── Largeurs de conteneur ── */
-  --w-prose:  68ch;    /* Colonne de lecture : article, texte long */
-  --w-form:   440px;   /* Formulaire centre : connexion, inscription */
-  --w-app:    1180px;  /* Grilles applicatives : tableau de bord, listes */
-  --w-wide:   1360px;  /* Sections de la page d'accueil */
+  --w-prose:  68ch;
+  --w-form:   440px;
+  --w-app:    1180px;
+  --w-wide:   1360px;
   --gutter:   clamp(16px, 4vw, 32px);
 
   /* ── Typographie ── */
@@ -81,21 +112,70 @@
   /* ── Rayons ── */
   --r-sm: 8px;  --r-md: 12px;  --r-lg: 16px;  --r-xl: 24px;  --r-full: 999px;
 
-  /* ── Elevation — douce, en couches, propre au mode clair ── */
-  --elev-1: 0 1px 2px rgba(15, 31, 51, 0.06),
-            0 1px 3px rgba(15, 31, 51, 0.08);
-  --elev-2: 0 4px 8px -2px rgba(15, 31, 51, 0.08),
-            0 2px 4px -2px rgba(15, 31, 51, 0.06);
-  --elev-3: 0 12px 24px -6px rgba(15, 31, 51, 0.12),
-            0 4px 8px -4px rgba(15, 31, 51, 0.08);
-  --focus-ring: 0 0 0 3px rgba(29, 78, 216, 0.35);
-
   /* ── Mouvement ── */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-fast: 0.15s;  --dur-base: 0.22s;
 
   /* ── Cible tactile minimale (WCAG 2.5.8) ── */
   --tap: 44px;
+}
+
+/* =========================================================================
+   Theme sombre.
+
+   Les fonds ne sont jamais noirs : un noir pur sur un ecran OLED cree un
+   contraste si dur que le texte blanc bave. Un bleu-gris profond repose
+   davantage l'oeil.
+
+   Les accents sont eclaircis, et le texte pose dessus devient sombre —
+   l'inverse exact du mode clair, pour la meme raison de contraste.
+   ========================================================================= */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            #0F1620;
+  --surface:       #182230;
+  --surface-sunk:  #131C27;
+  --surface-hover: #202C3C;
+
+  --border:        #2A3646;
+  --border-strong: #3C4B5E;
+
+  --text:       #F1F5F9;   /* 16,58:1 */
+  --text-soft:  #CBD5E1;   /* 12,24:1 */
+  --text-muted: #94A3B8;   /*  7,09:1 */
+
+  --brand:         #7DA3F5;   /* 7,29:1 */
+  --brand-hover:   #A5C0F9;
+  --brand-wash:    rgba(125, 163, 245, 0.16);
+  --brand-on-dark: #7DA3F5;
+  --on-brand:      #0F1620;   /* 7,29:1 sur --brand */
+
+  --eco:         #4ADE80;   /* 10,43:1 */
+  --eco-hover:   #86EFAC;
+  --eco-wash:    rgba(74, 222, 128, 0.15);
+  --eco-on-dark: #4ADE80;
+  --on-eco:      #06210F;
+
+  --pending:      #FCD34D;   /* 12,60:1 */
+  --pending-wash: rgba(252, 211, 77, 0.15);
+
+  --danger:      #FCA5A5;   /* 9,57:1 */
+  --danger-wash: rgba(252, 165, 165, 0.15);
+  --on-danger:   #2A0A08;
+
+  /* Sur fond sombre, une ombre portee ne se voit pas : c'est la bordure
+     qui detache une surface. Les ombres sont donc plus denses et plus
+     larges, sans quoi les cartes flottent sans relief. */
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elev-2: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --elev-3: 0 16px 32px -8px rgba(0, 0, 0, 0.6);
+  --focus-ring: 0 0 0 3px rgba(125, 163, 245, 0.5);
+
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --map-style: "dark";
 }
 
 /* Points de rupture : 640px (mobile), 900px (tablette), 1200px (large) */
