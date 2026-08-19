@@ -1,6 +1,7 @@
 import { useEffect, useRef, useMemo } from "react";
 // 1. On importe MapRef
 import Map, { Source, Layer } from "react-map-gl";
+import { useTheme } from "../context/ThemeContext";
 import type { MapRef } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -24,6 +25,8 @@ const routeGeoJSON = turf.lineString(routeCoordinates);
 const routeLength = turf.length(routeGeoJSON, { units: "kilometers" });
 
 export default function MapBackground() {
+  // Une carte claire sur une interface sombre saute aux yeux.
+  const { theme } = useTheme();
   // 2. On utilise une référence (qui ne déclenche AUCUN re-rendu React)
   const mapRef = useRef<MapRef>(null);
 
@@ -153,7 +156,11 @@ export default function MapBackground() {
             pitch: 70,
             bearing: 0,
           }}
-          mapStyle="mapbox://styles/mapbox/light-v11"
+          mapStyle={
+            theme === "dark"
+              ? "mapbox://styles/mapbox/dark-v11"
+              : "mapbox://styles/mapbox/light-v11"
+          }
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
           interactive={false}
           // On désactive les rendus dupliqués du monde pour alléger la carte graphique

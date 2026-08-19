@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback, type ReactElement } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { FaStar, FaBolt, FaLeaf, FaGasPump, FaSuitcase, FaDog, FaMusic } from "react-icons/fa";
-import { FiArrowRight, FiSearch } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import TripSearchForm, {
   EMPTY_CRITERIA, type TripCriteria,
 } from "../../components/TripSearchForm/TripSearchForm";
-import { Alert, Avatar, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, EmptyState, Spinner } from "../../components/ui";
+import TripCard from "../../components/TripCard/TripCard";
 import "./TripsPage.css";
 
 interface Trip {
@@ -34,23 +34,6 @@ interface Trip {
   };
   vehicule: { brand: string; model: string; seats: number; energy: string };
 }
-
-const ENERGY: Record<string, { icon: ReactElement; label: string }> = {
-  ELECTRIC: { icon: <FaBolt />, label: "Électrique" },
-  HYBRID:   { icon: <FaLeaf />, label: "Hybride" },
-  GASOLINE: { icon: <FaGasPump />, label: "Essence" },
-  DIESEL:   { icon: <FaGasPump />, label: "Diesel" },
-  LPG:      { icon: <FaGasPump />, label: "GPL" },
-};
-
-const formatDate = (iso: string) => {
-  const d = new Date(iso);
-  return (
-    d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) +
-    " à " +
-    d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
-  );
-};
 
 export default function SearchTripsPage() {
   const [params, setParams] = useSearchParams();
@@ -148,72 +131,9 @@ export default function SearchTripsPage() {
           </p>
 
           <div className="grid-auto">
-            {trips.map((t) => {
-              const energy = ENERGY[t.vehicule.energy];
-              const name = `${t.driver.firstname} ${t.driver.lastname}`;
-              return (
-                <Card
-                  key={t.uuid}
-                  to={`/trips/${t.uuid}`}
-                  title={
-                    <span className="trips__route">
-                      {t.departureCity}
-                      <FiArrowRight aria-hidden="true" />
-                      {t.arrivalCity}
-                    </span>
-                  }
-                  action={<span className="trips__price">{t.pricePerSeat.toFixed(2)} €</span>}
-                >
-                  <p className="trips__when">{formatDate(t.departureTime)}</p>
-
-                  <div className="trips__driver">
-                    <Avatar src={t.driver.pictureUrl} name={name} size="sm" />
-                    <div>
-                      <p className="trips__driver-name">{name}</p>
-                      <p className="trips__meta">
-                        {t.driver.averageRating > 0 ? (
-                          <>
-                            <FaStar aria-hidden="true" className="trips__star" />
-                            {t.driver.averageRating.toFixed(1)}
-                          </>
-                        ) : (
-                          "Nouveau conducteur"
-                        )}
-                        {" · "}
-                        {t.vehicule.brand} {t.vehicule.model}
-                      </p>
-                    </div>
-                  </div>
-
-                  <ul className="trips__tags">
-                    <li className="trips__tag trips__tag--seats">
-                      {t.availableSeats} place{t.availableSeats > 1 ? "s" : ""}
-                    </li>
-                    {energy && (
-                      <li className="trips__tag">
-                        <span aria-hidden="true">{energy.icon}</span> {energy.label}
-                      </li>
-                    )}
-                    {t.acceptsLuggage && (
-                      <li className="trips__tag"><FaSuitcase aria-hidden="true" /> Bagages</li>
-                    )}
-                    {t.acceptsPets && (
-                      <li className="trips__tag"><FaDog aria-hidden="true" /> Animaux</li>
-                    )}
-                    {t.musicAllowed && (
-                      <li className="trips__tag"><FaMusic aria-hidden="true" /> Musique</li>
-                    )}
-                  </ul>
-
-                  {/* Pas de bouton ici : la carte entière est déjà le lien.
-                      Un <button> dans un <a> est invalide et double la
-                      tabulation. */}
-                  <p className="trips__cta" aria-hidden="true">
-                    Voir le trajet <FiArrowRight />
-                  </p>
-                </Card>
-              );
-            })}
+            {trips.map((t) => (
+              <TripCard key={t.uuid} trip={t} />
+            ))}
           </div>
         </>
       )}

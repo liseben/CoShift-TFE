@@ -42,7 +42,11 @@ public class SecurityConfiguration {
                 
                 // Routes publiques (auth + vérification + articles publics)
                 .requestMatchers("/api/auth/**").permitAll()
+                // Le flux d'actualités est public, liste ET détail d'un article.
+                // Sans le second motif, la page /actus/{id} renvoyait 401 à un
+                // visiteur non connecté alors que la liste s'affichait.
                 .requestMatchers(HttpMethod.GET, "/api/pwa/articles").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/pwa/articles/**").permitAll()
                 // Photo de profil accessible sans auth (images publiques)
                 .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                 
