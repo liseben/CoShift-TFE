@@ -31,6 +31,12 @@ TODAY = date(2026, 8, 19)
 
 # Mot de passe de test, identique pour tous les comptes générés.
 # Empreinte BCrypt (force 10), vérifiée contre BCryptPasswordEncoder.
+#
+# ATTENTION : la migration V4 remplace ensuite cette empreinte par celle de
+# « 1234 » sur l'ensemble des comptes. Ne pas modifier les constantes
+# ci-dessous pour changer le mot de passe — régénérer V3 modifierait sa somme
+# de contrôle et Flyway refuserait de démarrer sur une base déjà migrée.
+# Le mot de passe effectif se change dans une nouvelle migration.
 PASSWORD_PLAIN = "CoShift2026!"
 PASSWORD_HASH = "$2b$10$zThsISGT7vVVZYemf2tDT.lF5dzhRbbn8NG3Z58AIvez7UXDKdThq"
 
