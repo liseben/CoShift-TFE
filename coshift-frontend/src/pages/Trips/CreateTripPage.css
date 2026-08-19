@@ -1,0 +1,154 @@
+/* Publication d'un trajet. */
+
+.ct__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.ct__lead {
+  color: var(--text-muted);
+  margin-top: var(--sp-2);
+}
+
+.ct__grid {
+  display: grid;
+  gap: var(--sp-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+}
+
+/* ── Choix du véhicule ── */
+.ct__vehicles {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  border: none;
+  padding: 0;
+}
+
+.ct__vehicle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
+}
+
+.ct__vehicle:hover { border-color: var(--brand); }
+
+.ct__vehicle.is-selected {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+/* Le bouton radio reste dans le DOM — il porte le focus clavier et
+   l'état coché — mais l'étiquette entière sert de cible. */
+.ct__vehicle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  min-height: auto;
+}
+
+.ct__vehicle:has(input:focus-visible) {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ct__vehicle-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ct__vehicle-name {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+}
+
+.ct__vehicle-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.ct__check { color: var(--brand); flex-shrink: 0; }
+
+/* ── Préférences ── */
+.ct__prefs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  border: none;
+  padding: 0;
+}
+
+.ct__prefs-legend {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-soft);
+  margin-bottom: var(--sp-3);
+}
+
+.ct__pref {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  padding: 0 var(--sp-4);
+  background: var(--surface-sunk);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease);
+}
+
+.ct__pref.is-on {
+  background: var(--eco-wash);
+  border-color: var(--eco);
+  color: var(--eco);
+  font-weight: var(--fw-semibold);
+}
+
+.ct__pref input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  min-height: auto;
+}
+
+.ct__pref:has(input:focus-visible) {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ct__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .ct__footer { flex-direction: column-reverse; }
+  .ct__footer > * { width: 100%; }
+}

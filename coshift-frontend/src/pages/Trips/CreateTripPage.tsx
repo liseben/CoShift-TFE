@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaEuroSign } from "react-icons/fa";
+import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaSuitcase, FaDog, FaMusic, FaComments } from "react-icons/fa";
 import { FiArrowLeft, FiCheck } from "react-icons/fi";
 import axios from "axios";
-import "./TripsPage.css";
-
 import { API_BASE } from "../../config/api";
+import { Alert, Button, Card, EmptyState, Input, Spinner, Textarea } from "../../components/ui";
+import "./CreateTripPage.css";
 
 interface Vehicule {
   uuid: string;
@@ -15,219 +15,209 @@ interface Vehicule {
   energy: string;
 }
 
-const CreateTripPage: React.FC = () => {
+const ENERGY_LABEL: Record<string, string> = {
+  ELECTRIC: "Électrique", HYBRID: "Hybride", GASOLINE: "Essence",
+  DIESEL: "Diesel", LPG: "GPL",
+};
+
+/* Icônes SVG plutôt qu'emojis : le rendu d'un emoji change d'un système à
+   l'autre, et les lecteurs d'écran en énoncent le nom au milieu du libellé. */
+const PREFERENCES = [
+  { key: "acceptsLuggage", label: "Bagages acceptés", icon: <FaSuitcase /> },
+  { key: "acceptsPets", label: "Animaux acceptés", icon: <FaDog /> },
+  { key: "musicAllowed", label: "Musique autorisée", icon: <FaMusic /> },
+  { key: "talkingAllowed", label: "Discussion bienvenue", icon: <FaComments /> },
+] as const;
+
+export default function CreateTripPage() {
   const navigate = useNavigate();
   const [vehicules, setVehicules] = useState<Vehicule[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [saving, setSaving]       = useState(false);
-  const [error, setError]         = useState<string | null>(null);
-  const [success, setSuccess]     = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const token = () => localStorage.getItem("coshift_token") ?? "";
-  const headers = () => ({ Authorization: `Bearer ${token()}` });
-
-  const [form, setForm] = useState({
-    departureCity:    "",
-    departureAddress: "",
-    arrivalCity:      "",
-    arrivalAddress:   "",
-    departureTime:    "",
-    availableSeats:   1,
-    pricePerSeat:     "",
-    vehiculeUuid:     "",
-    description:      "",
-    acceptsLuggage:   true,
-    acceptsPets:      false,
-    musicAllowed:     true,
-    talkingAllowed:   true,
+  const headers = () => ({
+    Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}`,
   });
 
-  useEffect(() => {
-    axios.get(`${API_BASE}/api/vehicules/mine`, { headers: headers() })
-      .then((r) => { setVehicules(r.data); if (r.data.length > 0) setForm((f) => ({ ...f, vehiculeUuid: r.data[0].uuid })); })
-      .catch(() => setError("Impossible de charger vos véhicules. Enregistrez d'abord un véhicule."))
-      .finally(() => setLoading(false));
-  }, []);
+  const [form, setForm] = useState({
+    departureCity: "", departureAddress: "",
+    arrivalCity: "", arrivalAddress: "",
+    departureTime: "", availableSeats: 1, pricePerSeat: "",
+    vehiculeUuid: "", description: "",
+    acceptsLuggage: true, acceptsPets: false,
+    musicAllowed: true, talkingAllowed: true,
+  });
 
   const set = (key: string, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    axios
+      .get<Vehicule[]>(`${API_BASE}/api/vehicules/mine`, { headers: headers() })
+      .then((r) => {
+        setVehicules(r.data);
+        if (r.data.length > 0) set("vehiculeUuid", r.data[0].uuid);
+      })
+      .catch(() => setError("Impossible de charger vos véhicules."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const selected = vehicules.find((v) => v.uuid === form.vehiculeUuid);
+  // Le conducteur occupe une place : on ne peut en proposer davantage.
+  const maxSeats = selected ? selected.seats - 1 : 8;
+
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.vehiculeUuid) { setError("Sélectionnez un véhicule."); return; }
-    setSaving(true); setError(null);
+    if (!form.vehiculeUuid) {
+      setError("Sélectionnez un véhicule.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
     try {
-      await axios.post(`${API_BASE}/api/trips`, {
-        ...form,
-        pricePerSeat: parseFloat(form.pricePerSeat as string),
-      }, { headers: headers() });
+      await axios.post(
+        `${API_BASE}/api/trips`,
+        { ...form, pricePerSeat: parseFloat(form.pricePerSeat) },
+        { headers: headers() },
+      );
       setSuccess(true);
-      setTimeout(() => navigate("/dashboard"), 2000);
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? "Une erreur est survenue.");
+      setTimeout(() => navigate("/dashboard"), 1800);
+    } catch (err) {
+      setError(
+        (axios.isAxiosError(err) && err.response?.data?.message) ||
+          "Une erreur est survenue.",
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  // Minimum : maintenant + 2h
-  const minDateTime = new Date(Date.now() + 2 * 3600 * 1000)
-    .toISOString().slice(0, 16);
+  // Un trajet ne se publie pas pour dans dix minutes : minimum deux heures.
+  const minDateTime = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 16);
 
   return (
-    <div className="trips-container">
-      <div className="trips-inner">
-
-        {/* ── En-tête ── */}
-        <div className="trips-page-header">
-          <button className="btn-back" onClick={() => navigate(-1)}>
-            <FiArrowLeft size={16} /> Retour
-          </button>
-          <div>
-            <h1 className="trips-page-title">Proposer un trajet</h1>
-            <p className="trips-page-subtitle">
-              Partagez votre trajet et réduisez votre empreinte carbone.
-            </p>
-          </div>
+    <div className="container page stack-8">
+      <header className="ct__header">
+        <Button variant="ghost" size="sm" icon={<FiArrowLeft />} onClick={() => navigate(-1)}>
+          Retour
+        </Button>
+        <div>
+          <h1>Proposer un trajet</h1>
+          <p className="ct__lead">
+            Partagez votre trajet et réduisez votre empreinte carbone.
+          </p>
         </div>
+      </header>
 
-        {success && (
-          <div className="trips-success">
-            <FiCheck size={20} /> Trajet publié avec succès ! Redirection vers votre dashboard...
+      {success && (
+        <Alert tone="success" title="Trajet publié">
+          Redirection vers votre tableau de bord…
+        </Alert>
+      )}
+      {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
+
+      {loading ? (
+        <Spinner size="lg" center showLabel label="Chargement de vos véhicules" />
+      ) : vehicules.length === 0 ? (
+        <EmptyState
+          icon={<FaCar />}
+          title="Aucun véhicule enregistré"
+          description="Un trajet se publie avec un véhicule. Enregistrez-en un d'abord."
+          action={<Button to="/dashboard?tab=vehicles">Ajouter un véhicule</Button>}
+        />
+      ) : (
+        <form onSubmit={submit} className="stack-6">
+          <Card title={<><FaMapMarkerAlt aria-hidden="true" /> Itinéraire</>}>
+            <div className="ct__grid">
+              <Input label="Ville de départ" placeholder="Liège" required
+                value={form.departureCity} onChange={(e) => set("departureCity", e.target.value)} />
+              <Input label="Ville d'arrivée" placeholder="Bruxelles" required
+                value={form.arrivalCity} onChange={(e) => set("arrivalCity", e.target.value)} />
+              <Input label="Point de départ précis" placeholder="Gare de Liège-Guillemins"
+                hint="Aide vos passagers à vous retrouver."
+                value={form.departureAddress} onChange={(e) => set("departureAddress", e.target.value)} />
+              <Input label="Point d'arrivée précis" placeholder="Gare du Midi, Bruxelles"
+                value={form.arrivalAddress} onChange={(e) => set("arrivalAddress", e.target.value)} />
+            </div>
+          </Card>
+
+          <Card title={<><FaCalendarAlt aria-hidden="true" /> Date et places</>}>
+            <div className="ct__grid">
+              <Input label="Date et heure de départ" type="datetime-local" min={minDateTime} required
+                hint="Au plus tôt dans deux heures."
+                value={form.departureTime} onChange={(e) => set("departureTime", e.target.value)} />
+              <Input label="Places proposées" type="number" min={1} max={maxSeats} required
+                hint={selected ? `Jusqu'à ${maxSeats}, votre siège déduit.` : undefined}
+                value={form.availableSeats}
+                onChange={(e) => set("availableSeats", parseInt(e.target.value) || 1)} />
+              <Input label="Prix par place (€)" type="number" min={0} step={0.5} placeholder="4.50" required
+                hint="Partage de frais, pas un bénéfice."
+                value={form.pricePerSeat} onChange={(e) => set("pricePerSeat", e.target.value)} />
+            </div>
+          </Card>
+
+          <Card title={<><FaCar aria-hidden="true" /> Véhicule</>}>
+            <fieldset className="ct__vehicles">
+              <legend className="sr-only">Choisissez le véhicule du trajet</legend>
+              {vehicules.map((v) => (
+                <label
+                  key={v.uuid}
+                  className={`ct__vehicle ${form.vehiculeUuid === v.uuid ? "is-selected" : ""}`}
+                >
+                  <input type="radio" name="vehicule" value={v.uuid}
+                    checked={form.vehiculeUuid === v.uuid}
+                    onChange={() => set("vehiculeUuid", v.uuid)} />
+                  <span className="ct__vehicle-body">
+                    <span className="ct__vehicle-name">{v.brand} {v.model}</span>
+                    <span className="ct__vehicle-meta">
+                      <FaUsers aria-hidden="true" /> {v.seats} places ·{" "}
+                      {ENERGY_LABEL[v.energy] ?? v.energy}
+                    </span>
+                  </span>
+                  {form.vehiculeUuid === v.uuid && <FiCheck aria-hidden="true" className="ct__check" />}
+                </label>
+              ))}
+            </fieldset>
+          </Card>
+
+          <Card title="Détails et préférences">
+            <Textarea
+              label="Description"
+              hint="Point de ramassage, étapes, contraintes particulières."
+              maxLength={500}
+              showCount
+              value={form.description}
+              onChange={(e) => set("description", e.target.value)}
+            />
+
+            <fieldset className="ct__prefs">
+              <legend className="ct__prefs-legend">Préférences du trajet</legend>
+              {PREFERENCES.map(({ key, label, icon }) => (
+                <label
+                  key={key}
+                  className={`ct__pref ${(form as Record<string, unknown>)[key] ? "is-on" : ""}`}
+                >
+                  <input type="checkbox"
+                    checked={!!(form as Record<string, unknown>)[key]}
+                    onChange={(e) => set(key, e.target.checked)} />
+                  <span aria-hidden="true">{icon}</span>
+                  {label}
+                </label>
+              ))}
+            </fieldset>
+          </Card>
+
+          <div className="ct__footer">
+            <Button type="button" variant="ghost" onClick={() => navigate(-1)} disabled={saving}>
+              Annuler
+            </Button>
+            <Button type="submit" size="lg" loading={saving}>
+              Publier le trajet
+            </Button>
           </div>
-        )}
-        {error && <div className="trips-alert">{error}</div>}
-
-        {loading ? (
-          <div className="trips-loading"><div className="spinner" /></div>
-        ) : vehicules.length === 0 ? (
-          <div className="no-vehicle-notice">
-            <FaCar size={40} />
-            <h3>Aucun véhicule enregistré</h3>
-            <p>Vous devez enregistrer un véhicule avant de pouvoir proposer un trajet.</p>
-            <button className="btn-trip-primary" onClick={() => navigate("/dashboard?tab=vehicles")}>
-              Ajouter un véhicule
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="create-trip-form">
-
-            {/* ── Itinéraire ── */}
-            <div className="form-section">
-              <h3 className="form-section-title">
-                <FaMapMarkerAlt /> Itinéraire
-              </h3>
-              <div className="form-grid-2">
-                <div className="input-group">
-                  <label className="input-label">Ville de départ *</label>
-                  <input className="trip-input" placeholder="Ex: Liège" required
-                    value={form.departureCity} onChange={(e) => set("departureCity", e.target.value)} />
-                </div>
-                <div className="input-group">
-                  <label className="input-label">Ville d'arrivée *</label>
-                  <input className="trip-input" placeholder="Ex: Bruxelles" required
-                    value={form.arrivalCity} onChange={(e) => set("arrivalCity", e.target.value)} />
-                </div>
-                <div className="input-group">
-                  <label className="input-label">Point de départ précis</label>
-                  <input className="trip-input" placeholder="Ex: Gare de Liège-Guillemins"
-                    value={form.departureAddress} onChange={(e) => set("departureAddress", e.target.value)} />
-                </div>
-                <div className="input-group">
-                  <label className="input-label">Point d'arrivée précis</label>
-                  <input className="trip-input" placeholder="Ex: Gare du Midi, Bruxelles"
-                    value={form.arrivalAddress} onChange={(e) => set("arrivalAddress", e.target.value)} />
-                </div>
-              </div>
-            </div>
-
-            {/* ── Date & places ── */}
-            <div className="form-section">
-              <h3 className="form-section-title">
-                <FaCalendarAlt /> Date & places
-              </h3>
-              <div className="form-grid-3">
-                <div className="input-group">
-                  <label className="input-label">Date et heure de départ *</label>
-                  <input className="trip-input" type="datetime-local" min={minDateTime} required
-                    value={form.departureTime} onChange={(e) => set("departureTime", e.target.value)} />
-                </div>
-                <div className="input-group">
-                  <label className="input-label">Places disponibles *</label>
-                  <input className="trip-input" type="number" min={1} max={8}
-                    value={form.availableSeats} onChange={(e) => set("availableSeats", parseInt(e.target.value))} />
-                </div>
-                <div className="input-group">
-                  <label className="input-label">Prix par place (€) *</label>
-                  <div className="input-icon-wrapper">
-                    <FaEuroSign className="input-icon" />
-                    <input className="trip-input with-icon" type="number" min={0} step={0.5} placeholder="0.00"
-                      value={form.pricePerSeat} onChange={(e) => set("pricePerSeat", e.target.value)} required />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Véhicule ── */}
-            <div className="form-section">
-              <h3 className="form-section-title">
-                <FaCar /> Véhicule
-              </h3>
-              <div className="vehicle-selector">
-                {vehicules.map((v) => (
-                  <label key={v.uuid} className={`vehicle-option ${form.vehiculeUuid === v.uuid ? "selected" : ""}`}>
-                    <input type="radio" name="vehicule" value={v.uuid}
-                      checked={form.vehiculeUuid === v.uuid}
-                      onChange={() => set("vehiculeUuid", v.uuid)} />
-                    <div className="vehicle-option-content">
-                      <span className="vo-name">{v.brand} {v.model}</span>
-                      <span className="vo-seats"><FaUsers size={11} /> {v.seats} places · {v.energy}</span>
-                    </div>
-                    {form.vehiculeUuid === v.uuid && <FiCheck className="vo-check" />}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Description & préférences ── */}
-            <div className="form-section">
-              <h3 className="form-section-title">Détails & préférences</h3>
-              <div className="input-group" style={{ marginBottom: 20 }}>
-                <label className="input-label">Description (optionnel)</label>
-                <textarea className="trip-input trip-textarea" rows={3}
-                  placeholder="Précisez le point de ramassage, les étapes, etc."
-                  value={form.description} onChange={(e) => set("description", e.target.value)} />
-              </div>
-              <div className="preferences-grid">
-                {[
-                  { key: "acceptsLuggage", label: "🧳 Bagages acceptés" },
-                  { key: "acceptsPets",    label: "🐾 Animaux acceptés" },
-                  { key: "musicAllowed",   label: "🎵 Musique autorisée" },
-                  { key: "talkingAllowed", label: "💬 Discussion bienvenue" },
-                ].map(({ key, label }) => (
-                  <label key={key} className={`pref-toggle ${(form as Record<string, unknown>)[key] ? "on" : "off"}`}>
-                    <input type="checkbox"
-                      checked={!!(form as Record<string, unknown>)[key]}
-                      onChange={(e) => set(key, e.target.checked)} />
-                    <span>{label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="create-trip-footer">
-              <button type="button" className="btn-trip-secondary" onClick={() => navigate(-1)} disabled={saving}>
-                Annuler
-              </button>
-              <button type="submit" className="btn-trip-primary" disabled={saving}>
-                {saving ? "Publication en cours..." : "Publier le trajet"}
-              </button>
-            </div>
-
-          </form>
-        )}
-      </div>
+        </form>
+      )}
     </div>
   );
-};
-
-export default CreateTripPage;
+}
