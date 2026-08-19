@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 import "./StatusBadge.css";
 
-/** Statuts issus de BookingStatus et TripStatus cote backend. */
+/**
+ * Statuts recopies a l'identique des enums backend :
+ * BookingStatus (PENDING, CONFIRMED, CANCELLED, REJECTED, COMPLETED)
+ * et TripStatus (PLANNED, FULL, COMPLETED, CANCELLED).
+ */
 export type Status =
   | "PENDING"
-  | "ACCEPTED"
+  | "CONFIRMED"
   | "REJECTED"
   | "CANCELLED"
   | "COMPLETED"
@@ -20,7 +24,7 @@ type Tone = "brand" | "eco" | "pending" | "danger" | "neutral";
  */
 const MAP: Record<Status, { label: string; tone: Tone }> = {
   PENDING:   { label: "En attente", tone: "pending" },
-  ACCEPTED:  { label: "Acceptée",   tone: "eco" },
+  CONFIRMED: { label: "Confirmée",  tone: "eco" },
   REJECTED:  { label: "Refusée",    tone: "danger" },
   CANCELLED: { label: "Annulée",    tone: "danger" },
   COMPLETED: { label: "Terminé",    tone: "neutral" },

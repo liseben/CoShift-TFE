@@ -1,342 +1,106 @@
-/* ── F19 / F30 : écrans de réservation — charte dark glassmorphism CoShift ── */
-
-.bk-container {
-  min-height: 100vh;
-  background: var(--bg);
-  padding: 100px 20px 60px;
-  color: var(--text);
-}
-
-.bk-inner {
-  max-width: 860px;
-  margin: 0 auto;
-}
-
-/* Variante utilisée quand l'écran est intégré comme onglet du dashboard. */
-.bk-embedded { color: var(--text); }
+/* Réservations — passager et conducteur.
+   La structure vient de Card, Avatar, StatusBadge et des conteneurs de
+   base.css ; il ne reste ici que ce qui est propre à ces deux écrans. */
 
 .bk-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 18px;
+  gap: var(--sp-4);
   flex-wrap: wrap;
-  margin-bottom: 26px;
 }
 
-.bk-title {
-  font-size: var(--fs-xl);
-  font-weight: var(--fw-extrabold);
-  letter-spacing: -0.02em;
-  margin: 0 0 6px;
-  color: var(--text);
-}
-
-.bk-title-sm {
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-bold);
-  margin: 0 0 5px;
-  color: var(--text);
-}
-
-.bk-subtitle {
-  margin: 0;
+.bk-lead {
   color: var(--text-muted);
-  font-size: var(--fs-base);
+  font-size: var(--fs-sm);
+  margin-top: var(--sp-1);
 }
 
-.bk-alert {
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.3);
-  color: var(--danger);
-  padding: 13px 17px;
-  border-radius: var(--r-md);
-  font-size: var(--fs-base);
-  margin-bottom: 20px;
-}
-
-.bk-loading {
-  display: flex;
-  justify-content: center;
-  padding: 60px 0;
-}
-
-
-
-.bk-empty-icon { color: var(--text-muted); margin-bottom: 16px; }
-
-.bk-empty h3 {
-  margin: 0 0 8px;
-  font-size: var(--fs-md);
-  color: var(--text-soft);
-}
-
-.bk-empty p {
-  margin: 0 0 20px;
-  color: var(--text-muted);
-  font-size: var(--fs-base);
-}
-
-/* ── Liste de cartes ── */
-.bk-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.bk-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--border-strong);
-  border-radius: var(--r-lg);
-  padding: 20px 22px;
-  animation: bk-rise 0.32s ease both;
-}
-
-@keyframes bk-rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* La couleur du liseré encode le statut : lisible d'un coup d'oeil. */
-.bk-card.tone-wait { border-left-color: var(--pending); }
-.bk-card.tone-ok   { border-left-color: var(--eco); }
-.bk-card.tone-bad  { border-left-color: var(--danger); }
-.bk-card.tone-off  { border-left-color: var(--text-muted); }
-.bk-card.tone-done { border-left-color: var(--brand); }
-
-.bk-card-head {
-  display: flex;
+/* Trajet : les deux villes et la flèche, sur une ligne qui peut se casser. */
+.bk-route {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin-bottom: 14px;
 }
-
-.bk-badge {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 5px 10px;
-  border-radius: var(--r-sm);
-}
-
-.bk-badge.tone-wait { background: var(--pending-wash); color: var(--pending); }
-.bk-badge.tone-ok   { background: var(--eco-wash); color: var(--eco); }
-.bk-badge.tone-bad  { background: rgba(248, 113, 113, 0.13); color: var(--danger); }
-.bk-badge.tone-off  { background: rgba(148, 163, 184, 0.13); color: var(--text-muted); }
-.bk-badge.tone-done { background: var(--brand-wash); color: var(--brand); }
 
 .bk-date {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--sp-2);
   font-size: var(--fs-sm);
   color: var(--text-muted);
-  text-transform: capitalize;
-}
-
-.bk-route {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.bk-city {
-  font-size: var(--fs-md);
-  font-weight: var(--fw-bold);
-  color: var(--text);
-}
-
-.bk-arrow { color: var(--brand); flex-shrink: 0; }
-
-.bk-reason {
-  background: var(--surface);
-  border-radius: var(--r-sm);
-  padding: 9px 12px;
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  margin: 0 0 14px;
-  font-style: italic;
+  margin-bottom: var(--sp-4);
 }
 
 .bk-body {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--border);
 }
 
-.bk-person {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.bk-avatar,
-.bk-avatar-initial {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.bk-avatar { object-fit: cover; border: 2px solid var(--brand-wash); }
-
-.bk-avatar-initial {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
-  color: var(--on-brand);
-  font-weight: var(--fw-extrabold);
-}
+.bk-person { flex: 1; min-width: 0; }
 
 .bk-person-name {
-  margin: 0;
-  font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
-  color: var(--text);
+  font-size: var(--fs-sm);
 }
 
 .bk-person-meta {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin: 3px 0 0;
-  font-size: var(--fs-sm);
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+  font-size: var(--fs-xs);
   color: var(--text-muted);
 }
 
-.bk-figures {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-}
-
-.bk-seats { font-size: var(--fs-sm); color: var(--text-muted); }
+.bk-star { color: var(--pending); }
 
 .bk-price {
+  font-family: var(--font-display);
   font-size: var(--fs-lg);
-  font-weight: var(--fw-extrabold);
-  color: var(--brand);
-  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-bold);
+  color: var(--eco);
+  white-space: nowrap;
+}
+
+.bk-seats {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+/* Motif de refus ou d'annulation : encadré, parce qu'il explique une
+   décision que l'utilisateur n'a pas prise. */
+.bk-reason {
+  padding: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  background: var(--surface-sunk);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
 }
 
 .bk-contact {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  margin-top: 14px;
-  padding: 8px 13px;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-4);
   background: var(--eco-wash);
-  border: 1px solid var(--eco-wash);
   border-radius: var(--r-sm);
   color: var(--eco);
-  font-size: var(--fs-sm);
-  text-decoration: none;
-  transition: background 0.18s ease;
-}
-
-.bk-contact:hover { background: var(--eco-wash); }
-
-/* ── Actions ── */
-.bk-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 15px;
-  border-top: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-
-.bk-btn-primary,
-.bk-btn-ghost,
-.bk-btn-danger,
-.bk-btn-accept {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: var(--r-sm);
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.18s ease;
 }
 
-.bk-btn-primary {
-  background: linear-gradient(135deg, var(--brand), var(--brand-hover));
-  color: var(--on-brand);
-  border: none;
-}
-
-.bk-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 9px 22px -10px rgba(96, 165, 250, 0.7);
-}
-
-.bk-btn-ghost {
-  background: var(--surface-sunk);
-  border-color: var(--border-strong);
-  color: var(--text-soft);
-}
-
-.bk-btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
-
-.bk-btn-danger {
-  background: rgba(248, 113, 113, 0.1);
-  border-color: rgba(248, 113, 113, 0.3);
-  color: var(--danger);
-}
-
-.bk-btn-danger:hover { background: rgba(248, 113, 113, 0.18); }
-
-.bk-btn-accept {
-  background: var(--eco-wash);
-  border-color: var(--eco-wash);
-  color: var(--eco);
-}
-
-.bk-btn-accept:hover { background: var(--eco-wash); }
-
-.bk-btn-primary:disabled,
-.bk-btn-ghost:disabled,
-.bk-btn-danger:disabled,
-.bk-btn-accept:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-/* ── Formulaire de refus ── */
-.bk-reject-form {
-  margin-top: 14px;
-  padding-top: 14px;
+.bk-actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  padding-top: var(--sp-4);
   border-top: 1px solid var(--border);
-}
-
-.bk-input {
-  width: 100%;
-  background: var(--surface-sunk);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-sm);
-  padding: 10px 13px;
-  color: var(--text);
-  font-size: var(--fs-sm);
-  outline: none;
-  transition: border-color 0.18s ease;
-}
-
-.bk-input:focus { border-color: var(--brand); }
-.bk-input::placeholder { color: var(--text-muted); }
-
-.bk-reject-form .bk-actions { border-top: none; padding-top: 0; margin-top: 12px; }
-
-@media (max-width: 640px) {
-  .bk-body { flex-direction: column; align-items: flex-start; }
-  .bk-actions { justify-content: stretch; }
-  .bk-actions button { flex: 1; justify-content: center; }
 }

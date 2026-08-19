@@ -49,7 +49,7 @@ export default function StyleguidePage() {
         <h2>Statuts</h2>
         <div className="sg__row">
           <StatusBadge status="PENDING" />
-          <StatusBadge status="ACCEPTED" />
+          <StatusBadge status="CONFIRMED" />
           <StatusBadge status="REJECTED" />
           <StatusBadge status="CANCELLED" />
           <StatusBadge status="PLANNED" />
@@ -98,7 +98,7 @@ export default function StyleguidePage() {
               <p className="sg__price">4,50 €</p>
             </div>
           </Card>
-          <Card title="Réservation acceptée" action={<StatusBadge status="ACCEPTED" size="sm" />} tone="eco">
+          <Card title="Réservation acceptée" action={<StatusBadge status="CONFIRMED" size="sm" />} tone="eco">
             <p className="sg__meta">Votre place est confirmée pour demain.</p>
           </Card>
           <Card title="Demande en attente" action={<StatusBadge status="PENDING" size="sm" />} tone="pending">

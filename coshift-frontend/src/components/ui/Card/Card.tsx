@@ -2,7 +2,9 @@ import type { ReactNode, HTMLAttributes } from "react";
 import { Link } from "react-router-dom";
 import "./Card.css";
 
-type CardProps = HTMLAttributes<HTMLDivElement> & {
+/* `title` est omis de HTMLAttributes : l'attribut natif n'accepte qu'une
+   chaine, alors qu'on veut pouvoir composer le titre en JSX. */
+type CardProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   /** Titre de la carte. Rendu dans un <h3>. */
   title?: ReactNode;
   /** Contenu aligne a droite du titre : action, badge, prix. */
