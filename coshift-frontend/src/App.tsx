@@ -3,6 +3,7 @@ import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/Home/HomePage";
 import ActusPage from "./pages/Actus/ActusPage";
 import ArticlePage from "./pages/Actus/ArticlePage";
+import AboutPage from "./pages/About/AboutPage";
 import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from "./pages/Register/RegisterPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
@@ -17,11 +18,6 @@ import StyleguidePage from "./pages/Styleguide/StyleguidePage";
 const EntreprisesPage = () => (
   <div style={{ padding: "5rem", textAlign: "center" }}>
     <h1>Espace Entreprises</h1>
-  </div>
-);
-const AboutPage = () => (
-  <div style={{ padding: "5rem", textAlign: "center" }}>
-    <h1>À propos de nous</h1>
   </div>
 );
 const BlogPage = () => (
