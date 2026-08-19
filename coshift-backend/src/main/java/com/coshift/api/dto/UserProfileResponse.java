@@ -10,6 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserProfileResponse {
+    /**
+     * Identifiant public du compte. Sans lui, le front ne peut comparer
+     * l'utilisateur connecté au conducteur d'un trajet que sur le prénom et
+     * le nom — deux homonymes seraient confondus.
+     */
+    private String uuid;
+
     private String firstname;
     private String lastname;
     private String email;

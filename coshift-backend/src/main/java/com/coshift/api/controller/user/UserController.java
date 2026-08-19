@@ -46,6 +46,7 @@ public class UserController {
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
 
         return ResponseEntity.ok(UserProfileResponse.builder()
+                .uuid(user.getUuid())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())

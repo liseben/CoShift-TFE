@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type ReactElement } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  FaStar, FaUsers, FaCar, FaBolt, FaLeaf, FaGasPump, FaEuroSign,
+  FaStar, FaUsers, FaCar, FaBolt, FaLeaf, FaGasPump,
+  FaSuitcase, FaDog, FaMusic, FaComments,
 } from "react-icons/fa";
-import { FiArrowLeft, FiCheck, FiClock, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiClock, FiMapPin } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
+import {
+  Alert, Avatar, Button, Card, Spinner, StatusBadge, type Status,
+} from "../../components/ui";
 import "./TripDetailPage.css";
 
-const ENERGY_LABELS: Record<string, { label: string; icon: React.ReactElement }> = {
+const ENERGY: Record<string, { label: string; icon: ReactElement }> = {
   ELECTRIC: { label: "Électrique", icon: <FaBolt /> },
   HYBRID:   { label: "Hybride",    icon: <FaLeaf /> },
   GASOLINE: { label: "Essence",    icon: <FaGasPump /> },
@@ -44,229 +48,260 @@ interface Trip {
 }
 
 /** F26 — Détail d'un trajet, et point d'entrée de la réservation (F27). */
-const TripDetailPage: React.FC = () => {
+export default function TripDetailPage() {
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [trip, setTrip]       = useState<Trip | null>(null);
+  const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  const [seats, setSeats]     = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [seats, setSeats] = useState(1);
   const [booking, setBooking] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const headers = () => ({ Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}` });
+  const headers = () => ({
+    Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}`,
+  });
 
-  const loadTrip = useCallback(async () => {
+  const load = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/trips/${uuid}`, { headers: headers() });
+      const res = await axios.get<Trip>(`${API_BASE}/api/trips/${uuid}`, { headers: headers() });
       setTrip(res.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? "Ce trajet est introuvable.");
+    } catch (err) {
+      setError(
+        (axios.isAxiosError(err) && err.response?.data?.message) || "Ce trajet est introuvable.",
+      );
     } finally {
       setLoading(false);
     }
   }, [uuid]);
 
-  useEffect(() => { loadTrip(); }, [loadTrip]);
+  useEffect(() => { load(); }, [load]);
 
-  const handleBooking = async () => {
+  const book = async () => {
     setBooking(true);
     setError(null);
     try {
-      await axios.post(`${API_BASE}/api/bookings`,
+      await axios.post(
+        `${API_BASE}/api/bookings`,
         { tripUuid: uuid, seatsBooked: seats },
-        { headers: headers() });
+        { headers: headers() },
+      );
       setSuccess(true);
       // Le conducteur doit encore accepter : on rafraîchit pour refléter l'état réel.
-      await loadTrip();
-      setTimeout(() => navigate("/bookings"), 2200);
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? "La réservation n'a pas pu être enregistrée.");
+      await load();
+      setTimeout(() => navigate("/bookings"), 2000);
+    } catch (err) {
+      setError(
+        (axios.isAxiosError(err) && err.response?.data?.message) ||
+          "La réservation n'a pas pu être enregistrée.",
+      );
     } finally {
       setBooking(false);
     }
   };
 
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("fr-FR", {
-      weekday: "long", day: "numeric", month: "long", year: "numeric",
-    });
-
-  const formatTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-
   if (loading) {
-    return <div className="td-container"><div className="td-loading"><div className="spinner" /></div></div>;
-  }
-
-  if (!trip) {
     return (
-      <div className="td-container">
-        <div className="td-inner">
-          <div className="td-alert">{error ?? "Ce trajet est introuvable."}</div>
-          <button className="btn-back" onClick={() => navigate("/trips/search")}>
-            <FiArrowLeft size={16} /> Retour à la recherche
-          </button>
-        </div>
+      <div className="container page">
+        <Spinner size="lg" center showLabel label="Chargement du trajet" />
       </div>
     );
   }
 
-  const isOwnTrip  = user?.email !== undefined && trip.driver.firstname === user?.firstname
-                     && trip.driver.lastname === user?.lastname;
+  if (!trip) {
+    return (
+      <div className="container page stack-6">
+        <Alert tone="danger">{error ?? "Ce trajet est introuvable."}</Alert>
+        <Button variant="secondary" icon={<FiArrowLeft />} to="/trips/search">
+          Retour à la recherche
+        </Button>
+      </div>
+    );
+  }
+
+  const dt = new Date(trip.departureTime);
+  const jour = dt.toLocaleDateString("fr-FR", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
+  const heure = dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+  /* Comparaison sur l'identifiant public et non sur le nom : deux homonymes
+     seraient sinon confondus, et l'un se verrait refuser la réservation. */
+  const isOwnTrip = !!user?.uuid && user.uuid === trip.driver.uuid;
   const isBookable = trip.status === "PLANNED" && trip.availableSeats > 0 && !isOwnTrip;
-  const energy     = ENERGY_LABELS[trip.vehicule.energy] ?? { label: trip.vehicule.energy, icon: <FaCar /> };
-  const total      = (trip.pricePerSeat * seats).toFixed(2);
+  const energy = ENERGY[trip.vehicule.energy] ?? { label: trip.vehicule.energy, icon: <FaCar /> };
+  const driverName = `${trip.driver.firstname} ${trip.driver.lastname}`;
+
+  const prefs = [
+    { on: trip.acceptsLuggage, icon: <FaSuitcase />, yes: "Bagages acceptés", no: "Bagages refusés" },
+    { on: trip.acceptsPets, icon: <FaDog />, yes: "Animaux acceptés", no: "Animaux refusés" },
+    { on: trip.musicAllowed, icon: <FaMusic />, yes: "Musique autorisée", no: "Sans musique" },
+    { on: trip.talkingAllowed, icon: <FaComments />, yes: "Discussion bienvenue", no: "Trajet silencieux" },
+  ];
 
   return (
-    <div className="td-container">
-      <div className="td-inner">
+    <div className="container page stack-6">
+      <Button variant="ghost" size="sm" icon={<FiArrowLeft />} onClick={() => navigate(-1)}>
+        Retour
+      </Button>
 
-        <button className="btn-back" onClick={() => navigate(-1)}>
-          <FiArrowLeft size={16} /> Retour
-        </button>
+      {success && (
+        <Alert tone="success" title="Demande envoyée">
+          Le conducteur doit maintenant l'accepter. Redirection vers vos réservations…
+        </Alert>
+      )}
+      {error && !success && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
 
-        {success && (
-          <div className="td-success">
-            <FiCheck size={20} />
-            Demande envoyée ! Le conducteur doit maintenant l'accepter. Redirection vers vos réservations...
-          </div>
-        )}
-        {error && !success && <div className="td-alert">{error}</div>}
+      <div className="td__grid">
+        <div className="stack-6">
+          <Card
+            title={`${trip.departureCity} → ${trip.arrivalCity}`}
+            action={<StatusBadge status={trip.status as Status} size="sm" />}
+          >
+            <p className="td__date">
+              <FiClock aria-hidden="true" /> {jour}
+            </p>
 
-        <div className="td-grid">
+            {/* Itinéraire en liste ordonnée : l'ordre des étapes porte du sens. */}
+            <ol className="td__route">
+              <li className="td__stop">
+                <span className="td__time">{heure}</span>
+                <span className="td__dot td__dot--dep" aria-hidden="true" />
+                <span className="td__place">
+                  <span className="td__city">{trip.departureCity}</span>
+                  {trip.departureAddress && (
+                    <span className="td__address">
+                      <FiMapPin aria-hidden="true" /> {trip.departureAddress}
+                    </span>
+                  )}
+                </span>
+              </li>
+              <li className="td__stop">
+                <span className="td__time" aria-hidden="true" />
+                <span className="td__dot td__dot--arr" aria-hidden="true" />
+                <span className="td__place">
+                  <span className="td__city">{trip.arrivalCity}</span>
+                  {trip.arrivalAddress && (
+                    <span className="td__address">
+                      <FiMapPin aria-hidden="true" /> {trip.arrivalAddress}
+                    </span>
+                  )}
+                </span>
+              </li>
+            </ol>
 
-          {/* ── Colonne principale ── */}
-          <div className="td-main">
-
-            <div className="td-card td-route-card">
-              <p className="td-date">
-                <FiClock size={13} /> {formatDate(trip.departureTime)}
-              </p>
-
-              <div className="td-route">
-                <div className="td-stop">
-                  <span className="td-time">{formatTime(trip.departureTime)}</span>
-                  <span className="td-dot dep" />
-                  <div className="td-place">
-                    <p className="td-city">{trip.departureCity}</p>
-                    {trip.departureAddress && <p className="td-address"><FiMapPin size={11} /> {trip.departureAddress}</p>}
-                  </div>
-                </div>
-
-                <div className="td-line" />
-
-                <div className="td-stop">
-                  <span className="td-time" />
-                  <span className="td-dot arr" />
-                  <div className="td-place">
-                    <p className="td-city">{trip.arrivalCity}</p>
-                    {trip.arrivalAddress && <p className="td-address"><FiMapPin size={11} /> {trip.arrivalAddress}</p>}
-                  </div>
-                </div>
+            {trip.description && (
+              <div className="td__description">
+                <p className="td__label">Précisions du conducteur</p>
+                <p>{trip.description}</p>
               </div>
+            )}
 
-              {trip.description && (
-                <div className="td-description">
-                  <p className="td-section-label">Précisions du conducteur</p>
-                  <p>{trip.description}</p>
-                </div>
-              )}
+            <ul className="td__prefs">
+              {prefs.map((p, i) => (
+                <li key={i} className={`td__chip ${p.on ? "is-on" : ""}`}>
+                  <span aria-hidden="true">{p.icon}</span> {p.on ? p.yes : p.no}
+                </li>
+              ))}
+            </ul>
+          </Card>
 
-              <div className="td-prefs">
-                <span className={`td-chip ${trip.acceptsLuggage ? "on" : "off"}`}>🧳 Bagages {trip.acceptsLuggage ? "acceptés" : "refusés"}</span>
-                <span className={`td-chip ${trip.acceptsPets ? "on" : "off"}`}>🐾 Animaux {trip.acceptsPets ? "acceptés" : "refusés"}</span>
-                <span className={`td-chip ${trip.musicAllowed ? "on" : "off"}`}>🎵 Musique</span>
-                <span className={`td-chip ${trip.talkingAllowed ? "on" : "off"}`}>💬 Discussion</span>
-              </div>
-            </div>
-
-            <div className="td-card">
-              <p className="td-section-label">Conducteur</p>
-              <div className="td-driver">
-                {trip.driver.pictureUrl
-                  ? <img src={trip.driver.pictureUrl} alt="" className="td-avatar" />
-                  : <div className="td-avatar-initial">{trip.driver.firstname.charAt(0)}</div>}
-                <div>
-                  <p className="td-driver-name">{trip.driver.firstname} {trip.driver.lastname}</p>
-                  <p className="td-driver-meta">
-                    {trip.driver.averageRating > 0
-                      ? <><FaStar size={11} style={{ color: "#fbbf24" }} /> {trip.driver.averageRating.toFixed(1)} / 5 · </>
-                      : <>Nouveau conducteur · </>}
-                    {trip.driver.tripsCount} trajet{trip.driver.tripsCount !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="td-card">
-              <p className="td-section-label">Véhicule</p>
-              <div className="td-vehicle">
-                {trip.vehicule.photoUrl
-                  ? <img src={trip.vehicule.photoUrl} alt="" className="td-vehicle-photo" />
-                  : <div className="td-vehicle-placeholder"><FaCar size={26} /></div>}
-                <div>
-                  <p className="td-vehicle-name">{trip.vehicule.brand} {trip.vehicule.model}</p>
-                  <p className="td-vehicle-meta">
-                    {energy.icon} {energy.label} · <FaUsers size={11} /> {trip.vehicule.seats} places
-                  </p>
-                </div>
+          <Card title="Conducteur">
+            <div className="td__person">
+              <Avatar src={trip.driver.pictureUrl} name={driverName} size="lg" />
+              <div>
+                <p className="td__person-name">{driverName}</p>
+                <p className="td__person-meta">
+                  {trip.driver.averageRating > 0 ? (
+                    <>
+                      <FaStar aria-hidden="true" className="td__star" />
+                      {trip.driver.averageRating.toFixed(1)} / 5 ·{" "}
+                    </>
+                  ) : (
+                    "Nouveau conducteur · "
+                  )}
+                  {trip.driver.tripsCount} trajet{trip.driver.tripsCount !== 1 ? "s" : ""}
+                </p>
               </div>
             </div>
-          </div>
+          </Card>
 
-          {/* ── Panneau de réservation ── */}
-          <aside className="td-aside">
-            <div className="td-card td-booking-card">
-              <div className="td-price-row">
-                <span className="td-price">{trip.pricePerSeat.toFixed(2)} €</span>
-                <span className="td-price-unit">/ place</span>
+          <Card title="Véhicule">
+            <div className="td__person">
+              <span className="td__vehicle-icon" aria-hidden="true"><FaCar /></span>
+              <div>
+                <p className="td__person-name">
+                  {trip.vehicule.brand} {trip.vehicule.model}
+                </p>
+                <p className="td__person-meta">
+                  <span aria-hidden="true">{energy.icon}</span> {energy.label} ·{" "}
+                  <FaUsers aria-hidden="true" /> {trip.vehicule.seats} places
+                </p>
               </div>
+            </div>
+          </Card>
+        </div>
 
-              <p className="td-seats-left">
-                {trip.availableSeats > 0
-                  ? <><FaUsers size={12} /> {trip.availableSeats} place{trip.availableSeats > 1 ? "s" : ""} restante{trip.availableSeats > 1 ? "s" : ""}</>
-                  : "Complet"}
-              </p>
+        {/* ── Panneau de réservation ── */}
+        <aside className="td__aside">
+          <Card padding="lg">
+            <p className="td__price">
+              {trip.pricePerSeat.toFixed(2)} €
+              <span className="td__price-unit"> / place</span>
+            </p>
 
-              {isBookable ? (
+            <p className="td__seats">
+              {trip.availableSeats > 0 ? (
                 <>
-                  <label className="td-label">Nombre de places</label>
-                  <div className="td-seat-picker">
-                    <button type="button" onClick={() => setSeats((s) => Math.max(1, s - 1))} disabled={seats <= 1}>−</button>
-                    <span>{seats}</span>
-                    <button type="button" onClick={() => setSeats((s) => Math.min(trip.availableSeats, s + 1))} disabled={seats >= trip.availableSeats}>+</button>
-                  </div>
-
-                  <div className="td-total">
-                    <span>Total</span>
-                    <strong><FaEuroSign size={12} /> {total}</strong>
-                  </div>
-
-                  <button className="btn-book" onClick={handleBooking} disabled={booking || success}>
-                    {booking ? "Envoi en cours..." : success ? "Demande envoyée" : "Réserver"}
-                  </button>
-                  <p className="td-hint">
-                    Votre demande est envoyée au conducteur. Elle n'est confirmée qu'après son accord.
-                  </p>
+                  <FaUsers aria-hidden="true" /> {trip.availableSeats} place
+                  {trip.availableSeats > 1 ? "s" : ""} restante
+                  {trip.availableSeats > 1 ? "s" : ""}
                 </>
               ) : (
-                <p className="td-unavailable">
-                  {isOwnTrip
-                    ? "Vous êtes le conducteur de ce trajet."
-                    : trip.status !== "PLANNED"
-                      ? "Ce trajet n'accepte plus de réservation."
-                      : "Il ne reste plus de place disponible."}
-                </p>
+                "Complet"
               )}
-            </div>
-          </aside>
-        </div>
+            </p>
+
+            {isBookable ? (
+              <>
+                <p className="td__label" id="td-seats-label">Nombre de places</p>
+                <div className="td__picker" role="group" aria-labelledby="td-seats-label">
+                  <button type="button" onClick={() => setSeats((s) => Math.max(1, s - 1))}
+                          disabled={seats <= 1} aria-label="Retirer une place">−</button>
+                  <output aria-live="polite">{seats}</output>
+                  <button type="button"
+                          onClick={() => setSeats((s) => Math.min(trip.availableSeats, s + 1))}
+                          disabled={seats >= trip.availableSeats} aria-label="Ajouter une place">+</button>
+                </div>
+
+                <p className="td__total">
+                  <span>Total</span>
+                  <strong>{(trip.pricePerSeat * seats).toFixed(2)} €</strong>
+                </p>
+
+                <Button variant="eco" size="lg" block loading={booking}
+                        disabled={success} onClick={book}>
+                  {success ? "Demande envoyée" : "Réserver"}
+                </Button>
+
+                <p className="td__hint">
+                  Votre demande part au conducteur. Elle n'est confirmée qu'après son accord.
+                </p>
+              </>
+            ) : (
+              <Alert tone="info">
+                {isOwnTrip
+                  ? "Vous êtes le conducteur de ce trajet."
+                  : trip.status !== "PLANNED"
+                    ? "Ce trajet n'accepte plus de réservation."
+                    : "Il ne reste plus de place disponible."}
+              </Alert>
+            )}
+          </Card>
+        </aside>
       </div>
     </div>
   );
-};
-
-export default TripDetailPage;
+}

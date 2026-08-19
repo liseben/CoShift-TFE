@@ -10,6 +10,8 @@ import { API_BASE } from "../config/api";
 
 // 1. On définit la forme de notre Utilisateur
 interface User {
+  /** Identifiant public, seul moyen fiable de comparer deux comptes. */
+  uuid: string;
   firstname: string;
   lastname: string;
   email: string;
