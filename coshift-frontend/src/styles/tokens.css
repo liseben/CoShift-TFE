@@ -77,6 +77,14 @@
   /* ── Voile de modale ── */
   --scrim: rgba(15, 31, 51, 0.45);
 
+  /* ── Ambiance de fond ──
+     Deux halos tres dilues, orange en haut a gauche, vert en bas a droite.
+     Ils rechauffent une page autrement uniformement bleutee, sans jamais
+     porter d'information : aucun element d'interface n'utilise ces
+     teintes, elles restent une atmosphere. */
+  --wash-warm: rgba(234, 120, 30, 0.10);
+  --wash-cool: rgba(15, 122, 61, 0.09);
+
   /* ── Style de carte Mapbox correspondant au theme ── */
   --map-style: "light";
 
@@ -174,6 +182,11 @@
   --focus-ring: 0 0 0 3px rgba(125, 163, 245, 0.5);
 
   --scrim: rgba(0, 0, 0, 0.6);
+
+  /* Sur fond sombre, les mêmes halos doivent être plus saturés et un peu
+     plus opaques pour rester perceptibles sans virer au sale. */
+  --wash-warm: rgba(251, 146, 60, 0.10);
+  --wash-cool: rgba(74, 222, 128, 0.08);
 
   --map-style: "dark";
 }

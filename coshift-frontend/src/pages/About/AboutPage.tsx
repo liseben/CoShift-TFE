@@ -5,6 +5,7 @@ import {
 import { FiArrowRight, FiCheck } from "react-icons/fi";
 import { Button, Card } from "../../components/ui";
 import Logo from "../../components/Logo/Logo";
+import { PHOTOS } from "../../components/image_site";
 import "./AboutPage.css";
 
 const ETAPES = [
@@ -94,6 +95,11 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <figure className="about__figure about__figure--wide">
+        <img src={PHOTOS.habitacle.src} alt={PHOTOS.habitacle.alt}
+             loading="lazy" decoding="async" />
+      </figure>
+
       {/* ── Le problème ── */}
       <section className="container container--prose about__section">
         <h2>Le constat de départ</h2>
@@ -121,6 +127,15 @@ export default function AboutPage() {
       <section className="about__steps-wrap">
         <div className="container container--wide">
           <h2 className="about__center">Comment ça fonctionne</h2>
+
+          <figure className="about__figure">
+            <img src={PHOTOS.rendezVous.src} alt={PHOTOS.rendezVous.alt}
+                 loading="lazy" decoding="async" />
+            <figcaption>
+              Le point de rendez-vous est indiqué par le conducteur au moment
+              où il publie son trajet.
+            </figcaption>
+          </figure>
           <ol className="about__steps">
             {ETAPES.map((e) => (
               <li key={e.n} className="about__step">

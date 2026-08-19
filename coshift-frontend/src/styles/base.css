@@ -31,6 +31,22 @@ body {
   overflow-x: hidden;
 }
 
+/* Halos d'ambiance, orange et vert, très dilués.
+   Posés sur une couche fixe derrière tout le contenu : `fixed` les fait
+   rester en place au défilement, ce qui produit une atmosphère plutôt
+   qu'un motif qui remonte avec la page. `pointer-events: none` garantit
+   qu'aucun clic ne s'y perd. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 55% at 8% 0%, var(--wash-warm) 0%, transparent 62%),
+    radial-gradient(ellipse 65% 60% at 95% 100%, var(--wash-cool) 0%, transparent 62%);
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: var(--fw-bold);

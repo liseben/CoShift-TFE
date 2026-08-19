@@ -29,6 +29,46 @@
   gap: var(--sp-5);
 }
 
+/* ── Illustrations ── */
+.about__figure {
+  margin: 0 auto var(--sp-10);
+  max-width: var(--w-app);
+  padding-inline: var(--gutter);
+}
+
+.about__figure img {
+  width: 100%;
+  /* Ratio réservé pour que rien ne saute pendant le chargement. */
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
+  object-position: center 35%;
+  border-radius: var(--r-xl);
+  box-shadow: var(--elev-2);
+}
+
+/* La photo d'ouverture chevauche le bandeau : elle relie l'accroche au
+   texte au lieu de flotter entre les deux. */
+.about__figure--wide {
+  margin-top: calc(-1 * var(--sp-12));
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.about__figure--wide img { aspect-ratio: 16 / 6; }
+
+.about__figure figcaption {
+  margin-top: var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .about__figure img,
+  .about__figure--wide img { aspect-ratio: 4 / 3; }
+}
+
 .about__section h2 { margin-bottom: var(--sp-2); }
 
 .about__section p { color: var(--text-soft); }

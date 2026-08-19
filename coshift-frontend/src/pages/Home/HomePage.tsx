@@ -8,6 +8,7 @@ import TripSearchForm, { type TripCriteria } from "../../components/TripSearchFo
 import TripCard, { type TripSummary } from "../../components/TripCard/TripCard";
 import { Button, EmptyState, Spinner } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
+import { PHOTOS } from "../../components/image_site";
 import { API_BASE } from "../../config/api";
 import "./HomePage.css";
 
@@ -152,6 +153,36 @@ export default function HomePage() {
             )}
           </>
         )}
+      </section>
+
+      {/* ── Bande illustrée ── */}
+      <section className="home__showcase">
+        <div className="container container--wide home__showcase-grid">
+          <figure className="home__showcase-figure">
+            <img
+              src={PHOTOS.depart.src}
+              alt={PHOTOS.depart.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+          <div className="home__showcase-text">
+            <h2>Quatre personnes, une voiture, un seul trajet</h2>
+            <p>
+              C'est toute l'idée. Le matin, sur le même axe, quatre voitures
+              transportent quatre personnes. CoShift n'invente pas de nouvelle
+              route : il remplit celles qui roulent déjà.
+            </p>
+            <p>
+              Pour le conducteur, ce sont des frais partagés. Pour les
+              passagers, un trajet direct sans correspondance. Pour
+              l'organisation, trois places de parking libérées.
+            </p>
+            <Button to="/trips/search" icon={<FiArrowRight />}>
+              Voir les trajets proposés
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* ── Pourquoi CoShift ── */}

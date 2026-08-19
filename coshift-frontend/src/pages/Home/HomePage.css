@@ -110,6 +110,48 @@
 
 .home__count { color: var(--text-muted); }
 
+/* ── Bande illustrée ── */
+.home__showcase {
+  padding-block: var(--sp-16);
+}
+
+.home__showcase-grid {
+  display: grid;
+  gap: var(--sp-10);
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  align-items: center;
+}
+
+.home__showcase-figure {
+  margin: 0;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--elev-3);
+}
+
+.home__showcase-figure img {
+  width: 100%;
+  /* Ratio réservé : la place est prise avant même que l'image arrive,
+     donc rien ne saute au chargement. */
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center 40%;
+}
+
+.home__showcase-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.home__showcase-text p { color: var(--text-soft); }
+
+@media (max-width: 900px) {
+  .home__showcase-grid { grid-template-columns: 1fr; gap: var(--sp-6); }
+  .home__showcase-figure img { aspect-ratio: 16 / 9; }
+}
+
 /* ── Pourquoi CoShift ── */
 .home__why {
   padding-block: var(--sp-20);
