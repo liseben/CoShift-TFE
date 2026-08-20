@@ -4,7 +4,8 @@ import { FiArrowLeft, FiExternalLink } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Card, Spinner } from "../../components/ui";
-import { CATEGORIES, formatArticleDate, type Article } from "./ActusPage";
+import { CATEGORIES, formatArticleDate, lienArticle, type Article } from "./ActusPage";
+import { useSeo, useDonneesStructurees } from "../../hooks/useSeo";
 import "./ArticlePage.css";
 
 /**
@@ -15,11 +16,49 @@ import "./ArticlePage.css";
  * source d'origine est donc l'élément central de la page.
  */
 export default function ArticlePage() {
-  const { id } = useParams<{ id: string }>();
+  const { id: parametre } = useParams<{ id: string }>();
+
+  /* L'adresse porte désormais un fragment lisible devant l'identifiant :
+     /actus/pourquoi-le-covoiturage-progresse--288241c1-…
+     Seul ce qui suit le dernier « -- » est lu. Les anciennes adresses, qui ne
+     contenaient que l'identifiant, continuent donc de fonctionner. */
+  const id = parametre?.includes("--")
+    ? parametre.slice(parametre.lastIndexOf("--") + 2)
+    : parametre;
+
   const [article, setArticle] = useState<Article | null>(null);
   const [related, setRelated] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useSeo({
+    titre: article ? article.title : "Actus mobilité",
+    description: article
+      ? article.summary.slice(0, 300)
+      : "Article du flux d'actualités CoShift sur la mobilité.",
+    chemin: article ? lienArticle(article) : undefined,
+    image: article?.imageUrl,
+    type: "article",
+  });
+
+  /* Décrit l'article à un moteur : titre, date, image et — surtout —
+     l'éditeur d'origine. CoShift agrège des résumés, il ne les écrit pas ;
+     s'en attribuer la paternité serait faux autant qu'inutile. */
+  useDonneesStructurees(
+    article
+      ? {
+          "@context": "https://schema.org",
+          "@type": "NewsArticle",
+          headline: article.title,
+          description: article.summary,
+          datePublished: article.date,
+          image: article.imageUrl ? [article.imageUrl] : undefined,
+          articleSection: article.category,
+          publisher: { "@type": "Organization", name: article.source },
+          isBasedOn: article.url,
+        }
+      : null,
+  );
 
   useEffect(() => {
     setLoading(true);
@@ -114,7 +153,7 @@ export default function ArticlePage() {
           <h2 className="ar__related-title">Dans la même rubrique</h2>
           <div className="grid-auto">
             {related.map((a) => (
-              <Card key={a.id} to={`/actus/${encodeURIComponent(a.id)}`}>
+              <Card key={a.id} to={lienArticle(a)}>
                 <p className="ar__related-date">
                   <time dateTime={a.date}>{formatArticleDate(a.date)}</time>
                 </p>

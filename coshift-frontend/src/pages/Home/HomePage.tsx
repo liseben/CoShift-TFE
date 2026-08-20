@@ -7,6 +7,7 @@ import MapBackground from "../../components/MapBackground";
 import TripSearchForm, { type TripCriteria } from "../../components/TripSearchForm/TripSearchForm";
 import TripCard, { type TripSummary } from "../../components/TripCard/TripCard";
 import { Button, EmptyState, Spinner } from "../../components/ui";
+import { useSeo, useDonneesStructurees } from "../../hooks/useSeo";
 import { useAuth } from "../../context/AuthContext";
 import { PHOTOS } from "../../components/image_site";
 import { API_BASE } from "../../config/api";
@@ -32,7 +33,33 @@ const ATOUTS = [
   },
 ];
 
+/**
+ * Description de l'organisation au format schema.org.
+ *
+ * Ce bloc ne change pas l'affichage : il donne à un moteur de quoi rattacher le
+ * site à une entité nommée plutôt qu'à une simple suite de pages. C'est ce qui
+ * permet, à terme, l'affichage d'un panneau de connaissance.
+ */
+const ORGANISATION = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "CoShift",
+  description:
+    "Plateforme de covoiturage pour les entreprises, les hautes écoles et les organisateurs d'événements.",
+  url: "https://coshift.be",
+  areaServed: { "@type": "Country", name: "Belgique" },
+  knowsLanguage: "fr-BE",
+};
+
 export default function HomePage() {
+  useSeo({
+    titre: "Covoiturage d'entreprise, d'université et d'événement",
+    description:
+      "CoShift organise le covoiturage entre collègues et étudiants : publiez vos trajets, réservez ceux de votre organisation, réduisez les voitures sur la route.",
+    chemin: "/",
+  });
+  useDonneesStructurees(ORGANISATION);
+
   const navigate = useNavigate();
   const { user } = useAuth();
 

@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Input } from "../../components/ui";
+import { useSeo } from "../../hooks/useSeo";
 import "../Auth/auth.css";
 
 type View = "login" | "forgot" | "reset";
@@ -27,6 +28,17 @@ const HEAD: Record<View, { title: string; lead: string }> = {
 };
 
 export default function LoginPage() {
+  /* Page volontairement retirée de l'index : un écran de connexion en résultat
+     de recherche n'apporte rien à qui cherche du covoiturage. Elle reste
+     autorisée au crawl dans robots.txt — une page interdite d'exploration ne
+     serait jamais visitée, et cette consigne jamais lue. */
+  useSeo({
+    titre: "Connexion",
+    description: "Connectez-vous à CoShift pour proposer ou réserver un trajet avec vos collègues.",
+    chemin: "/login",
+    horsIndex: true,
+  });
+
   const { login } = useAuth();
   const navigate = useNavigate();
 

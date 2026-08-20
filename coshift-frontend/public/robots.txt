@@ -1,0 +1,33 @@
+# robots.txt — CoShift
+#
+# CoShift est une application réservée aux membres d'une organisation. Sa
+# surface publique se réduit à quelques pages de présentation et à la rubrique
+# Actus. Tout le reste est derrière un compte : l'indexer ne produirait que des
+# résultats renvoyant vers un écran de connexion, ce qui dégrade autant
+# l'expérience que la réputation du domaine.
+#
+# Ces règles ne protègent rien : un robot malveillant les ignore, et la vraie
+# protection reste l'authentification. Elles évitent seulement à un moteur
+# honnête de perdre son temps — et à nous de récolter des pages sans valeur
+# dans l'index.
+
+User-agent: *
+
+# ── Espace membre : rien à indexer ──
+Disallow: /dashboard
+Disallow: /trips
+Disallow: /bookings
+Disallow: /verify-email
+
+# ── Outils internes ──
+Disallow: /styleguide
+
+# ── Paramètres d'URL qui dupliqueraient une page déjà indexée ──
+Disallow: /*?tab=
+Disallow: /*?email=
+
+# Tout le reste est autorisé : accueil, Actus, À propos, Entreprises, Blog,
+# ainsi que les pages de connexion et d'inscription.
+Allow: /
+
+Sitemap: https://coshift.be/sitemap.xml

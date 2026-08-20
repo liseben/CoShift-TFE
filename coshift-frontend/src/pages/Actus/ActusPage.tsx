@@ -4,6 +4,7 @@ import { FiArrowRight, FiRss } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Card, EmptyState, Spinner } from "../../components/ui";
+import { useSeo, slug } from "../../hooks/useSeo";
 import "./ActusPage.css";
 
 export interface Article {
@@ -15,6 +16,18 @@ export interface Article {
   date: string; // "YYYY-MM-DD"
   imageUrl?: string;
   url: string;
+}
+
+/**
+ * Adresse publique d'un article : un fragment lisible, puis l'identifiant.
+ *
+ * `/actus/288241c1-5887-41fd-812f-66256edda9c3` ne dit rien — ni à un moteur,
+ * ni à quelqu'un qui reçoit le lien par message. Le titre en tête change cela
+ * sans rien coûter : l'identifiant reste seul lu par le code, et les anciennes
+ * adresses continuent de fonctionner.
+ */
+export function lienArticle(a: { id: string; title: string }): string {
+  return `/actus/${slug(a.title)}--${encodeURIComponent(a.id)}`;
 }
 
 /**
@@ -45,6 +58,13 @@ function truncate(text: string, max: number) {
 
 /** Page rubrique : liste filtrable et paginée des articles. */
 export default function ActusPage() {
+  useSeo({
+    titre: "Actus mobilité — covoiturage, transports et mobilité durable",
+    description:
+      "Le flux d'actualités CoShift sur la mobilité : covoiturage, transports en commun, mobilité douce et politiques de déplacement en Belgique et en Europe.",
+    chemin: "/actus",
+  });
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [category, setCategory] = useState<string>("toutes");
   const [loading, setLoading] = useState(true);
@@ -117,7 +137,7 @@ export default function ActusPage() {
         <>
           <div className="grid-auto">
             {visible.map((a) => (
-              <Card key={a.id} to={`/actus/${encodeURIComponent(a.id)}`}>
+              <Card key={a.id} to={lienArticle(a)}>
                 <p className="ac__meta">
                   <span className="ac__tag">{
                     CATEGORIES.find((c) => c.id === a.category)?.label ?? a.category

@@ -59,6 +59,10 @@ public class SecurityConfiguration {
                 // réutilisation libre est justement l'objet.
                 .requestMatchers(HttpMethod.GET, "/api/open-data/**").permitAll()
 
+                // Plan du site : destiné aux moteurs, qui ne présentent pas de
+                // jeton. Une adresse protégée serait simplement ignorée.
+                .requestMatchers(HttpMethod.GET, "/sitemap.xml").permitAll()
+
                 // Documentation de l'API. Ouverte en développement pour être
                 // utilisable, éteinte en production par le profil « prod » :
                 // ces routes ne répondent alors plus du tout.

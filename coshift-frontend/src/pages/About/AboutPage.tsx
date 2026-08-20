@@ -6,6 +6,7 @@ import { FiArrowRight, FiCheck } from "react-icons/fi";
 import { Button, Card } from "../../components/ui";
 import Logo from "../../components/Logo/Logo";
 import { PHOTOS } from "../../components/image_site";
+import { useSeo } from "../../hooks/useSeo";
 import "./AboutPage.css";
 
 const ETAPES = [
@@ -78,6 +79,13 @@ const PRINCIPES = [
 ];
 
 export default function AboutPage() {
+  useSeo({
+    titre: "À propos — pourquoi CoShift existe",
+    description:
+      "CoShift est né d'un constat : la plupart des voitures qui vont au travail chaque matin transportent une seule personne. Voici la démarche et les choix du projet.",
+    chemin: "/a-propos",
+  });
+
   return (
     <div className="about">
       {/* ── Ouverture ── */}
