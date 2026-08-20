@@ -147,6 +147,13 @@
   color: var(--text-soft);
   font-size: var(--fs-base);
   line-height: var(--lh-base);
+  /* Un élément de grille vaut `min-width: auto` par défaut : il refuse de
+     descendre sous la largeur de son contenu. Un tableau de registre large
+     poussait donc toute la colonne, et la page entière défilait
+     horizontalement sur téléphone — 669 px de contenu pour 375 px d'écran.
+     Ce zéro rend la contrainte de la grille prioritaire, ce qui laisse enfin
+     `overflow-x` opérer à l'intérieur de la boîte du tableau. */
+  min-width: 0;
 }
 
 .legal__section {

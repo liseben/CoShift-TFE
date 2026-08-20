@@ -72,3 +72,15 @@
 }
 
 .pv__liste a:hover { color: var(--brand-hover); }
+
+/* Les libellés de cette page sont longs par nécessité : « Supprimer
+   définitivement mon compte » ne se raccourcit pas sans affaiblir
+   l'avertissement sur une action irréversible. Le socle interdit le retour à
+   la ligne dans un bouton — au format téléphone, le bouton dépassait alors sa
+   carte de quarante pixels et faisait défiler la page entière. L'interdiction
+   est levée pour ce panneau seulement. */
+.pv .btn {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
