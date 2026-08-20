@@ -53,7 +53,28 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.GET, "/api/pwa/articles/**").permitAll()
                 // Photo de profil accessible sans auth (images publiques)
                 .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
-                
+
+                // Données ouvertes : agrégats sans donnée personnelle, dont la
+                // réutilisation libre est justement l'objet.
+                .requestMatchers(HttpMethod.GET, "/api/open-data/**").permitAll()
+
+                // Documentation de l'API. Ouverte en développement pour être
+                // utilisable, éteinte en production par le profil « prod » :
+                // ces routes ne répondent alors plus du tout.
+                .requestMatchers(
+                        "/v3/api-docs", "/v3/api-docs/**", "/v3/api-docs.yaml",
+                        "/swagger-ui.html", "/swagger-ui/**").permitAll()
+
+                // Sondes de disponibilité, interrogées par la supervision et,
+                // en production, par l'orchestrateur : /health/liveness et
+                // /health/readiness doivent donc rester joignables sans jeton.
+                // Le niveau de détail est réglé par management.endpoint.health
+                // .show-details, restreint aux appelants authentifiés en
+                // production. Les métriques, elles, restent réservées à un
+                // administrateur : elles renseignent sur l'infrastructure.
+                .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+
                 // Tout le reste nécessite d'être connecté
                 .anyRequest().authenticated()
             )
