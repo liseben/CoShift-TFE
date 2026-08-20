@@ -57,4 +57,20 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     /** Trajets encore ouverts alors que l'heure de départ est passée (tâche de clôture). */
     List<Trip> findByStatusInAndDepartureTimeBefore(Collection<TripStatus> statuses, LocalDateTime moment);
+
+    /**
+     * Trajets anciens portant encore une donnée à anonymiser.
+     *
+     * <p>La seconde condition évite de reprendre à chaque passage des milliers
+     * de trajets déjà traités : sans elle, la tâche de rétention réécrirait
+     * indéfiniment les mêmes lignes avec les mêmes valeurs nulles.</p>
+     */
+    @Query("""
+            SELECT t FROM Trip t
+            WHERE t.departureTime < :limite
+              AND (t.departureAddress IS NOT NULL
+                OR t.arrivalAddress   IS NOT NULL
+                OR t.description      IS NOT NULL)
+            """)
+    List<Trip> findAnonymisables(@Param("limite") LocalDateTime limite);
 }
