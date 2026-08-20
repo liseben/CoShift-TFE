@@ -56,11 +56,15 @@ export default function LoginPage() {
       const { data } = await axios.post(`${API_BASE}/api/auth/login`, { email, password });
       if (data.token) enter(data.token);
     } catch (err) {
-      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+      const res = axios.isAxiosError(err) ? err.response : undefined;
+      /* Le serveur rédige des messages précis — compte non activé (403), trop
+         de tentatives (429) — que « E-mail ou mot de passe incorrect » écrasait
+         jusqu'ici. On ne retombe sur un texte générique que sans réponse. */
       setError(
-        status === 401 || status === 403
-          ? "E-mail ou mot de passe incorrect."
-          : "Impossible de joindre le serveur. Veuillez réessayer.",
+        res?.data?.message ??
+          (res?.status === 401
+            ? "E-mail ou mot de passe incorrect."
+            : "Impossible de joindre le serveur. Veuillez réessayer."),
       );
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import com.coshift.api.dto.RegisterRequest;
 import com.coshift.api.dto.ResetPasswordRequest;
 import com.coshift.api.dto.VerifyEmailRequest;
 import com.coshift.api.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,17 +41,19 @@ public class AuthenticationController {
     // --- LA ROUTE DE CONNEXION ---
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @Valid @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest http
     ) {
-        return ResponseEntity.ok(service.authenticate(request));
+        return ResponseEntity.ok(service.authenticate(request, clientIp(http)));
     }
 
     // --- F7 : VÉRIFICATION DE L'EMAIL ---
     @PostMapping("/verify-email")
     public ResponseEntity<AuthenticationResponse> verifyEmail(
-            @Valid @RequestBody VerifyEmailRequest request
+            @Valid @RequestBody VerifyEmailRequest request,
+            HttpServletRequest http
     ) {
-        return ResponseEntity.ok(service.verifyEmail(request));
+        return ResponseEntity.ok(service.verifyEmail(request, clientIp(http)));
     }
 
     // --- F7 : RENVOI DU CODE ---
@@ -77,9 +80,25 @@ public class AuthenticationController {
     // --- F6 : CHOIX DU NOUVEAU MOT DE PASSE ---
     @PostMapping("/reset-password")
     public ResponseEntity<AuthenticationResponse> resetPassword(
-            @Valid @RequestBody ResetPasswordRequest request
+            @Valid @RequestBody ResetPasswordRequest request,
+            HttpServletRequest http
     ) {
         return ResponseEntity.ok(service.resetPassword(
-                request.getEmail(), request.getCode(), request.getNewPassword()));
+                request.getEmail(), request.getCode(), request.getNewPassword(), clientIp(http)));
+    }
+
+    /**
+     * Adresse de l'appelant, servant de clé au freinage des tentatives.
+     *
+     * <p>Volontairement {@code getRemoteAddr()} et non l'en-tête
+     * {@code X-Forwarded-For} : sans reverse proxy de confiance en amont, cet
+     * en-tête est fourni par le client lui-même, qui n'aurait qu'à le faire
+     * varier pour se donner une adresse neuve à chaque essai — le freinage
+     * deviendrait purement décoratif. Derrière un proxy, il faudra le lire, mais
+     * seulement après avoir déclaré ce proxy comme digne de confiance.</p>
+     */
+    private String clientIp(HttpServletRequest http) {
+        String remote = http.getRemoteAddr();
+        return (remote == null || remote.isBlank()) ? "inconnue" : remote;
     }
 }

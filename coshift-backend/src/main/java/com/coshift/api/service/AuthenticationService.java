@@ -9,6 +9,7 @@ import com.coshift.api.entity.Role;
 import com.coshift.api.entity.User;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.security.JwtService;
+import com.coshift.api.security.LoginAttemptService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +30,7 @@ import com.coshift.api.exception.ConflictException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import java.time.LocalDateTime;
 
 @Service
@@ -41,6 +43,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final LoginAttemptService loginAttemptService;
 
     @Value("${api.google.client-id}")
     private String googleClientId;
@@ -136,7 +139,13 @@ public class AuthenticationService {
     }
 
     // --- VÉRIFICATION EMAIL (F7) ---
-    public AuthenticationResponse verifyEmail(VerifyEmailRequest request) {
+    public AuthenticationResponse verifyEmail(VerifyEmailRequest request, String clientIp) {
+        // Un code à six chiffres se parcourt en entier par essais successifs :
+        // sans freinage, l'activation d'un compte tiers n'est qu'une question
+        // de temps machine.
+        String attemptKey = loginAttemptService.key(clientIp, request.getEmail());
+        loginAttemptService.assertNotBlocked(attemptKey);
+
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Aucun compte associé à cet email."));
 
@@ -150,6 +159,7 @@ public class AuthenticationService {
 
         if (user.getVerificationCode() == null
                 || !user.getVerificationCode().equals(request.getCode())) {
+            loginAttemptService.recordFailure(attemptKey);
             throw new BadRequestException("Code de vérification incorrect.");
         }
 
@@ -162,6 +172,7 @@ public class AuthenticationService {
         user.setVerificationCode(null);
         user.setVerificationCodeExpiry(null);
         repository.save(user);
+        loginAttemptService.reset(attemptKey);
 
         var token = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
@@ -192,19 +203,36 @@ public class AuthenticationService {
     }
 
     // --- CONNEXION (F5) ---
-    public AuthenticationResponse authenticate(LoginRequest request) {
+    public AuthenticationResponse authenticate(LoginRequest request, String clientIp) {
+        String attemptKey = loginAttemptService.key(clientIp, request.getEmail());
+        loginAttemptService.assertNotBlocked(attemptKey);
+
         // Vérifier manuellement si le compte est activé avant de passer dans Spring Security
         // (pour renvoyer un message explicite plutôt qu'une erreur 401 générique)
-        User user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Email ou mot de passe incorrect."));
+        User user = repository.findByEmail(request.getEmail()).orElseGet(() -> {
+            // Une adresse inconnue compte comme un échec : sans cela, essayer des
+            // adresses au hasard resterait entièrement gratuit.
+            loginAttemptService.recordFailure(attemptKey);
+            throw new BadCredentialsException("Email ou mot de passe incorrect.");
+        });
 
+        // Compte non activé : ce n'est pas une erreur de mot de passe, la
+        // comptabiliser bloquerait un utilisateur légitime qui insiste avant
+        // d'avoir lu son courriel de vérification.
         if (!user.isEmailVerified()) {
             throw new DisabledException("Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (AuthenticationException e) {
+            loginAttemptService.recordFailure(attemptKey);
+            throw e;
+        }
+
+        loginAttemptService.reset(attemptKey);
 
         var jwtToken = jwtService.generateToken(user);
 
@@ -248,9 +276,15 @@ public class AuthenticationService {
      * connexion. Le statut de vérification de l'adresse n'est pas modifié — un
      * compte jamais activé le reste, F7 gardant son propre chemin.</p>
      */
-    public AuthenticationResponse resetPassword(String email, String code, String newPassword) {
-        User user = repository.findByEmail(email)
-                .orElseThrow(() -> new BadRequestException("Code invalide ou expiré."));
+    public AuthenticationResponse resetPassword(String email, String code, String newPassword,
+                                                String clientIp) {
+        String attemptKey = loginAttemptService.key(clientIp, email);
+        loginAttemptService.assertNotBlocked(attemptKey);
+
+        User user = repository.findByEmail(email).orElseGet(() -> {
+            loginAttemptService.recordFailure(attemptKey);
+            throw new BadRequestException("Code invalide ou expiré.");
+        });
 
         // Message unique pour un code absent, faux ou périmé : le distinguer
         // renseignerait un attaquant sur l'existence d'une demande en cours.
@@ -258,6 +292,7 @@ public class AuthenticationService {
                 || !user.getPasswordResetCode().equals(code)
                 || user.getPasswordResetExpiry() == null
                 || user.getPasswordResetExpiry().isBefore(LocalDateTime.now())) {
+            loginAttemptService.recordFailure(attemptKey);
             throw new BadRequestException("Code invalide ou expiré.");
         }
 
@@ -267,6 +302,7 @@ public class AuthenticationService {
         user.setPasswordResetCode(null);
         user.setPasswordResetExpiry(null);
         repository.save(user);
+        loginAttemptService.reset(attemptKey);
 
         log.info("Mot de passe réinitialisé pour {}", user.getEmail());
 

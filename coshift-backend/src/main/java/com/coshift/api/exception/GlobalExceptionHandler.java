@@ -101,6 +101,14 @@ public class GlobalExceptionHandler {
                 "Le fichier envoyé dépasse la taille maximale autorisée.", request);
     }
 
+    // ──────────────────────── 429 — Trop de tentatives ────────────────────────────
+
+    /** Freinage des essais successifs sur la connexion et les codes à six chiffres. */
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ErrorResponse> handleTooManyRequests(TooManyRequestsException ex, WebRequest request) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, "Too Many Requests", ex.getMessage(), request);
+    }
+
     // ───────────────────────────── 500 — Dernier recours ──────────────────────────
 
     @ExceptionHandler(Exception.class)
