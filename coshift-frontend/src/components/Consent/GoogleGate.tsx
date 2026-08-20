@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Link } from "react-router-dom";
 import { useConsent } from "../../context/ConsentContext";
+import { useT } from "../../context/LangContext";
 import "./GoogleGate.css";
 
 /**
@@ -38,6 +39,7 @@ const GOOGLE_CLIENT_ID =
  */
 export default function GoogleGate({ children }: { children: ReactNode }) {
   const { autorise, aRepondu, reinitialiser } = useConsent();
+  const t = useT();
 
   if (autorise("google")) {
     return <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>{children}</GoogleOAuthProvider>;
@@ -47,15 +49,15 @@ export default function GoogleGate({ children }: { children: ReactNode }) {
     <div className="gate" role="note">
       <p className="gate__texte">
         {aRepondu
-          ? "La connexion par compte Google est désactivée : vous n'avez pas autorisé ce service tiers."
-          : "La connexion par compte Google n'est pas chargée tant que vous n'avez pas répondu au bandeau de consentement."}
+          ? t("consentement.googleDesactive")
+          : t("consentement.googleNonCharge")}
       </p>
       <p className="gate__texte gate__texte--sourdine">
-        Le formulaire ci-dessous fonctionne sans Google.{" "}
+        {t("consentement.googleRepli")}{" "}
         <button type="button" className="gate__lien is-inline" onClick={reinitialiser}>
-          Revoir mon choix
+          {t("consentement.revoirChoix")}
         </button>{" "}
-        · <Link to="/cookies">En savoir plus</Link>
+        · <Link to="/cookies">{t("consentement.enSavoirPlus")}</Link>
       </p>
     </div>
   );

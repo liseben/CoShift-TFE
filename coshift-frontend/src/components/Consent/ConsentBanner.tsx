@@ -4,6 +4,7 @@ import { FiMap, FiShield } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "../ui";
 import { useConsent } from "../../context/ConsentContext";
+import { useT } from "../../context/LangContext";
 import "./ConsentBanner.css";
 
 /**
@@ -40,6 +41,7 @@ export default function ConsentBanner() {
     panneauOuvert, ouvrirPanneau, fermerPanneau,
   } = useConsent();
 
+  const t = useT();
   const [google, setGoogle] = useState(false);
   const [mapbox, setMapbox] = useState(false);
   const titreId = useId();
@@ -79,14 +81,11 @@ export default function ConsentBanner() {
           </span>
           <div>
             <h2 className="consent__titre" id={titreId}>
-              Deux services tiers, votre choix
+              {t("consentement.titre")}
             </h2>
             <p className="consent__texte" id={`${titreId}-texte`}>
-              CoShift fonctionne sans vous pister. Deux fonctions facultatives
-              font toutefois appel à des services établis aux États-Unis, qui
-              reçoivent alors votre adresse IP&nbsp;: la carte animée de
-              l'accueil et le bouton de connexion Google.{" "}
-              <strong>Rien n'est chargé tant que vous n'avez pas répondu.</strong>
+              {t("consentement.texte")}{" "}
+              <strong>{t("consentement.texteFort")}</strong>
             </p>
           </div>
         </div>
@@ -103,11 +102,9 @@ export default function ConsentBanner() {
                 <FiMap />
               </span>
               <span className="consent__option-corps">
-                <span className="consent__option-titre">Carte animée — Mapbox</span>
+                <span className="consent__option-titre">{t("consentement.carteTitre")}</span>
                 <span className="consent__option-texte">
-                  Affiche le fond cartographique de la page d'accueil. Sans lui,
-                  la page reste complète&nbsp;: seule l'animation est remplacée
-                  par un aplat.
+                  {t("consentement.carteTexte")}
                 </span>
               </span>
             </label>
@@ -123,12 +120,10 @@ export default function ConsentBanner() {
               </span>
               <span className="consent__option-corps">
                 <span className="consent__option-titre">
-                  Connexion Google — Google Identity Services
+                  {t("consentement.googleTitre")}
                 </span>
                 <span className="consent__option-texte">
-                  Active le bouton « Continuer avec Google » sur l'écran de
-                  connexion. La connexion par adresse et mot de passe fonctionne
-                  sans lui.
+                  {t("consentement.googleTexte")}
                 </span>
               </span>
             </label>
@@ -139,10 +134,10 @@ export default function ConsentBanner() {
           {/* Même variante, même taille, même rang : le refus ne coûte pas plus
               cher que l'acceptation. */}
           <Button variant="secondary" onClick={refuserTout}>
-            Tout refuser
+            {t("consentement.toutRefuser")}
           </Button>
           <Button variant="secondary" onClick={accepterTout}>
-            Tout accepter
+            {t("consentement.toutAccepter")}
           </Button>
 
           {panneauOuvert ? (
@@ -151,14 +146,14 @@ export default function ConsentBanner() {
                 variant="primary"
                 onClick={() => enregistrer({ google, mapbox })}
               >
-                Enregistrer mes choix
+                {t("consentement.enregistrerChoix")}
               </Button>
               <button
                 type="button"
                 className="consent__lien is-inline"
                 onClick={fermerPanneau}
               >
-                Replier
+                {t("consentement.replier")}
               </button>
             </>
           ) : (
@@ -168,15 +163,14 @@ export default function ConsentBanner() {
               onClick={ouvrirPanneau}
               aria-expanded={false}
             >
-              Choisir service par service
+              {t("consentement.serviceParService")}
             </button>
           )}
         </div>
 
         <p className="consent__pied">
-          Votre choix est conservé six mois et reste modifiable depuis le pied de
-          page. Détail de ce qui est stocké&nbsp;:{" "}
-          <Link to="/cookies">cookies et traceurs</Link>.
+          {t("consentement.pied")}{" "}
+          <Link to="/cookies">{t("consentement.piedLien")}</Link>.
         </p>
       </div>
     </div>

@@ -7,6 +7,8 @@ import SiteFooter from "../components/SiteFooter/SiteFooter";
 import ConsentBanner from "../components/Consent/ConsentBanner";
 import { Avatar } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LangContext";
+import { LANGUES, type Langue } from "../i18n";
 import { FiGlobe } from "react-icons/fi";
 import "./MainLayout.css";
 
@@ -14,8 +16,8 @@ export default function MainLayout() {
   const [showLoginMenu, setShowLoginMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);                                    
-  const [currentLang, setCurrentLang] = useState("FR");
   const { user, logout } = useAuth();
+  const { langue, definir, t } = useLang();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -113,16 +115,16 @@ export default function MainLayout() {
               className="nav-item"
               onClick={closeMobileMenu}
             >
-              Entreprises
+              {t("nav.entreprises")}
             </Link>
             <Link to="/actus" className="nav-item" onClick={closeMobileMenu}>
-              Actus Mobilité
+              {t("nav.actus")}
             </Link>
             <Link to="/a-propos" className="nav-item" onClick={closeMobileMenu}>
-              À propos
+              {t("nav.apropos")}
             </Link>
             <Link to="/blog" className="nav-item" onClick={closeMobileMenu}>
-              Le Blog
+              {t("nav.blog")}
             </Link>
           </nav>
 
@@ -130,13 +132,9 @@ export default function MainLayout() {
             <ThemeToggle />
             <button
               className="btn-download-app"
-              onClick={() =>
-                alert(
-                  "La logique d'installation de la PWA / APK sera ajoutée ici !",
-                )
-              }
+              onClick={() => alert(t("nav.telechargerBientot"))}
             >
-              Téléchargez l'App
+              {t("nav.telecharger")}
             </button>
 
             <div className="lang-wrapper" ref={langMenuRef}>
@@ -149,7 +147,7 @@ export default function MainLayout() {
                 }}
               >
                 <FiGlobe size={28} />
-                <span>{currentLang}</span>
+                <span>{LANGUES[langue].etiquette}</span>
                 {/* Le petit chevron (flèche) en SVG pour un rendu hyper net */}
                 <svg
                   className="chevron"
@@ -166,18 +164,26 @@ export default function MainLayout() {
                 </svg>
               </button>
 
+              {/* La liste est déduite de LANGUES : une langue ajoutée au
+                  catalogue apparaît ici sans modification. La version
+                  précédente écrivait FR/EN/NL en dur et ne changeait qu'un
+                  libellé — le menu proposait donc trois langues dont deux
+                  n'existaient pas. */}
               {showLangMenu && (
-                <div className="lang-dropdown">
-                  {["FR", "EN", "NL"].map((lang) => (
+                <div className="lang-dropdown" role="menu" aria-label={t("langue.choisir")}>
+                  {(Object.keys(LANGUES) as Langue[]).map((code) => (
                     <button
-                      key={lang}
-                      className={`lang-option ${currentLang === lang ? "active" : ""}`}
+                      key={code}
+                      role="menuitemradio"
+                      aria-checked={langue === code}
+                      lang={LANGUES[code].balise}
+                      className={`lang-option ${langue === code ? "active" : ""}`}
                       onClick={() => {
-                        setCurrentLang(lang);
+                        definir(code);
                         setShowLangMenu(false);
                       }}
                     >
-                      {lang}
+                      {LANGUES[code].etiquette}
                     </button>
                   ))}
                 </div>
@@ -190,7 +196,7 @@ export default function MainLayout() {
                 <button
                   className="btn-profile-trigger"
                   onClick={() => setShowLoginMenu(!showLoginMenu)}
-                  aria-label="Mon profil"
+                  aria-label={t("nav.monProfil")}
                 >
                   <Avatar
                     src={user.pictureUrl}
@@ -199,7 +205,7 @@ export default function MainLayout() {
                     verified={user.emailVerified}
                   />
 
-                  <span className="nav-item">Mon profil</span>
+                  <span className="nav-item">{t("nav.monProfil")}</span>
                 </button>
               ) : (
                 // --- SI NON CONNECTÉ : Bouton "Connexion" classique ---
@@ -207,7 +213,7 @@ export default function MainLayout() {
                   className="nav-item btn-login-trigger"
                   onClick={() => setShowLoginMenu(!showLoginMenu)}
                 >
-                  Connexion
+                  {t("nav.connexion")}
                 </button>
               )}
 
@@ -225,7 +231,7 @@ export default function MainLayout() {
                       }}
                     >
       
-                      <h4>Bonjour, {user.firstname} 👋</h4>
+                      <h4>{t("nav.bonjour", { prenom: user.firstname })} 👋</h4>
                       <p style={{ marginBottom: "1.5rem" }}>{user.email}</p>
 
                       {/* LA BOÎTE QUI GÈRE L'ESPACE */}
@@ -238,14 +244,14 @@ export default function MainLayout() {
                             closeMobileMenu();
                           }}
                         >
-                          Dashboard
+                          {t("nav.tableauDeBord")}
                         </Link>
 
                         <button
                           onClick={handleLogout}
                           className="popover-btn btn-logout"
                         >
-                          Se déconnecter
+                          {t("commun.seDeconnecter")}
                         </button>
                       </div>
                     </div>
@@ -254,27 +260,27 @@ export default function MainLayout() {
                     <>
                       <div className="popover-section">
                         <div className="popover-icon">👋</div>
-                        <h4>Bon retour</h4>
-                        <p>Accédez à votre espace CoShift.</p>
+                        <h4>{t("nav.bonRetour")}</h4>
+                        <p>{t("nav.bonRetourTexte")}</p>
                         <Link
                           to="/login"
                           className="popover-btn btn-primary"
                           onClick={() => setShowLoginMenu(false)}
                         >
-                          Se connecter
+                          {t("commun.seConnecter")}
                         </Link>
                       </div>
                       <div className="popover-divider"></div>
                       <div className="popover-section">
                         <div className="popover-icon">✨</div>
-                        <h4>Nouveau ici ?</h4>
-                        <p>Rejoignez la mobilité de demain.</p>
+                        <h4>{t("nav.nouveau")}</h4>
+                        <p>{t("nav.nouveauTexte")}</p>
                         <Link
                           to="/register"
                           className="popover-btn btn-outline"
                           onClick={() => setShowLoginMenu(false)}
                         >
-                          Créer un compte
+                          {t("commun.creerCompte")}
                         </Link>
                       </div>
                     </>

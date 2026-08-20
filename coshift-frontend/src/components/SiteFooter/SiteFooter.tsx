@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Logo from "../Logo/Logo";
 import { useConsent } from "../../context/ConsentContext";
+import { useT } from "../../context/LangContext";
 import { API_BASE } from "../../config/api";
 import { EDITEUR } from "../../config/legal";
 import "./SiteFooter.css";
@@ -28,6 +29,7 @@ import "./SiteFooter.css";
  */
 export default function SiteFooter() {
   const { reinitialiser } = useConsent();
+  const t = useT();
   const annee = new Date().getFullYear();
 
   return (
@@ -36,52 +38,52 @@ export default function SiteFooter() {
         <div className="sf__marque">
           <Logo size={32} />
           <p className="sf__baseline">
-            Le covoiturage qui commence à la porte de votre organisation.
+            {t("pied.baseline")}
           </p>
         </div>
 
         <nav className="sf__col" aria-labelledby="sf-service">
-          <h2 className="sf__titre" id="sf-service">Le service</h2>
+          <h2 className="sf__titre" id="sf-service">{t("pied.service")}</h2>
           <ul>
-            <li><Link to="/trips/search">Rechercher un trajet</Link></li>
-            <li><Link to="/trips/create">Proposer un trajet</Link></li>
-            <li><Link to="/entreprises">Espace entreprises</Link></li>
-            <li><Link to="/a-propos">À propos</Link></li>
+            <li><Link to="/trips/search">{t("pied.chercherTrajet")}</Link></li>
+            <li><Link to="/trips/create">{t("pied.proposerTrajet")}</Link></li>
+            <li><Link to="/entreprises">{t("pied.espaceEntreprises")}</Link></li>
+            <li><Link to="/a-propos">{t("nav.apropos")}</Link></li>
           </ul>
         </nav>
 
         <nav className="sf__col" aria-labelledby="sf-ressources">
-          <h2 className="sf__titre" id="sf-ressources">Ressources</h2>
+          <h2 className="sf__titre" id="sf-ressources">{t("pied.ressources")}</h2>
           <ul>
-            <li><Link to="/actus">Actualités mobilité</Link></li>
+            <li><Link to="/actus">{t("pied.actualites")}</Link></li>
             <li>
               <a href={`${API_BASE}/api/open-data`} target="_blank" rel="noopener noreferrer">
-                Données ouvertes
+                {t("pied.donneesOuvertes")}
               </a>
             </li>
             <li>
               <a href={`${API_BASE}/swagger-ui.html`} target="_blank" rel="noopener noreferrer">
-                Documentation de l'API
+                {t("pied.documentationApi")}
               </a>
             </li>
-            <li><Link to="/styleguide">Charte graphique</Link></li>
+            <li><Link to="/styleguide">{t("pied.charteGraphique")}</Link></li>
           </ul>
         </nav>
 
         <nav className="sf__col" aria-labelledby="sf-legal">
-          <h2 className="sf__titre" id="sf-legal">Informations légales</h2>
+          <h2 className="sf__titre" id="sf-legal">{t("pied.legal")}</h2>
           <ul>
-            <li><Link to="/mentions-legales">Mentions légales</Link></li>
-            <li><Link to="/confidentialite">Politique de confidentialité</Link></li>
-            <li><Link to="/cgu">Conditions générales</Link></li>
-            <li><Link to="/cookies">Cookies et traceurs</Link></li>
+            <li><Link to="/mentions-legales">{t("pied.mentions")}</Link></li>
+            <li><Link to="/confidentialite">{t("pied.confidentialite")}</Link></li>
+            <li><Link to="/cgu">{t("pied.cgu")}</Link></li>
+            <li><Link to="/cookies">{t("pied.cookies")}</Link></li>
             <li>
               <button type="button" className="sf__bouton is-inline" onClick={reinitialiser}>
-                Revoir mon choix de traceurs
+                {t("pied.revoirChoix")}
               </button>
             </li>
             <li>
-              <a href={`mailto:${EDITEUR.signalement}`}>Signaler un contenu</a>
+              <a href={`mailto:${EDITEUR.signalement}`}>{t("pied.signaler")}</a>
             </li>
           </ul>
         </nav>
@@ -92,8 +94,8 @@ export default function SiteFooter() {
           © {annee} {EDITEUR.denomination} · {EDITEUR.siege} · BCE {EDITEUR.bce}
         </p>
         <p className="sf__note">
-          Projet de fin d'études — données d'identification fictives, détaillées
-          dans les <Link to="/mentions-legales">mentions légales</Link>.
+          {t("pied.projetAcademique")}{" "}
+          <Link to="/mentions-legales">{t("pied.projetAcademiqueLien")}</Link>.
         </p>
       </div>
     </footer>
