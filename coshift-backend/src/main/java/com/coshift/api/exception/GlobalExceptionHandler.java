@@ -3,7 +3,12 @@ package com.coshift.api.exception;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+import com.coshift.api.security.SecurityAuditService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -27,7 +32,10 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
  */
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final SecurityAuditService audit;
 
     // ─────────────────────────── 400 — Requête invalide ───────────────────────────
 
@@ -74,8 +82,21 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "Account Disabled", ex.getMessage(), request);
     }
 
+    /**
+     * Accès refusé à une ressource appartenant à quelqu'un d'autre.
+     *
+     * <p>Consigné au journal de sécurité : neuf contrôles de propriété
+     * refusaient correctement l'accès sans en garder trace, si bien qu'un compte
+     * méthodiquement sondé ne se distinguait pas d'un utilisateur maladroit.</p>
+     */
     @ExceptionHandler({UnauthorizedException.class, AccessDeniedException.class, SecurityException.class})
-    public ResponseEntity<ErrorResponse> handleForbidden(RuntimeException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleForbidden(RuntimeException ex, WebRequest request,
+                                                         HttpServletRequest http) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        audit.consigner(SecurityAuditService.Evenement.ACCES_REFUSE,
+                (auth != null) ? auth.getName() : null,
+                http.getRemoteAddr(),
+                http.getMethod() + " " + chemin(request));
         return build(HttpStatus.FORBIDDEN, "Unauthorized Access", ex.getMessage(), request);
     }
 

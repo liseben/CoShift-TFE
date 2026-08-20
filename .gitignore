@@ -20,3 +20,9 @@ application-secrets.properties
 
 # Données envoyées par les utilisateurs (photos de profil)
 coshift-backend/uploads/
+
+# Journaux, dont le journal de sécurité : il contient des adresses
+# électroniques et des adresses IP, donc des données personnelles. Les
+# versionner les rendrait publics et indéfiniment conservés.
+coshift-backend/logs/
+logs/

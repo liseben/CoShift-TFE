@@ -10,6 +10,8 @@ import com.coshift.api.entity.User;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.security.JwtService;
 import com.coshift.api.security.LoginAttemptService;
+import com.coshift.api.security.SecurityAuditService;
+import com.coshift.api.security.SecurityAuditService.Evenement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +46,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final LoginAttemptService loginAttemptService;
+    private final SecurityAuditService audit;
 
     @Value("${api.google.client-id}")
     private String googleClientId;
@@ -160,6 +163,7 @@ public class AuthenticationService {
         if (user.getVerificationCode() == null
                 || !user.getVerificationCode().equals(request.getCode())) {
             loginAttemptService.recordFailure(attemptKey);
+            audit.consigner(Evenement.CODE_INVALIDE, user.getEmail(), clientIp, "activation du compte");
             throw new BadRequestException("Code de vérification incorrect.");
         }
 
@@ -213,6 +217,7 @@ public class AuthenticationService {
             // Une adresse inconnue compte comme un échec : sans cela, essayer des
             // adresses au hasard resterait entièrement gratuit.
             loginAttemptService.recordFailure(attemptKey);
+            audit.consigner(Evenement.CONNEXION_ECHOUEE, request.getEmail(), clientIp, "compte inconnu");
             throw new BadCredentialsException("Email ou mot de passe incorrect.");
         });
 
@@ -220,6 +225,7 @@ public class AuthenticationService {
         // comptabiliser bloquerait un utilisateur légitime qui insiste avant
         // d'avoir lu son courriel de vérification.
         if (!user.isEmailVerified()) {
+            audit.consigner(Evenement.COMPTE_NON_ACTIVE, user.getEmail(), clientIp);
             throw new DisabledException("Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
         }
 
@@ -229,10 +235,12 @@ public class AuthenticationService {
             );
         } catch (AuthenticationException e) {
             loginAttemptService.recordFailure(attemptKey);
+            audit.consigner(Evenement.CONNEXION_ECHOUEE, user.getEmail(), clientIp, "mot de passe incorrect");
             throw e;
         }
 
         loginAttemptService.reset(attemptKey);
+        audit.consigner(Evenement.CONNEXION_REUSSIE, user.getEmail(), clientIp);
 
         var jwtToken = jwtService.generateToken(user);
 
@@ -293,6 +301,7 @@ public class AuthenticationService {
                 || user.getPasswordResetExpiry() == null
                 || user.getPasswordResetExpiry().isBefore(LocalDateTime.now())) {
             loginAttemptService.recordFailure(attemptKey);
+            audit.consigner(Evenement.CODE_INVALIDE, user.getEmail(), clientIp, "reinitialisation du mot de passe");
             throw new BadRequestException("Code invalide ou expiré.");
         }
 
@@ -304,7 +313,7 @@ public class AuthenticationService {
         repository.save(user);
         loginAttemptService.reset(attemptKey);
 
-        log.info("Mot de passe réinitialisé pour {}", user.getEmail());
+        audit.consigner(Evenement.MOT_DE_PASSE_REINITIALISE, user.getEmail(), clientIp);
 
         return AuthenticationResponse.builder()
                 .message("Mot de passe modifié. Vous pouvez maintenant vous connecter.")

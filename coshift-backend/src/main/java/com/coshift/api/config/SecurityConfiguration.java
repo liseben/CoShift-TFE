@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -79,6 +80,27 @@ public class SecurityConfiguration {
                 .anyRequest().authenticated()
             )
             
+            // 3 bis. En-têtes de sécurité.
+            // Spring Security pose déjà X-Content-Type-Options et X-Frame-Options ;
+            // les trois suivants ne sont pas fournis par défaut.
+            .headers(headers -> headers
+                    // L'API ne renvoie que du JSON et des images : elle n'a aucune
+                    // raison de charger un script, un style ou une police. Une
+                    // politique fermée neutralise l'exploitation d'une éventuelle
+                    // injection dans une réponse servie au navigateur.
+                    .contentSecurityPolicy(csp -> csp.policyDirectives(
+                            "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"))
+                    // Ne pas divulguer l'URL d'origine à un site tiers : un chemin
+                    // peut contenir un identifiant de ressource.
+                    .referrerPolicy(referrer -> referrer.policy(
+                            ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                    // HSTS : le navigateur refusera ensuite tout retour en HTTP clair.
+                    // L'en-tête n'est émis que sur une requête déjà sécurisée, donc
+                    // sans effet en développement.
+                    .httpStrictTransportSecurity(hsts -> hsts
+                            .includeSubDomains(true)
+                            .maxAgeInSeconds(31_536_000)))
+
             // 4. Gestion de session : Stateless
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             

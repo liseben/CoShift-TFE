@@ -40,7 +40,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Slf4j
+@lombok.RequiredArgsConstructor
 public class LoginAttemptService {
+
+    private final SecurityAuditService audit;
 
     /** Nombre d'échecs tolérés avant blocage. */
     public static final int MAX_ATTEMPTS = 5;
@@ -88,6 +91,10 @@ public class LoginAttemptService {
         synchronized (counter) {
             if (!counter.isLocked(now)) return;
 
+            // Insister sur une clé déjà bloquée n'est pas le fait d'un utilisateur
+            // distrait : c'est le signal qui distingue une erreur d'un acharnement.
+            journaliser(SecurityAuditService.Evenement.TENTATIVE_PENDANT_BLOCAGE, key, "-");
+
             // Arrondi à la minute supérieure : annoncer « 0 minute » alors que le
             // blocage court encore serait incompréhensible pour l'utilisateur.
             long minutes = Duration.between(now, counter.lockedUntil).toMinutes() + 1;
@@ -112,11 +119,25 @@ public class LoginAttemptService {
                 counter.lockedUntil = now.plus(LOCK);
                 counter.failures = 0;
                 counter.windowStart = now;
-                log.warn("Blocage de {} minutes après {} tentatives infructueuses (clé {})",
-                        LOCK_MINUTES, MAX_ATTEMPTS, k);
+                journaliser(SecurityAuditService.Evenement.BLOCAGE_TENTATIVES, k,
+                        MAX_ATTEMPTS + " echecs, blocage " + LOCK_MINUTES + " min");
             }
             return counter;
         });
+    }
+
+    /**
+     * Consigne un événement en redécomposant la clé en ses deux moitiés.
+     *
+     * <p>Le journal sépare l'adresse IP du compte visé : c'est ce qui permet
+     * ensuite de distinguer une adresse qui essaie de nombreux comptes — un
+     * balayage — d'un compte assailli depuis de nombreuses adresses.</p>
+     */
+    private void journaliser(SecurityAuditService.Evenement evenement, String key, String detail) {
+        int separateur = key.indexOf('|');
+        String ip = (separateur < 0) ? key : key.substring(0, separateur);
+        String compte = (separateur < 0) ? "-" : key.substring(separateur + 1);
+        audit.consigner(evenement, compte, ip, detail);
     }
 
     /** Efface le compteur après une opération réussie. */

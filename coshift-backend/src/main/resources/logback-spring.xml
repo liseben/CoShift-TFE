@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Journalisation de CoShift.
+
+  Deux destinations distinctes :
+
+    · la console, pour le journal applicatif ordinaire ;
+    · logs/securite.log, pour les seuls événements de sécurité.
+
+  Les séparer n'est pas une coquetterie. Mêlés au reste, les événements de
+  sécurité se noient sous les lignes d'aspiration d'articles et de démarrage :
+  personne ne les lit, et aucune règle de détection ne peut s'y appliquer sans
+  filtrage préalable. Isolés, ils forment un fichier dont chaque ligne mérite
+  d'être regardée, et sur lequel un outil de surveillance se branche
+  directement.
+-->
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- Journal applicatif : console. -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--
+      Journal de sécurité. Horodatage en ISO-8601 avec fuseau : une trace dont
+      on ignore le fuseau ne se recoupe avec aucune autre source.
+    -->
+    <appender name="SECURITE_FICHIER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/securite.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/securite.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <!--
+              Douze mois de conservation : assez pour établir l'antériorité d'une
+              intrusion découverte tardivement, et borné parce que ces lignes
+              contiennent des données personnelles (adresse électronique,
+              adresse IP) qui ne peuvent être gardées indéfiniment.
+            -->
+            <maxHistory>365</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!--
+      additivity="false" : les événements de sécurité ne repartent pas dans la
+      console, sans quoi ils s'y retrouveraient dupliqués et rien ne serait
+      gagné.
+    -->
+    <logger name="SECURITE" level="WARN" additivity="false">
+        <appender-ref ref="SECURITE_FICHIER"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

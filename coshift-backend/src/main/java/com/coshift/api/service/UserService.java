@@ -6,6 +6,7 @@ import com.coshift.api.exception.ConflictException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.security.JwtService;
+import com.coshift.api.security.SecurityAuditService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,17 +19,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService; // Ton service qui génère les tokens
     private final EmailService emailService;
+    private final SecurityAuditService audit;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public UserService(UserRepository userRepository, JwtService jwtService, EmailService emailService) {
+    public UserService(UserRepository userRepository, JwtService jwtService,
+                       EmailService emailService, SecurityAuditService audit) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.emailService = emailService;
+        this.audit = audit;
     }
 
     @Transactional
-    public AuthenticationResponse updateUserProfile(String currentEmail, UserProfileUpdateRequest request) {
+    public AuthenticationResponse updateUserProfile(String currentEmail, UserProfileUpdateRequest request,
+                                                    String clientIp) {
         // 1. Récupérer l'utilisateur actuel
         User user = userRepository.findByEmail(currentEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
@@ -67,6 +72,11 @@ public class UserService {
         userRepository.save(user);
 
         if (emailChange) {
+            // Un changement d'adresse est le premier geste d'une prise de contrôle
+            // de compte : il doit laisser une trace, y compris pour permettre à la
+            // personne d'établir plus tard ce qui s'est passé.
+            audit.consigner(SecurityAuditService.Evenement.ADRESSE_MODIFIEE, currentEmail, clientIp,
+                    "nouvelle adresse : " + user.getEmail());
             emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(), user.getVerificationCode());
             return AuthenticationResponse.builder()
                     .emailVerified(false)

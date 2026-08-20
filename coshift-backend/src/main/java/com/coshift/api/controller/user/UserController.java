@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,8 +103,10 @@ public class UserController {
     @PutMapping("/profile")
     public ResponseEntity<AuthenticationResponse> updateProfile(
             @Valid @RequestBody UserProfileUpdateRequest request,
-            Authentication authentication) {
-        AuthenticationResponse response = userService.updateUserProfile(authentication.getName(), request);
+            Authentication authentication,
+            HttpServletRequest http) {
+        AuthenticationResponse response = userService.updateUserProfile(
+                authentication.getName(), request, http.getRemoteAddr());
         return ResponseEntity.ok(response);
     }
 
