@@ -1,4 +1,5 @@
 import { useId, type InputHTMLAttributes } from "react";
+import { useT } from "../../../context/LangContext";
 import "../field.css";
 
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
@@ -18,6 +19,7 @@ type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "id"> & {
  * pour les lecteurs d'ecran.
  */
 export default function Input({ label, error, hint, id, required, ...rest }: InputProps) {
+  const t = useT();
   const auto = useId();
   const inputId = id ?? auto;
   const errorId = `${inputId}-error`;
@@ -29,7 +31,7 @@ export default function Input({ label, error, hint, id, required, ...rest }: Inp
         {label}
         {required && (
           <span className="field__required">
-            *<span className="sr-only"> obligatoire</span>
+            *<span className="sr-only"> {t("champ.obligatoire")}</span>
           </span>
         )}
       </label>

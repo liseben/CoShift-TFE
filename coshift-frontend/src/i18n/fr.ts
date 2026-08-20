@@ -14,6 +14,7 @@
 export const fr = {
   commun: {
     chargement: "Chargement…",
+    chargementEnCours: "Chargement en cours",
     rechercher: "Rechercher",
     envoyer: "Envoyer",
     annuler: "Annuler",
@@ -31,6 +32,18 @@ export const fr = {
     places_une: "{n} place",
     places_plusieurs: "{n} places",
     parPlace: "par place",
+  },
+
+  champ: {
+    obligatoire: "obligatoire",
+  },
+
+  message: {
+    info: "Information",
+    success: "Succès",
+    warning: "Attention",
+    danger: "Erreur",
+    fermer: "Fermer ce message",
   },
 
   langue: {
@@ -124,6 +137,7 @@ export const fr = {
     HYBRID: "Hybride",
     GASOLINE: "Essence",
     DIESEL: "Diesel",
+    LPG: "GPL",
   },
 
   recherche: {
@@ -139,6 +153,10 @@ export const fr = {
 
   carte: {
     nouveauConducteur: "Nouveau conducteur",
+    aHeure: " à ",
+    bagages: "Bagages",
+    animaux: "Animaux",
+    musique: "Musique",
     voirLeTrajet: "Voir le trajet",
     placesRestantes_une: "{n} place restante",
     placesRestantes_plusieurs: "{n} places restantes",
@@ -150,6 +168,15 @@ export const fr = {
       "CoShift organise le covoiturage entre collègues et étudiants : publiez vos trajets, réservez ceux de votre organisation, réduisez les voitures sur la route.",
     accroche:
       "Le covoiturage pensé pour les entreprises, les universités et les événements. Moins de voitures sur la route, moins de frais, et des trajets partagés entre gens qui se connaissent.",
+    heroPastille: "B2B & Campus",
+    heroTitre: "Partagez vos trajets quotidiens avec",
+    paginationLabel: "Pages de trajets",
+    pagination: "Page {page} sur {total}",
+    paginationTrajets: " · {n} trajets",
+    argumentP1:
+      "C'est toute l'idée. Le matin, sur le même axe, quatre voitures transportent quatre personnes. CoShift n'invente pas de nouvelle route : il remplit celles qui roulent déjà.",
+    argumentP2:
+      "Pour le conducteur, ce sont des frais partagés. Pour les passagers, un trajet direct sans correspondance. Pour l'organisation, trois places de parking libérées.",
     trajetsDisponibles: "Trajets disponibles",
     prochainsDeparts: "Les prochains départs proposés par les membres.",
     connectezVous:
@@ -175,6 +202,10 @@ export const fr = {
       "L'inscription passe par votre e-mail professionnel : c'est lui qui vous rattache à votre organisation.",
   },
 
+  atouts: {
+    titre: "Pourquoi passer par CoShift",
+  },
+
   connexion: {
     titre: "Connexion",
     accroche: "Connectez-vous pour proposer ou trouver un trajet.",
@@ -188,6 +219,32 @@ export const fr = {
     pasDeCompte: "Pas encore de compte ?",
     erreurGoogle:
       "La fenêtre Google s'est fermée ou une erreur est survenue.",
+    seSouvenir: "Se souvenir de moi",
+    nouveauSurCoShift: "Nouveau sur CoShift ?",
+    oublieTitre: "Mot de passe oublié",
+    oublieAccroche:
+      "Indiquez votre adresse pour recevoir un code de réinitialisation.",
+    envoyerCode: "Envoyer le code",
+    retourConnexion: "← Retour à la connexion",
+    codeEnvoye:
+      "Si un compte existe pour cette adresse, un code vient d'y être envoyé.",
+    resetTitre: "Nouveau mot de passe",
+    resetAccroche:
+      "Saisissez le code reçu par e-mail, puis choisissez un nouveau mot de passe.",
+    codeRecu: "Code reçu par e-mail",
+    codeAide: "Six chiffres, envoyés à {email}. Valables une heure.",
+    nouveauMotDePasse: "Nouveau mot de passe",
+    nouveauMotDePasseAide: "Six caractères au minimum.",
+    confirmerMotDePasse: "Confirmer le mot de passe",
+    afficherLesMotsDePasse: "Afficher les mots de passe",
+    changerMotDePasse: "Changer le mot de passe",
+    demanderNouveauCode: "← Demander un nouveau code",
+    motsDePasseDifferents: "Les deux mots de passe ne sont pas identiques.",
+    motDePasseModifie:
+      "Mot de passe modifié. Vous pouvez maintenant vous connecter.",
+    googleInconnu:
+      "Cet utilisateur n'existe pas. Veuillez créer un compte.",
+    googleEchec: "Échec de la connexion avec Google. Veuillez réessayer.",
     identifiantsRefuses: "E-mail ou mot de passe incorrect.",
   },
 

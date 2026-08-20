@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { useT } from "../../context/LangContext";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Input } from "../../components/ui";
 import GoogleGate from "../../components/Consent/GoogleGate";
@@ -12,20 +13,15 @@ import "../Auth/auth.css";
 type View = "login" | "forgot" | "reset";
 
 /* Le titre annonçait « un lien de réinitialisation » alors que le serveur
-   envoie un code à six chiffres, comme pour la vérification d'adresse. */
-const HEAD: Record<View, { title: string; lead: string }> = {
-  login: {
-    title: "Connexion",
-    lead: "Connectez-vous pour proposer ou trouver un trajet.",
-  },
-  forgot: {
-    title: "Mot de passe oublié",
-    lead: "Indiquez votre adresse pour recevoir un code de réinitialisation.",
-  },
-  reset: {
-    title: "Nouveau mot de passe",
-    lead: "Saisissez le code reçu par e-mail, puis choisissez un nouveau mot de passe.",
-  },
+   envoie un code à six chiffres, comme pour la vérification d'adresse.
+
+   Les libellés sont désormais des couples de clés plutôt que du texte : une
+   constante de module est évaluée au chargement du fichier, avant que la
+   langue soit connue. */
+const HEAD: Record<View, { titre: string; accroche: string }> = {
+  login:  { titre: "connexion.titre",       accroche: "connexion.accroche" },
+  forgot: { titre: "connexion.oublieTitre", accroche: "connexion.oublieAccroche" },
+  reset:  { titre: "connexion.resetTitre",  accroche: "connexion.resetAccroche" },
 };
 
 export default function LoginPage() {
@@ -33,15 +29,16 @@ export default function LoginPage() {
      de recherche n'apporte rien à qui cherche du covoiturage. Elle reste
      autorisée au crawl dans robots.txt — une page interdite d'exploration ne
      serait jamais visitée, et cette consigne jamais lue. */
+  const { login } = useAuth();
+  const t = useT();
+  const navigate = useNavigate();
+
   useSeo({
-    titre: "Connexion",
-    description: "Connectez-vous à CoShift pour proposer ou réserver un trajet avec vos collègues.",
+    titre: t("connexion.titre"),
+    description: t("connexion.accroche"),
     chemin: "/login",
     horsIndex: true,
   });
-
-  const { login } = useAuth();
-  const navigate = useNavigate();
 
   const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
@@ -76,8 +73,8 @@ export default function LoginPage() {
       setError(
         res?.data?.message ??
           (res?.status === 401
-            ? "E-mail ou mot de passe incorrect."
-            : "Impossible de joindre le serveur. Veuillez réessayer."),
+            ? t("connexion.identifiantsRefuses")
+            : t("commun.erreurReseau")),
       );
       setLoading(false);
     }
@@ -94,8 +91,8 @@ export default function LoginPage() {
       setError(
         res?.data?.message ??
           (res?.status === 401 || res?.status === 403
-            ? "Cet utilisateur n'existe pas. Veuillez créer un compte."
-            : "Échec de la connexion avec Google. Veuillez réessayer."),
+            ? t("connexion.googleInconnu")
+            : t("connexion.googleEchec")),
       );
       setLoading(false);
     }
@@ -115,14 +112,11 @@ export default function LoginPage() {
          serveur répond la même chose que le compte existe ou non, pour ne pas
          révéler qui est inscrit. */
       setView("reset");
-      setSuccess(
-        data?.message ??
-          "Si un compte existe pour cette adresse, un code vient d'y être envoyé.",
-      );
+      setSuccess(data?.message ?? t("connexion.codeEnvoye"));
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Impossible de contacter le serveur. Veuillez réessayer.",
+          t("commun.erreurReseau"),
       );
     } finally {
       setLoading(false);
@@ -137,7 +131,7 @@ export default function LoginPage() {
     // Contrôle côté client uniquement : la règle qui fait foi est celle du
     // backend, qui refuse tout mot de passe de moins de six caractères.
     if (newPassword !== confirmPassword) {
-      setError("Les deux mots de passe ne sont pas identiques.");
+      setError(t("connexion.motsDePasseDifferents"));
       return;
     }
 
@@ -150,7 +144,7 @@ export default function LoginPage() {
       });
       setView("login");
       setEmail(forgotEmail);
-      setSuccess("Mot de passe modifié. Vous pouvez maintenant vous connecter.");
+      setSuccess(t("connexion.motDePasseModifie"));
       setForgotEmail("");
       setResetCode("");
       setNewPassword("");
@@ -158,7 +152,7 @@ export default function LoginPage() {
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Impossible de contacter le serveur. Veuillez réessayer.",
+          t("commun.erreurReseau"),
       );
     } finally {
       setLoading(false);
@@ -180,8 +174,8 @@ export default function LoginPage() {
     <div className="auth">
       <div className="auth__card">
         <header className="auth__head">
-          <h1 className="auth__title">{HEAD[view].title}</h1>
-          <p className="auth__lead">{HEAD[view].lead}</p>
+          <h1 className="auth__title">{t(HEAD[view].titre)}</h1>
+          <p className="auth__lead">{t(HEAD[view].accroche)}</p>
         </header>
 
         {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
@@ -196,30 +190,30 @@ export default function LoginPage() {
               <GoogleGate>
                 <GoogleLogin
                   onSuccess={(r) => handleGoogle(r.credential)}
-                  onError={() => setError("La fenêtre Google s'est fermée ou une erreur est survenue.")}
+                  onError={() => setError(t("connexion.erreurGoogle"))}
                   shape="pill"
                   text="continue_with"
                 />
               </GoogleGate>
             </div>
 
-            <p className="auth__sep">ou</p>
+            <p className="auth__sep">{t("connexion.ou")}</p>
 
             <form onSubmit={handleSubmit} className="auth__form">
               <Input
-                label="Adresse e-mail"
+                label={t("connexion.email")}
                 type="email"
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => setError(null)}
-                placeholder="prenom.nom@entreprise.be"
+                placeholder={t("connexion.emailExemple")}
                 required
               />
 
               <div className="auth__password">
                 <Input
-                  label="Mot de passe"
+                  label={t("connexion.motDePasse")}
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   value={password}
@@ -231,7 +225,7 @@ export default function LoginPage() {
                   type="button"
                   className="auth__eye"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  aria-label={showPassword ? t("connexion.masquerMotDePasse") : t("connexion.afficherMotDePasse")}
                 >
                   <EyeIcon off={showPassword} />
                 </button>
@@ -239,66 +233,66 @@ export default function LoginPage() {
 
               <div className="auth__options">
                 <label className="auth__remember">
-                  <input type="checkbox" /> Se souvenir de moi
+                  <input type="checkbox" /> {t("connexion.seSouvenir")}
                 </label>
                 <button type="button" className="auth__link" onClick={() => switchView("forgot")}>
-                  Mot de passe oublié ?
+                  {t("connexion.oublie")}
                 </button>
               </div>
 
               <Button type="submit" size="lg" block loading={loading}>
-                Se connecter
+                {t("commun.seConnecter")}
               </Button>
             </form>
           </>
         ) : view === "forgot" ? (
           <form onSubmit={handleForgot} className="auth__form">
             <Input
-              label="Adresse e-mail"
+              label={t("connexion.email")}
               type="email"
               autoComplete="email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
               onFocus={() => { setError(null); setSuccess(null); }}
-              placeholder="prenom.nom@entreprise.be"
+              placeholder={t("connexion.emailExemple")}
               required
             />
             <Button type="submit" size="lg" block loading={loading}>
-              Envoyer le code
+              {t("connexion.envoyerCode")}
             </Button>
             <Button type="button" variant="ghost" onClick={() => switchView("login")}>
-              ← Retour à la connexion
+              {t("connexion.retourConnexion")}
             </Button>
           </form>
         ) : (
           <form onSubmit={handleReset} className="auth__form">
             <Input
-              label="Code reçu par e-mail"
+              label={t("connexion.codeRecu")}
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
               value={resetCode}
               onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ""))}
               onFocus={() => { setError(null); setSuccess(null); }}
-              hint={`Six chiffres, envoyés à ${forgotEmail}. Valables une heure.`}
+              hint={t("connexion.codeAide", { email: forgotEmail })}
               placeholder="000000"
               required
             />
 
             <Input
-              label="Nouveau mot de passe"
+              label={t("connexion.nouveauMotDePasse")}
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               minLength={6}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               onFocus={() => setError(null)}
-              hint="Six caractères au minimum."
+              hint={t("connexion.nouveauMotDePasseAide")}
               required
             />
 
             <Input
-              label="Confirmer le mot de passe"
+              label={t("connexion.confirmerMotDePasse")}
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               minLength={6}
@@ -314,20 +308,21 @@ export default function LoginPage() {
                 checked={showPassword}
                 onChange={() => setShowPassword((v) => !v)}
               />{" "}
-              Afficher les mots de passe
+              {t("connexion.afficherLesMotsDePasse")}
             </label>
 
             <Button type="submit" size="lg" block loading={loading}>
-              Changer le mot de passe
+              {t("connexion.changerMotDePasse")}
             </Button>
             <Button type="button" variant="ghost" onClick={() => switchView("forgot")}>
-              ← Demander un nouveau code
+              {t("connexion.demanderNouveauCode")}
             </Button>
           </form>
         )}
 
         <p className="auth__foot">
-          Nouveau sur CoShift ? <Link to="/register">Créer un compte</Link>
+          {t("connexion.nouveauSurCoShift")}{" "}
+          <Link to="/register">{t("commun.creerCompte")}</Link>
         </p>
       </div>
     </div>

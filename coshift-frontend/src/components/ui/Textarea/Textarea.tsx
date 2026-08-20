@@ -1,4 +1,5 @@
 import { useId, type TextareaHTMLAttributes } from "react";
+import { useT } from "../../../context/LangContext";
 import "../field.css";
 
 type TextareaProps = Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "id"> & {
@@ -22,6 +23,7 @@ export default function Textarea({
   value,
   ...rest
 }: TextareaProps) {
+  const t = useT();
   const auto = useId();
   const areaId = id ?? auto;
   const errorId = `${areaId}-error`;
@@ -34,7 +36,7 @@ export default function Textarea({
         {label}
         {required && (
           <span className="field__required">
-            *<span className="sr-only"> obligatoire</span>
+            *<span className="sr-only"> {t("champ.obligatoire")}</span>
           </span>
         )}
       </label>

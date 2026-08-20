@@ -14,6 +14,7 @@ import type { Traductions } from "./index";
 export const en: Traductions = {
   commun: {
     chargement: "Loading…",
+    chargementEnCours: "Loading",
     rechercher: "Search",
     envoyer: "Send",
     annuler: "Cancel",
@@ -31,6 +32,18 @@ export const en: Traductions = {
     places_une: "{n} seat",
     places_plusieurs: "{n} seats",
     parPlace: "per seat",
+  },
+
+  champ: {
+    obligatoire: "required",
+  },
+
+  message: {
+    info: "Information",
+    success: "Success",
+    warning: "Warning",
+    danger: "Error",
+    fermer: "Dismiss this message",
   },
 
   langue: {
@@ -123,6 +136,7 @@ export const en: Traductions = {
     HYBRID: "Hybrid",
     GASOLINE: "Petrol",
     DIESEL: "Diesel",
+    LPG: "LPG",
   },
 
   recherche: {
@@ -138,6 +152,10 @@ export const en: Traductions = {
 
   carte: {
     nouveauConducteur: "New driver",
+    aHeure: " at ",
+    bagages: "Luggage",
+    animaux: "Pets",
+    musique: "Music",
     voirLeTrajet: "View ride",
     placesRestantes_une: "{n} seat left",
     placesRestantes_plusieurs: "{n} seats left",
@@ -149,6 +167,15 @@ export const en: Traductions = {
       "CoShift organises carpooling between colleagues and students: post your rides, book the ones offered inside your organisation, take cars off the road.",
     accroche:
       "Carpooling built for companies, universities and events. Fewer cars on the road, lower costs, and rides shared between people who already know each other.",
+    heroPastille: "B2B & Campus",
+    heroTitre: "Share your daily commute with",
+    paginationLabel: "Ride pages",
+    pagination: "Page {page} of {total}",
+    paginationTrajets: " · {n} rides",
+    argumentP1:
+      "That is the whole idea. Every morning, along the same road, four cars carry four people. CoShift does not invent a new route: it fills the ones already running.",
+    argumentP2:
+      "For the driver, shared costs. For the passengers, a direct trip with no connection. For the organisation, three parking spaces freed up.",
     trajetsDisponibles: "Available rides",
     prochainsDeparts: "The next departures offered by members.",
     connectezVous: "Sign in to see the rides offered near you.",
@@ -173,6 +200,10 @@ export const en: Traductions = {
       "You sign up with your work email address: that is what links you to your organisation.",
   },
 
+  atouts: {
+    titre: "Why CoShift",
+  },
+
   connexion: {
     titre: "Sign in",
     accroche: "Sign in to offer or find a ride.",
@@ -185,6 +216,29 @@ export const en: Traductions = {
     ou: "or",
     pasDeCompte: "No account yet?",
     erreurGoogle: "The Google window closed, or something went wrong.",
+    seSouvenir: "Remember me",
+    nouveauSurCoShift: "New to CoShift?",
+    oublieTitre: "Forgotten password",
+    oublieAccroche: "Enter your address to receive a reset code.",
+    envoyerCode: "Send the code",
+    retourConnexion: "← Back to sign-in",
+    codeEnvoye:
+      "If an account exists for this address, a code has just been sent to it.",
+    resetTitre: "New password",
+    resetAccroche:
+      "Enter the code you received by email, then choose a new password.",
+    codeRecu: "Code received by email",
+    codeAide: "Six digits, sent to {email}. Valid for one hour.",
+    nouveauMotDePasse: "New password",
+    nouveauMotDePasseAide: "At least six characters.",
+    confirmerMotDePasse: "Confirm password",
+    afficherLesMotsDePasse: "Show passwords",
+    changerMotDePasse: "Change password",
+    demanderNouveauCode: "← Request a new code",
+    motsDePasseDifferents: "The two passwords are not identical.",
+    motDePasseModifie: "Password changed. You can now sign in.",
+    googleInconnu: "This user does not exist. Please create an account.",
+    googleEchec: "Google sign-in failed. Please try again.",
     identifiantsRefuses: "Incorrect email address or password.",
   },
 

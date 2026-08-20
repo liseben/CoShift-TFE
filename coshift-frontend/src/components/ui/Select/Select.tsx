@@ -1,4 +1,5 @@
 import { useId, type SelectHTMLAttributes, type ReactNode } from "react";
+import { useT } from "../../../context/LangContext";
 import "../field.css";
 
 type Option = { value: string; label: string };
@@ -27,6 +28,7 @@ export default function Select({
   children,
   ...rest
 }: SelectProps) {
+  const t = useT();
   const auto = useId();
   const selectId = id ?? auto;
   const errorId = `${selectId}-error`;
@@ -38,7 +40,7 @@ export default function Select({
         {label}
         {required && (
           <span className="field__required">
-            *<span className="sr-only"> obligatoire</span>
+            *<span className="sr-only"> {t("champ.obligatoire")}</span>
           </span>
         )}
       </label>

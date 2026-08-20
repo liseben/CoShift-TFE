@@ -1,3 +1,4 @@
+import { useT } from "../../../context/LangContext";
 import "./Spinner.css";
 
 type Props = {
@@ -17,14 +18,20 @@ type Props = {
  */
 export default function Spinner({
   size = "md",
-  label = "Chargement en cours",
+  /* Le défaut n'est plus une chaîne mais une absence : un libellé écrit dans
+     la signature serait figé en français. Il est résolu dans le corps, où le
+     contexte de langue est accessible. */
+  label,
   showLabel = false,
   center = false,
 }: Props) {
+  const t = useT();
+  const libelle = label ?? t("commun.chargementEnCours");
+
   return (
     <div className={`spinner-block ${center ? "spinner-block--center" : ""}`.trim()} role="status">
       <span className={`spinner spinner--${size}`} aria-hidden="true" />
-      <span className={showLabel ? "spinner-block__label" : "sr-only"}>{label}</span>
+      <span className={showLabel ? "spinner-block__label" : "sr-only"}>{libelle}</span>
     </div>
   );
 }

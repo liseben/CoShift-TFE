@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useT } from "../../../context/LangContext";
 import "./StatusBadge.css";
 
 /**
@@ -22,14 +23,18 @@ type Tone = "brand" | "eco" | "pending" | "danger" | "neutral";
  * La couleur ne suffit jamais seule : le mot est toujours affiche, sans
  * quoi l'information disparait pour un daltonien (WCAG 1.4.1).
  */
-const MAP: Record<Status, { label: string; tone: Tone }> = {
-  PENDING:   { label: "En attente", tone: "pending" },
-  CONFIRMED: { label: "Confirmée",  tone: "eco" },
-  REJECTED:  { label: "Refusée",    tone: "danger" },
-  CANCELLED: { label: "Annulée",    tone: "danger" },
-  COMPLETED: { label: "Terminé",    tone: "neutral" },
-  PLANNED:   { label: "À venir",    tone: "brand" },
-  FULL:      { label: "Complet",    tone: "danger" },
+/* Le libelle a quitte cette table : il vient du catalogue de traduction, la
+   couleur reste ici. Un statut porte une information de sens (le ton) et une
+   information de langue (le mot) ; les melanger obligeait a traduire une
+   constante de module, hors de portee d'un hook. */
+const TON: Record<Status, Tone> = {
+  PENDING:   "pending",
+  CONFIRMED: "eco",
+  REJECTED:  "danger",
+  CANCELLED: "danger",
+  COMPLETED: "neutral",
+  PLANNED:   "brand",
+  FULL:      "danger",
 };
 
 type Props = {
@@ -40,7 +45,11 @@ type Props = {
 };
 
 export default function StatusBadge({ status, children, size = "md" }: Props) {
-  const entry = MAP[status] ?? { label: status, tone: "neutral" as Tone };
+  const t = useT();
+  const entry = {
+    label: TON[status] ? t(`statuts.${status}`) : status,
+    tone: TON[status] ?? ("neutral" as Tone),
+  };
 
   return (
     <span className={`badge badge--${entry.tone} badge--${size}`}>

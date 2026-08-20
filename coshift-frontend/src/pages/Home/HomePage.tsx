@@ -9,28 +9,20 @@ import TripCard, { type TripSummary } from "../../components/TripCard/TripCard";
 import { Button, EmptyState, Spinner } from "../../components/ui";
 import { useSeo, useDonneesStructurees } from "../../hooks/useSeo";
 import { useAuth } from "../../context/AuthContext";
+import { useT } from "../../context/LangContext";
 import { PHOTOS } from "../../components/image_site";
 import { API_BASE } from "../../config/api";
 import "./HomePage.css";
 
 const PAR_PAGE = 6;
 
+/* Icone et clef de traduction : le texte lui-meme vit dans le catalogue. Un
+   tableau de constantes de module est evalue au chargement du fichier, avant
+   que le contexte de langue existe. */
 const ATOUTS = [
-  {
-    icon: <FaUsers />,
-    title: "Entre collègues",
-    text: "Vous partagez la route avec des personnes de votre organisation, pas avec des inconnus croisés sur Internet.",
-  },
-  {
-    icon: <FaLeaf />,
-    title: "Une voiture de moins",
-    text: "Chaque place partagée retire un véhicule des embouteillages du matin et divise les frais d'autant.",
-  },
-  {
-    icon: <FaShieldAlt />,
-    title: "Adresse vérifiée",
-    text: "L'inscription passe par votre e-mail professionnel : c'est lui qui vous rattache à votre organisation.",
-  },
+  { icon: <FaUsers />,      cle: "entreCollegues" },
+  { icon: <FaLeaf />,       cle: "voitureDeMoins" },
+  { icon: <FaShieldAlt />,  cle: "adresseVerifiee" },
 ];
 
 /**
@@ -52,10 +44,13 @@ const ORGANISATION = {
 };
 
 export default function HomePage() {
+  /* Déclaré avant `useSeo` : les métadonnées de la page se traduisent aussi,
+     et une constante de bloc ne s'utilise pas avant sa déclaration. */
+  const t = useT();
+
   useSeo({
-    titre: "Covoiturage d'entreprise, d'université et d'événement",
-    description:
-      "CoShift organise le covoiturage entre collègues et étudiants : publiez vos trajets, réservez ceux de votre organisation, réduisez les voitures sur la route.",
+    titre: t("accueil.titre"),
+    description: t("accueil.description"),
     chemin: "/",
   });
   useDonneesStructurees(ORGANISATION);
@@ -98,18 +93,14 @@ export default function HomePage() {
         <MapBackground />
 
         <div className="home__panel">
-          <span className="hero-pill">B2B &amp; Campus</span>
+          <span className="hero-pill">{t("accueil.heroPastille")}</span>
 
           <h1 className="home__title">
-            Partagez vos trajets quotidiens avec{" "}
+            {t("accueil.heroTitre")}{" "}
             <span className="home__accent">CoShift</span>
           </h1>
 
-          <p className="home__lead">
-            Le covoiturage pensé pour les entreprises, les universités et les
-            événements. Moins de voitures sur la route, moins de frais, et des
-            trajets faits avec des collègues.
-          </p>
+          <p className="home__lead">{t("accueil.accroche")}</p>
 
           <TripSearchForm layout="hero" onSubmit={search} />
         </div>
@@ -119,39 +110,34 @@ export default function HomePage() {
       <section className="container container--wide home__section">
         <header className="home__section-head">
           <div>
-            <h2>Trajets disponibles</h2>
+            <h2>{t("accueil.trajetsDisponibles")}</h2>
             <p className="home__section-lead">
-              {user
-                ? "Les prochains départs proposés par les membres."
-                : "Connectez-vous pour voir les trajets proposés près de chez vous."}
+              {user ? t("accueil.prochainsDeparts") : t("accueil.connectezVous")}
             </p>
           </div>
           {user && total > 0 && (
             <Button variant="secondary" to="/trips/search" icon={<FiSearch />}>
-              Recherche détaillée
+              {t("accueil.rechercheDetaillee")}
             </Button>
           )}
         </header>
 
         {!user ? (
           <div className="home__locked">
-            <p className="home__locked-text">
-              Les trajets affichent le nom du conducteur et son horaire. Ils ne
-              sont visibles qu'entre membres connectés.
-            </p>
+            <p className="home__locked-text">{t("accueil.invite")}</p>
             <div className="home__locked-actions">
-              <Button to="/register" size="lg">Créer un compte</Button>
-              <Button to="/login" variant="secondary" size="lg">Se connecter</Button>
+              <Button to="/register" size="lg">{t("commun.creerCompte")}</Button>
+              <Button to="/login" variant="secondary" size="lg">{t("commun.seConnecter")}</Button>
             </div>
           </div>
         ) : loading ? (
-          <Spinner size="lg" center showLabel label="Chargement des trajets" />
+          <Spinner size="lg" center showLabel label={t("accueil.chargementTrajets")} />
         ) : total === 0 ? (
           <EmptyState
             icon={<FiSearch />}
-            title="Aucun trajet publié pour le moment"
-            description="Soyez le premier à proposer le vôtre — vos collègues le verront ici."
-            action={<Button to="/trips/create">Proposer un trajet</Button>}
+            title={t("accueil.aucunTrajet")}
+            description={t("accueil.aucunTrajetTexte")}
+            action={<Button to="/trips/create">{t("pied.proposerTrajet")}</Button>}
           />
         ) : (
           <>
@@ -163,18 +149,20 @@ export default function HomePage() {
 
             {/* La pagination n'apparaît qu'au-delà d'une page. */}
             {totalPages > 1 && (
-              <nav className="home__pagination" aria-label="Pages de trajets">
+              <nav className="home__pagination" aria-label={t("accueil.paginationLabel")}>
                 <Button variant="secondary" size="sm" disabled={page === 1}
                         onClick={() => setPage((p) => p - 1)}>
-                  Précédent
+                  {t("commun.precedent")}
                 </Button>
                 <p aria-live="polite">
-                  Page {page} sur {totalPages}
-                  <span className="home__count"> · {total} trajets</span>
+                  {t("accueil.pagination", { page, total: totalPages })}
+                  <span className="home__count">
+                    {t("accueil.paginationTrajets", { n: total })}
+                  </span>
                 </p>
                 <Button variant="secondary" size="sm" disabled={page === totalPages}
                         onClick={() => setPage((p) => p + 1)}>
-                  Suivant
+                  {t("commun.suivant")}
                 </Button>
               </nav>
             )}
@@ -194,19 +182,11 @@ export default function HomePage() {
             />
           </figure>
           <div className="home__showcase-text">
-            <h2>Quatre personnes, une voiture, un seul trajet</h2>
-            <p>
-              C'est toute l'idée. Le matin, sur le même axe, quatre voitures
-              transportent quatre personnes. CoShift n'invente pas de nouvelle
-              route : il remplit celles qui roulent déjà.
-            </p>
-            <p>
-              Pour le conducteur, ce sont des frais partagés. Pour les
-              passagers, un trajet direct sans correspondance. Pour
-              l'organisation, trois places de parking libérées.
-            </p>
+            <h2>{t("accueil.argumentTitre")}</h2>
+            <p>{t("accueil.argumentP1")}</p>
+            <p>{t("accueil.argumentP2")}</p>
             <Button to="/trips/search" icon={<FiArrowRight />}>
-              Voir les trajets proposés
+              {t("accueil.voirTrajets")}
             </Button>
           </div>
         </div>
@@ -215,19 +195,19 @@ export default function HomePage() {
       {/* ── Pourquoi CoShift ── */}
       <section className="home__why">
         <div className="container container--wide">
-          <h2 className="home__why-title">Pourquoi passer par CoShift</h2>
+          <h2 className="home__why-title">{t("atouts.titre")}</h2>
           <div className="home__atouts">
             {ATOUTS.map((a) => (
-              <article key={a.title} className="home__atout">
+              <article key={a.cle} className="home__atout">
                 <span className="home__atout-icon" aria-hidden="true">{a.icon}</span>
-                <h3>{a.title}</h3>
-                <p>{a.text}</p>
+                <h3>{t(`accueil.${a.cle}`)}</h3>
+                <p>{t(`accueil.${a.cle}Texte`)}</p>
               </article>
             ))}
           </div>
           <p className="home__why-cta">
             <Button to="/a-propos" variant="ghost" icon={<FiArrowRight />}>
-              En savoir plus sur CoShift
+              {t("accueil.enSavoirPlus")}
             </Button>
           </p>
         </div>
