@@ -128,8 +128,22 @@ public class GlobalExceptionHandler {
                 status.value(),
                 error,
                 (message == null || message.isBlank()) ? status.getReasonPhrase() : message,
-                request.getDescription(false)
+                chemin(request)
         );
         return new ResponseEntity<>(body, status);
+    }
+
+    /**
+     * Chemin de la requête, débarrassé du préfixe technique.
+     *
+     * <p>{@code WebRequest.getDescription(false)} renvoie {@code uri=/api/...} :
+     * le préfixe fuitait tel quel dans le champ {@code path} de chaque erreur,
+     * obligeant les clients à le retirer eux-mêmes.</p>
+     */
+    private String chemin(WebRequest request) {
+        String description = request.getDescription(false);
+        return (description != null && description.startsWith("uri="))
+                ? description.substring(4)
+                : description;
     }
 }

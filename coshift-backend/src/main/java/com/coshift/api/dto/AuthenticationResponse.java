@@ -1,5 +1,6 @@
 package com.coshift.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// Les champs non renseignés sont omis plutôt que sérialisés à null : une
+// connexion réussie n'a pas à porter un « emailVerified: null » qui n'informe
+// de rien et que chaque client devrait apprendre à ignorer.
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Réponse commune aux opérations d'authentification et de profil.")
 public class AuthenticationResponse {
 
