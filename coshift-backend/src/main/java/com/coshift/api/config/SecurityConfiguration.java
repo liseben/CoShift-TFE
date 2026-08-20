@@ -122,9 +122,22 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Origines lues dans application.properties, surchargeables par
-        // CORS_ALLOWED_ORIGINS : les mettre à jour ne demande plus de recompiler.
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+
+        /* Origines lues dans application.properties, surchargeables par
+           CORS_ALLOWED_ORIGINS : les mettre à jour ne demande pas de recompiler.
+
+           setAllowedOriginPatterns et non setAllowedOrigins : la première
+           accepte des motifs, la seconde exige des adresses exactes. La
+           différence s'est payée en développement — la liste ne contenait que
+           le port 5173, et un serveur Vite démarré alors que ce port était pris
+           bascule tout seul sur 5174 ou 5175. Toutes ses requêtes se voyaient
+           alors refusées en 403 avant d'atteindre le moindre contrôleur, et
+           l'interface s'affichait vide sans un message d'erreur : le navigateur
+           écarte silencieusement une réponse sans en-tête Access-Control.
+
+           Un motif exact reste un motif valable : la valeur de production,
+           https://coshift.be, continue de désigner cette seule origine. */
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
