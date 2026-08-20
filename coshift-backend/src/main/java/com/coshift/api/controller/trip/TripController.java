@@ -18,7 +18,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/trips")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${app.cors.allowed-origins:*}")
 public class TripController {
 
     private final TripService tripService;

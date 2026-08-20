@@ -27,7 +27,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${app.cors.allowed-origins:*}")
 public class UserController {
 
     private final UserRepository userRepository;

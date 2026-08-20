@@ -2,6 +2,7 @@ package com.coshift.api.config;
 
 import com.coshift.api.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,9 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -65,11 +69,15 @@ public class SecurityConfiguration {
     }
 
     // --- LA CONFIGURATION CORS GLOBALE ---
+    // Seule autorité en matière de CORS : c'est ce filtre qui s'applique, avant
+    // même que la requête n'atteigne un contrôleur. Les annotations
+    // @CrossOrigin qui doublaient cette configuration ont été retirées.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Autoriser spécifiquement ton React (modifie le port si ce n'est pas 5173)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
+        // Origines lues dans application.properties, surchargeables par
+        // CORS_ALLOWED_ORIGINS : les mettre à jour ne demande plus de recompiler.
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
