@@ -15,6 +15,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
+  /* Faux au départ : une case pré-cochée ne vaut pas acceptation. */
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,6 +38,10 @@ export default function RegisterPage() {
       setError("Corrigez les champs signalés avant de continuer.");
       return;
     }
+    if (!acceptedTerms) {
+      setError("Acceptez les conditions générales et la politique de confidentialité pour continuer.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -45,6 +51,9 @@ export default function RegisterPage() {
         lastname,
         email,
         password,
+        /* Le serveur refuse la requête sans ce champ à vrai : la barrière
+           n'est pas seulement dans l'interface. */
+        acceptedTerms,
       });
       // L'inscription ne renvoie pas de jeton : l'e-mail doit d'abord etre verifie.
       navigate(`/verify-email?email=${encodeURIComponent(email)}`);
@@ -133,7 +142,33 @@ export default function RegisterPage() {
             required
           />
 
-          <Button type="submit" size="lg" block loading={loading}>
+          {/* Case distincte, jamais pré-cochée. L'article VI.83, 21° du Code
+              de droit économique répute abusive la clause qui constate de
+              manière irréfragable l'adhésion à des conditions dont on n'a pas
+              eu connaissance : une acceptation déduite du seul fait de
+              s'inscrire ne vaudrait rien. Les liens s'ouvrent dans un onglet
+              séparé pour ne pas perdre la saisie en cours. */}
+          <label className="auth__cgu">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              required
+            />
+            <span>
+              J'ai lu et j'accepte les{" "}
+              <Link to="/cgu" target="_blank" rel="noopener noreferrer">
+                conditions générales
+              </Link>{" "}
+              et la{" "}
+              <Link to="/confidentialite" target="_blank" rel="noopener noreferrer">
+                politique de confidentialité
+              </Link>
+              .
+            </span>
+          </label>
+
+          <Button type="submit" size="lg" block loading={loading} disabled={!acceptedTerms}>
             Créer mon compte
           </Button>
         </form>

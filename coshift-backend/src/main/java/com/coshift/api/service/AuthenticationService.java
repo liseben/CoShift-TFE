@@ -40,6 +40,16 @@ import java.time.LocalDateTime;
 @Slf4j
 public class AuthenticationService {
 
+    /**
+     * Version des conditions générales en vigueur.
+     *
+     * <p>Elle doit suivre {@code VERSION_CGU} du fichier
+     * {@code coshift-frontend/src/config/legal.ts}, qui la présente à la
+     * personne au moment de l'acceptation : consigner une version différente
+     * de celle affichée priverait la preuve de tout intérêt.</p>
+     */
+    public static final String VERSION_CGU = "1.0";
+
     private final UserRepository repository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -129,6 +139,13 @@ public class AuthenticationService {
                 .emailVerified(false)
                 .verificationCode(code)
                 .verificationCodeExpiry(LocalDateTime.now().plusHours(24))
+                /* Preuve de l'accord : sans date ni version, il serait
+                   impossible d'établir à quoi la personne a consenti, ni de
+                   savoir qui prévenir lors d'une modification substantielle.
+                   La contrainte @AssertTrue du DTO garantit qu'on n'arrive
+                   ici qu'après une acceptation explicite. */
+                .cguAcceptedAt(LocalDateTime.now())
+                .cguVersion(VERSION_CGU)
                 .build();
 
         repository.save(user);

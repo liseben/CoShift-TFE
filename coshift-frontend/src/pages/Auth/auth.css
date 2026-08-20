@@ -138,3 +138,46 @@
 @media (max-width: 640px) {
   .auth__card { padding: var(--sp-8) var(--sp-5); }
 }
+
+/* ── Acceptation des conditions ──────────────────────────────────────────
+   Case distincte du reste du formulaire : l'accord doit être un acte, pas
+   une conséquence de la saisie. Le libellé entier est cliquable, ce qui
+   agrandit la cible bien au-delà des seize pixels de la case.
+   ------------------------------------------------------------------------ */
+.auth__cgu {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-sunk);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.auth__cgu:hover { border-color: var(--border-strong); }
+
+.auth__cgu:focus-within {
+  border-color: var(--brand);
+  box-shadow: var(--focus-ring);
+}
+
+.auth__cgu input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.auth__cgu a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth__cgu a:hover { color: var(--brand-hover); }
