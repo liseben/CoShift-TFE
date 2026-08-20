@@ -63,6 +63,15 @@ public class User implements UserDetails {
     @Column(name = "verification_code_expiry")
     private LocalDateTime verificationCodeExpiry;
 
+    // F6 : réinitialisation du mot de passe. Codes séparés de ceux de la
+    // vérification d'email : les deux demandes peuvent coexister sur un même
+    // compte, et l'un ne doit jamais pouvoir servir à la place de l'autre.
+    @Column(name = "password_reset_code", length = 6)
+    private String passwordResetCode;
+
+    @Column(name = "password_reset_expiry")
+    private LocalDateTime passwordResetExpiry;
+
     // Statistiques profil (F8)
     @Builder.Default
     @Column(name = "average_rating", nullable = false)

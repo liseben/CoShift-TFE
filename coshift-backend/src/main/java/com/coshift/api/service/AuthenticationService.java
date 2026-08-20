@@ -214,5 +214,64 @@ public class AuthenticationService {
                 .build();
     }
 
-    
+    // --- MOT DE PASSE OUBLIÉ (F6) ---
+
+    /** Durée de validité du code de réinitialisation, volontairement courte. */
+    private static final int RESET_CODE_VALIDITY_HOURS = 1;
+
+    /**
+     * Envoie un code de réinitialisation à l'adresse indiquée.
+     *
+     * <p>La réponse est identique que le compte existe ou non. Répondre 404 sur
+     * une adresse inconnue transformerait ce point d'entrée, ouvert sans
+     * authentification, en oracle permettant d'énumérer les comptes inscrits.</p>
+     */
+    public AuthenticationResponse forgotPassword(String email) {
+        repository.findByEmail(email).ifPresent(user -> {
+            String code = generateVerificationCode();
+            user.setPasswordResetCode(code);
+            user.setPasswordResetExpiry(LocalDateTime.now().plusHours(RESET_CODE_VALIDITY_HOURS));
+            repository.save(user);
+
+            emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstname(), code);
+        });
+
+        return AuthenticationResponse.builder()
+                .message("Si un compte existe pour cette adresse, un code vient d'y être envoyé.")
+                .build();
+    }
+
+    /**
+     * Applique le nouveau mot de passe après contrôle du code reçu par courriel.
+     *
+     * <p>Aucun jeton n'est renvoyé : l'utilisateur repasse par l'écran de
+     * connexion. Le statut de vérification de l'adresse n'est pas modifié — un
+     * compte jamais activé le reste, F7 gardant son propre chemin.</p>
+     */
+    public AuthenticationResponse resetPassword(String email, String code, String newPassword) {
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("Code invalide ou expiré."));
+
+        // Message unique pour un code absent, faux ou périmé : le distinguer
+        // renseignerait un attaquant sur l'existence d'une demande en cours.
+        if (user.getPasswordResetCode() == null
+                || !user.getPasswordResetCode().equals(code)
+                || user.getPasswordResetExpiry() == null
+                || user.getPasswordResetExpiry().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Code invalide ou expiré.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        // Un code ne sert qu'une fois : sans cette remise à zéro, il resterait
+        // utilisable jusqu'à son expiration, y compris par un tiers.
+        user.setPasswordResetCode(null);
+        user.setPasswordResetExpiry(null);
+        repository.save(user);
+
+        log.info("Mot de passe réinitialisé pour {}", user.getEmail());
+
+        return AuthenticationResponse.builder()
+                .message("Mot de passe modifié. Vous pouvez maintenant vous connecter.")
+                .build();
+    }
 }

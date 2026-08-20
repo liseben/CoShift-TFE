@@ -1,9 +1,11 @@
 package com.coshift.api.controller.auth;
 
 import com.coshift.api.dto.AuthenticationResponse;
+import com.coshift.api.dto.ForgotPasswordRequest;
 import com.coshift.api.dto.GoogleLoginRequest;
 import com.coshift.api.dto.LoginRequest;
 import com.coshift.api.dto.RegisterRequest;
+import com.coshift.api.dto.ResetPasswordRequest;
 import com.coshift.api.dto.VerifyEmailRequest;
 import com.coshift.api.service.AuthenticationService;
 import jakarta.validation.Valid;
@@ -63,5 +65,22 @@ public class AuthenticationController {
                     .body(AuthenticationResponse.builder().message("Email requis.").build());
         }
         return ResponseEntity.ok(service.resendVerificationCode(email));
+    }
+
+    // --- F6 : DEMANDE DE RÉINITIALISATION DU MOT DE PASSE ---
+    @PostMapping("/forgot-password")
+    public ResponseEntity<AuthenticationResponse> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request
+    ) {
+        return ResponseEntity.ok(service.forgotPassword(request.getEmail()));
+    }
+
+    // --- F6 : CHOIX DU NOUVEAU MOT DE PASSE ---
+    @PostMapping("/reset-password")
+    public ResponseEntity<AuthenticationResponse> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        return ResponseEntity.ok(service.resetPassword(
+                request.getEmail(), request.getCode(), request.getNewPassword()));
     }
 }
