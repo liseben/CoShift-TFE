@@ -13,6 +13,10 @@ import CreateTripPage from "./pages/Trips/CreateTripPage";
 import TripDetailPage from "./pages/Trips/TripDetailPage";
 import MyBookingsPage from "./pages/Bookings/MyBookingsPage";
 import StyleguidePage from "./pages/Styleguide/StyleguidePage";
+import MentionsLegalesPage from "./pages/Legal/MentionsLegalesPage";
+import ConfidentialitePage from "./pages/Legal/ConfidentialitePage";
+import CguPage from "./pages/Legal/CguPage";
+import CookiesPage from "./pages/Legal/CookiesPage";
 
 // Pages fictives temporaires pour éviter les erreurs
 const EntreprisesPage = () => (
@@ -49,6 +53,14 @@ function App() {
               seraient interprétés comme des identifiants de trajet. */}
           <Route path="trips/:uuid" element={<TripDetailPage />} />
           <Route path="bookings" element={<MyBookingsPage />} />
+          {/* Documents légaux. Toujours accessibles, y compris hors connexion :
+              on ne peut pas exiger d'accepter des conditions qu'il faudrait un
+              compte pour lire. */}
+          <Route path="mentions-legales" element={<MentionsLegalesPage />} />
+          <Route path="confidentialite" element={<ConfidentialitePage />} />
+          <Route path="cgu" element={<CguPage />} />
+          <Route path="cookies" element={<CookiesPage />} />
+
           {/* Planche des composants : reference visuelle et support du rapport. */}
           <Route path="styleguide" element={<StyleguidePage />} />
         </Route>

@@ -3,6 +3,8 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import MarqueeText from "../components/marqueeText/MarqueeText";
 import Logo from "../components/Logo/Logo";
 import ThemeToggle from "../components/ThemeToggle/ThemeToggle";
+import SiteFooter from "../components/SiteFooter/SiteFooter";
+import ConsentBanner from "../components/Consent/ConsentBanner";
 import { Avatar } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { FiGlobe } from "react-icons/fi";
@@ -291,12 +293,11 @@ export default function MainLayout() {
 
       <MarqueeText />
 
-      {/* FOOTER */}
-      <footer className="main-footer">
-        <div className="footer-content">
-          <p>© {new Date().getFullYear()} CoShift</p>
-        </div>
-      </footer>
+      <SiteFooter />
+
+      {/* Le bandeau ne s'affiche que tant qu'aucune réponse n'a été donnée.
+          Placé ici, il couvre toutes les pages du site sans exception. */}
+      <ConsentBanner />
     </div>
   );
 }

@@ -1,0 +1,419 @@
+/* =========================================================================
+   PAGES LÉGALES
+   Mentions légales, confidentialité, conditions générales, cookies.
+
+   Toutes les classes sont préfixées `legal__` : le CSS du projet est groupé
+   globalement, et un nom générique comme `.source` ou `.sommaire` finirait
+   par se battre avec une autre page.
+   ========================================================================= */
+
+.legal {
+  padding-bottom: var(--sp-20);
+}
+
+/* ── En-tête ────────────────────────────────────────────────────────────── */
+
+.legal__hero {
+  padding-block: var(--sp-12) var(--sp-10);
+  background: var(--surface-sunk);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--sp-12);
+}
+
+.legal__fil {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-4);
+}
+
+.legal__fil a { color: var(--text-muted); text-decoration: none; }
+.legal__fil a:hover { color: var(--brand); text-decoration: underline; }
+
+.legal__titre {
+  font-family: var(--font-display);
+  font-size: clamp(var(--fs-xl), 5vw, var(--fs-2xl));
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 var(--sp-4);
+}
+
+.legal__chapeau {
+  max-width: var(--w-prose);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+  margin: 0 0 var(--sp-5);
+}
+
+.legal__meta {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Corps : sommaire + contenu ─────────────────────────────────────────── */
+
+.legal__corps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-10);
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .legal__corps {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: var(--sp-12);
+  }
+}
+
+.legal__aside { display: none; }
+
+@media (min-width: 900px) {
+  .legal__aside {
+    display: block;
+    position: sticky;
+    /* Dégage l'en-tête fixe du site. */
+    top: 96px;
+    max-height: calc(100vh - 128px);
+    overflow-y: auto;
+  }
+}
+
+.legal__aside-titre {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 var(--sp-3);
+}
+
+.legal__sommaire ol,
+.legal__autres ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.legal__sommaire a,
+.legal__autres a {
+  display: block;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid var(--border);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
+}
+
+.legal__sommaire a:hover,
+.legal__autres a:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+/* L'état courant ne repose pas sur la seule couleur : le trait épaissit et le
+   texte passe en demi-gras. */
+.legal__sommaire a.is-active {
+  color: var(--brand);
+  font-weight: var(--fw-semibold);
+  border-left-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.legal__autres {
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border);
+}
+
+/* ── Contenu rédactionnel ───────────────────────────────────────────────── */
+
+.legal__contenu {
+  max-width: var(--w-prose);
+  color: var(--text-soft);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+}
+
+.legal__section {
+  /* Compense l'en-tête fixe quand on arrive par une ancre. */
+  scroll-margin-top: 96px;
+  margin-bottom: var(--sp-12);
+}
+
+.legal__contenu h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  color: var(--text);
+  scroll-margin-top: 96px;
+  margin: 0 0 var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.legal__contenu h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  margin: var(--sp-8) 0 var(--sp-3);
+}
+
+.legal__contenu h4 {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  margin: var(--sp-6) 0 var(--sp-2);
+}
+
+.legal__contenu p { margin: 0 0 var(--sp-4); }
+
+.legal__contenu ul,
+.legal__contenu ol {
+  margin: 0 0 var(--sp-4);
+  padding-left: var(--sp-6);
+}
+
+.legal__contenu li { margin-bottom: var(--sp-2); }
+
+.legal__contenu a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal__contenu a:hover { color: var(--brand-hover); }
+
+.legal__contenu strong { color: var(--text); font-weight: var(--fw-semibold); }
+
+.legal__contenu dl { margin: 0 0 var(--sp-4); }
+
+.legal__contenu dt {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  margin-top: var(--sp-3);
+}
+
+.legal__contenu dd { margin: 0 0 var(--sp-2); }
+
+/* ── Encadrés ───────────────────────────────────────────────────────────── */
+
+.legal__avertissement {
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-10);
+  background: var(--pending-wash);
+  border-left: 3px solid var(--pending);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-size: var(--fs-sm);
+}
+
+.legal__avertissement p { margin: 0; }
+
+/* Renvoi vers le texte applicable. Volontairement discret : c'est un appui,
+   pas le propos. */
+.legal__source {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+  margin: var(--sp-5) 0;
+  background: var(--surface-sunk);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+}
+
+.legal__source p { margin: 0; color: var(--text-soft); }
+
+.legal__source-etiquette {
+  align-self: flex-start;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Constat vérifié dans le code : distingue ce qui est mesuré de ce qui est
+   promis. */
+.legal__constat {
+  padding: var(--sp-4) var(--sp-5);
+  margin: var(--sp-5) 0;
+  background: var(--eco-wash);
+  border-left: 3px solid var(--eco);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-size: var(--fs-sm);
+}
+
+.legal__constat p:last-child { margin-bottom: 0; }
+
+/* Limite assumée : ce que le service ne fait pas encore. */
+.legal__limite {
+  padding: var(--sp-4) var(--sp-5);
+  margin: var(--sp-5) 0;
+  background: var(--danger-wash);
+  border-left: 3px solid var(--danger);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-size: var(--fs-sm);
+}
+
+.legal__limite p:last-child { margin-bottom: 0; }
+
+/* ── Tableaux ───────────────────────────────────────────────────────────── */
+
+/* Un tableau de registre déborde sur téléphone : il défile dans sa propre
+   boîte plutôt que d'élargir la page entière. */
+.legal__table-wrap {
+  overflow-x: auto;
+  margin: var(--sp-5) 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.legal__table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.legal__table th,
+.legal__table td {
+  padding: var(--sp-3) var(--sp-4);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.legal__table thead th {
+  background: var(--surface-sunk);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.legal__table tbody tr:last-child td { border-bottom: none; }
+.legal__table tbody tr:hover { background: var(--surface-hover); }
+
+/* ── Fiches de traitement ───────────────────────────────────────────────── */
+
+.legal__fiche {
+  padding: var(--sp-5) var(--sp-6);
+  margin-bottom: var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-1);
+  scroll-margin-top: 96px;
+}
+
+.legal__fiche h3 {
+  margin-top: 0;
+  margin-bottom: var(--sp-2);
+}
+
+.legal__fiche-base {
+  display: inline-block;
+  padding: 2px var(--sp-3);
+  margin-bottom: var(--sp-4);
+  background: var(--brand-wash);
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--brand);
+}
+
+.legal__fiche dl {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-3);
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .legal__fiche dl {
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: var(--sp-2) var(--sp-5);
+    align-items: baseline;
+  }
+  .legal__fiche dt { margin-top: 0; }
+}
+
+.legal__fiche dt {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+}
+
+.legal__fiche dd {
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+
+.legal__fiche ul {
+  margin: 0;
+  padding-left: var(--sp-5);
+}
+
+/* ── Pied de page du document ───────────────────────────────────────────── */
+
+.legal__pied {
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.legal__pied p { margin: 0; }
+
+.legal__pied a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+/* ── Sommaire replié sur téléphone ──────────────────────────────────────── */
+
+.legal__sommaire-mobile {
+  margin-bottom: var(--sp-8);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-sunk);
+}
+
+@media (min-width: 900px) {
+  .legal__sommaire-mobile { display: none; }
+}
+
+.legal__sommaire-mobile summary {
+  padding: var(--sp-3) var(--sp-4);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  cursor: pointer;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+}
+
+.legal__sommaire-mobile ol {
+  margin: 0;
+  padding: 0 var(--sp-4) var(--sp-4) var(--sp-8);
+  font-size: var(--fs-sm);
+}

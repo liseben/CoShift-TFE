@@ -57,7 +57,16 @@ public class SitemapController {
             new String[] { "/a-propos",   "0.7", "monthly" },
             new String[] { "/entreprises","0.8", "monthly" },
             new String[] { "/blog",       "0.6", "weekly" },
-            new String[] { "/register",   "0.5", "yearly" });
+            new String[] { "/register",   "0.5", "yearly" },
+            /* Les documents légaux sont indexables à dessein : leur présence
+               dans les résultats est un signal de confiance, et l'obligation
+               d'accessibilité « facile, directe et permanente » de l'article
+               XII.6 du Code de droit économique s'accommode mal d'une page que
+               seul un lien de pied de page permettrait d'atteindre. */
+            new String[] { "/mentions-legales", "0.4", "yearly" },
+            new String[] { "/confidentialite",  "0.4", "yearly" },
+            new String[] { "/cgu",              "0.4", "yearly" },
+            new String[] { "/cookies",          "0.4", "yearly" });
 
     @Operation(
             summary = "Plan du site",

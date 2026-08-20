@@ -1,0 +1,121 @@
+/* =========================================================================
+   PIED DE PAGE
+
+   Classes préfixées `sf__`. L'ancienne règle `.main-footer` de MainLayout.css
+   ne s'applique plus : elle centrait une ligne unique, ce qui n'a plus de sens
+   avec quatre colonnes.
+   ========================================================================= */
+
+.sf {
+  margin-top: var(--sp-20);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.sf__haut {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-8);
+  padding-block: var(--sp-12) var(--sp-10);
+}
+
+@media (min-width: 640px) {
+  .sf__haut { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1000px) {
+  .sf__haut {
+    grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+    gap: var(--sp-10);
+  }
+}
+
+/* ── Bloc de marque ─────────────────────────────────────────────────────── */
+
+.sf__marque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  align-items: flex-start;
+}
+
+.sf__baseline {
+  margin: 0;
+  max-width: 34ch;
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+}
+
+/* ── Colonnes de liens ──────────────────────────────────────────────────── */
+
+.sf__titre {
+  margin: 0 0 var(--sp-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.sf__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sf__col a,
+.sf__bouton {
+  color: var(--text-muted);
+  text-decoration: none;
+  line-height: var(--lh-snug);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.sf__col a:hover,
+.sf__bouton:hover {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sf__col a:focus-visible,
+.sf__bouton:focus-visible {
+  outline: none;
+  border-radius: var(--r-sm);
+  box-shadow: var(--focus-ring);
+}
+
+/* Le retrait du consentement est une action, pas une navigation : c'est donc
+   un bouton, habillé comme les liens qui l'entourent. */
+.sf__bouton {
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+}
+
+/* ── Bandeau de bas de page ─────────────────────────────────────────────── */
+
+.sf__bas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-6);
+  padding-block: var(--sp-5);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+}
+
+.sf__copyright,
+.sf__note { margin: 0; }
+
+.sf__note a { color: var(--text-muted); }
+.sf__note a:hover { color: var(--brand); }

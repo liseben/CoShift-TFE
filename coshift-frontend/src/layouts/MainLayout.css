@@ -298,15 +298,8 @@
 
 .btn-profile-trigger:hover { background: var(--surface-sunk); }
 
-/* ── Pied de page ── */
-.main-footer {
-  padding: var(--sp-12) var(--gutter);
-  text-align: center;
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-}
+/* Le pied de page a quitté ce fichier : il porte désormais quatre colonnes et
+   les liens légaux, dans `components/SiteFooter/`. */
 
 /* ── Bascule mobile ── */
 .mobile-toggle-btn {
