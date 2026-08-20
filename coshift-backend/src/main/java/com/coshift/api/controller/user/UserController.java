@@ -1,12 +1,14 @@
 package com.coshift.api.controller.user;
 
 import com.coshift.api.dto.AuthenticationResponse;
+import com.coshift.api.dto.DeleteAccountRequest;
 import com.coshift.api.dto.UserProfileResponse;
 import com.coshift.api.dto.UserProfileUpdateRequest;
 import com.coshift.api.entity.User;
 import com.coshift.api.exception.BadRequestException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.repository.UserRepository;
+import com.coshift.api.service.PersonalDataService;
 import com.coshift.api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +41,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final PersonalDataService personalDataService;
 
     @Value("${app.upload.dir:uploads/avatars}")
     private String uploadDir;
@@ -173,5 +176,76 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("pictureUrl", pictureUrl));
+    }
+
+    // RGPD, articles 15 et 20 — accès et portabilité
+    @Operation(
+            summary = "Exporter mes données personnelles",
+            description = """
+                    Renvoie l'ensemble des données à caractère personnel détenues sur le
+                    membre connecté : compte, organisations, véhicules, trajets proposés
+                    et réservations demandées.
+
+                    Le format est JSON parce que l'article 20 du RGPD exige un format
+                    « structuré, couramment utilisé et lisible par machine ». La réponse
+                    porte un en-tête `Content-Disposition` : le navigateur propose un
+                    téléchargement plutôt que d'afficher le contenu.
+
+                    **Les données des autres membres en sont exclues.** Un trajet réservé
+                    chez un tiers apparaît avec son itinéraire et son horaire, jamais avec
+                    le téléphone ni l'adresse du conducteur : le droit à la portabilité
+                    porte sur ses propres données, pas sur celles d'autrui.
+
+                    Un bloc `_nonInclus` énumère ce qui est volontairement absent et
+                    pourquoi.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Export complet, en JSON."),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable.", content = @Content())
+    })
+    @GetMapping("/me/export")
+    public ResponseEntity<Map<String, Object>> exporterMesDonnees(Authentication authentication) {
+        Map<String, Object> donnees = personalDataService.exporter(authentication.getName());
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"coshift-mes-donnees.json\"")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(donnees);
+    }
+
+    // RGPD, article 17 — droit à l'effacement
+    @Operation(
+            summary = "Supprimer mon compte",
+            description = """
+                    Efface le compte du membre connecté. **L'opération est irréversible.**
+
+                    Elle exige de retaper l'adresse électronique du compte dans le corps de
+                    la requête : le jeton seul ne suffit pas, sans quoi une requête rejouée
+                    ou un clic de trop deviendrait une perte définitive.
+
+                    **Ce qui est effacé :** nom, prénom, adresse, téléphone, photographie,
+                    mot de passe, plaques d'immatriculation et rattachement à
+                    l'organisation.
+
+                    **Ce qui est anonymisé plutôt qu'effacé :** les trajets et réservations
+                    passés. Ils engagent d'autres membres, dont l'historique ne peut pas
+                    être détruit par la demande d'un tiers. Une fois détachés de toute
+                    personne identifiable, ils ne relèvent plus du RGPD (considérant 26).
+
+                    **Ce qui est annulé :** les trajets futurs du conducteur et les
+                    réservations en cours, afin que personne ne se présente à un
+                    rendez-vous qui n'aura pas lieu.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Compte effacé."),
+            @ApiResponse(responseCode = "400", description = "Adresse de confirmation absente ou différente de celle du compte.", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Utilisateur introuvable.", content = @Content())
+    })
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> supprimerMonCompte(
+            @Valid @RequestBody DeleteAccountRequest request,
+            Authentication authentication,
+            HttpServletRequest http) {
+        personalDataService.effacer(
+                authentication.getName(), request.getConfirmationEmail(), http.getRemoteAddr());
+        return ResponseEntity.noContent().build();
     }
 }

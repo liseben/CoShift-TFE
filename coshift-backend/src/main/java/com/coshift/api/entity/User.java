@@ -102,6 +102,27 @@ public class User implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    // --- DROITS DES PERSONNES (RGPD) ---
+
+    /**
+     * Date de l'effacement, ou {@code null} pour un compte vivant.
+     *
+     * <p>La ligne n'est pas supprimée : {@code trips.driver_id} et
+     * {@code bookings.passenger_id} sont obligatoires, et un covoiturage passé
+     * engage deux personnes. L'effacement écrase donc les champs identifiants
+     * sur place, et cette date marque l'opération.</p>
+     */
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    /** Date de l'acceptation des conditions générales — preuve de l'accord. */
+    @Column(name = "cgu_accepted_at")
+    private LocalDateTime cguAcceptedAt;
+
+    /** Version des conditions acceptées : sans elle, la date ne dit rien. */
+    @Column(name = "cgu_version", length = 10)
+    private String cguVersion;
+
     // --- MÉTHODES USERDETAILS (Spring Security) ---
 
     @Override
@@ -117,11 +138,20 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() { return deletedAt == null; }
     @Override
     public boolean isAccountNonLocked() { return true; }
     @Override
     public boolean isCredentialsNonExpired() { return true; }
+
+    /**
+     * Un compte effacé ne se connecte plus.
+     *
+     * <p>L'anonymisation remplace déjà l'empreinte du mot de passe par une
+     * valeur aléatoire, ce qui rend l'authentification impossible en pratique.
+     * Le contrôle explicite ne s'y substitue pas : il garantit que le refus ne
+     * dépend pas d'un effet de bord d'une autre opération.</p>
+     */
     @Override
-    public boolean isEnabled() { return emailVerified; }
+    public boolean isEnabled() { return emailVerified && deletedAt == null; }
 }

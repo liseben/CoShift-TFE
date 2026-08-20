@@ -61,7 +61,17 @@ public class SecurityAuditService {
         /** Adresse électronique modifiée : le compte repasse en attente. */
         ADRESSE_MODIFIEE,
         /** Connexion refusée faute d'adresse vérifiée. */
-        COMPTE_NON_ACTIVE
+        COMPTE_NON_ACTIVE,
+        /**
+         * Compte effacé à la demande de son titulaire — RGPD, article 17.
+         *
+         * <p>L'acteur consigné est l'identifiant technique du compte, jamais son
+         * adresse : conserver l'adresse d'un compte effacé viderait l'effacement
+         * de son objet.</p>
+         */
+        COMPTE_EFFACE,
+        /** Compte purgé par la tâche de rétention, sans demande — RGPD, article 5.1.e. */
+        COMPTE_PURGE
     }
 
     /**
