@@ -1,7 +1,6 @@
 package com.coshift.api.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -45,8 +44,31 @@ public class Trip {
     @Column(name = "arrival_address")
     private String arrivalAddress;
 
+    /**
+     * Heure de départ.
+     *
+     * <h2>Pourquoi il n'y a pas de {@code @Future} ici</h2>
+     *
+     * <p>Il y en avait un, et il rendait <strong>tout trajet passé
+     * immodifiable</strong>. Hibernate rejoue les contraintes de validation à
+     * chaque écriture, y compris sur une mise à jour : un trajet parfaitement
+     * valide à sa création devenait invalide au fil du temps, et la première
+     * tentative de le modifier échouait au moment du commit.</p>
+     *
+     * <p>Conséquence observée : la tâche de clôture chargeait les trajets dont
+     * l'heure était passée, les basculait en {@code COMPLETED}, écrivait
+     * « 2 trajets clôturés » au journal — puis la transaction était annulée.
+     * Rien n'était clôturé, l'opération recommençait tous les quarts d'heure,
+     * et chaque passage déversait une trace d'exception complète. La même
+     * cause aurait bloqué l'anonymisation des trajets anciens, qui écrit elle
+     * aussi sur des trajets passés par construction.</p>
+     *
+     * <p>La contrainte reste où elle a un sens : sur
+     * {@link com.coshift.api.dto.TripRequest}, qui porte une demande de
+     * création. Une entité décrit un fait, une requête exprime une intention —
+     * et « le départ doit être à venir » qualifie l'intention, pas le fait.</p>
+     */
     @NotNull(message = "Date de départ obligatoire")
-    @Future(message = "Le trajet doit être dans le futur")
     private LocalDateTime departureTime;
 
     @Min(value = 1, message = "Il faut au moins 1 place")
