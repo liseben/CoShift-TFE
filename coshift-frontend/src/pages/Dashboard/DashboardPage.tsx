@@ -2,10 +2,11 @@ import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaCar, FaTicketAlt, FaLeaf, FaStar, FaInbox, FaUsers } from "react-icons/fa";
-import { FiEdit3, FiCamera, FiGrid, FiTruck, FiArrowRight } from "react-icons/fi";
+import { FiEdit3, FiCamera, FiGrid, FiTruck, FiArrowRight, FiShield } from "react-icons/fi";
 import axios from "axios";
 import VehiclePage from "./VehiclePage";
 import ReceivedBookingsPage from "../Bookings/ReceivedBookingsPage";
+import PrivacyPage from "./PrivacyPage";
 import { formatTripDate } from "../Bookings/bookingStatus";
 import { API_BASE } from "../../config/api";
 import {
@@ -13,7 +14,7 @@ import {
 } from "../../components/ui";
 import "./DashboardPage.css";
 
-type TabKey = "overview" | "requests" | "vehicles";
+type TabKey = "overview" | "requests" | "vehicles" | "privacy";
 
 interface MyTrip {
   uuid: string;
@@ -36,6 +37,10 @@ const TABS: { key: TabKey; label: string; icon: React.ReactElement }[] = [
   { key: "overview", label: "Vue d'ensemble", icon: <FiGrid /> },
   { key: "requests", label: "Demandes reçues", icon: <FaInbox /> },
   { key: "vehicles", label: "Mes véhicules", icon: <FiTruck /> },
+  /* L'exercice des droits RGPD se fait depuis le compte, pas par courriel :
+     l'article 12.2 impose de faciliter cet exercice, et un bouton qui agit
+     immédiatement en fait plus qu'un formulaire traité dans le mois. */
+  { key: "privacy", label: "Mes données", icon: <FiShield /> },
 ];
 
 export default function DashboardPage() {
@@ -249,6 +254,8 @@ export default function DashboardPage() {
         <VehiclePage />
       ) : activeTab === "requests" ? (
         <ReceivedBookingsPage />
+      ) : activeTab === "privacy" ? (
+        <PrivacyPage />
       ) : loadingData ? (
         <Spinner size="lg" center showLabel label="Chargement de vos données" />
       ) : (

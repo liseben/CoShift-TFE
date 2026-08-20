@@ -123,8 +123,9 @@ export const REGISTRE: Traitement[] = [
       "Dates de création et de dernière modification",
     ],
     duree:
-      "Durée du compte, puis 30 jours après la demande de suppression le temps " +
-      "de traiter une éventuelle réclamation.",
+      "Durée du compte. La suppression demandée par le titulaire est appliquée " +
+      "immédiatement et sans délai de grâce : un délai supposerait de conserver " +
+      "les données pendant ce temps, ce qui contredirait la demande.",
     destinataires:
       "Les autres membres de l'organisation voient le nom, le prénom et la " +
       "photographie. Le numéro de téléphone n'est révélé qu'au conducteur et " +

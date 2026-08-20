@@ -336,8 +336,12 @@ export default function ConfidentialitePage() {
               </tr>
               <tr>
                 <th scope="row">Compte supprimé</th>
-                <td>30 jours, puis effacement définitif</td>
-                <td>Traitement d'une réclamation ou d'une suppression accidentelle</td>
+                <td>Immédiat, sans délai de grâce</td>
+                <td>
+                  Un délai de rétractation supposerait de conserver les données
+                  pendant ce temps, ce qui contredirait la demande. La
+                  confirmation par saisie de l'adresse tient lieu de garde-fou
+                </td>
               </tr>
               <tr>
                 <th scope="row">Compte jamais vérifié</th>

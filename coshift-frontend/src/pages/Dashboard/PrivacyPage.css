@@ -1,0 +1,74 @@
+/* =========================================================================
+   ONGLET « MES DONNÉES » DU TABLEAU DE BORD
+   Classes préfixées `pv__`.
+   ========================================================================= */
+
+.pv__tete {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.pv__icone {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--brand-wash);
+  color: var(--brand);
+  font-size: var(--fs-md);
+}
+
+.pv__icone--danger {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.pv__titre {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+  color: var(--text);
+  margin: 0;
+}
+
+/* Le renvoi à l'article fondant le droit : discret, mais présent. Un droit
+   qu'on exerce sans savoir d'où il vient s'exerce moins bien. */
+.pv__ref {
+  margin: 2px 0 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.pv__texte {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+}
+
+.pv__texte--sourdine { color: var(--text-muted); }
+
+.pv__liste {
+  margin: 0 0 var(--sp-5);
+  padding-left: var(--sp-5);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+}
+
+.pv__liste li { margin-bottom: var(--sp-2); }
+
+.pv__liste a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pv__liste a:hover { color: var(--brand-hover); }
