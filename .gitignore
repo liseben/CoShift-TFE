@@ -17,3 +17,6 @@ build/
 
 # Secrets et config locale (Sécurité maximale)
 application-secrets.properties
+
+# Données envoyées par les utilisateurs (photos de profil)
+coshift-backend/uploads/
