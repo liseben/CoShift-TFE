@@ -2,6 +2,7 @@ import { useEffect, useRef, useMemo } from "react";
 // 1. On importe MapRef
 import Map, { Source, Layer } from "react-map-gl";
 import { useTheme } from "../context/ThemeContext";
+import { useConsent } from "../context/ConsentContext";
 import type { MapRef } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -24,13 +25,46 @@ const routeCoordinates = [
 const routeGeoJSON = turf.lineString(routeCoordinates);
 const routeLength = turf.length(routeGeoJSON, { units: "kilometers" });
 
+/**
+ * Fond décoratif affiché tant que Mapbox n'a pas été autorisé.
+ *
+ * <p>Il occupe exactement la même boîte que la carte : sans cela, le contenu
+ * placé au-dessus se décalerait au moment du consentement, et la page
+ * sauterait sous les yeux du lecteur.</p>
+ */
+function FondSansCarte() {
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        background:
+          "radial-gradient(120% 120% at 30% 20%, var(--brand-wash), transparent 60%)," +
+          "radial-gradient(100% 100% at 80% 90%, var(--eco-wash), transparent 55%)," +
+          "var(--surface-sunk)",
+      }}
+    />
+  );
+}
+
 export default function MapBackground() {
   // Une carte claire sur une interface sombre saute aux yeux.
   const { theme } = useTheme();
+  /* Chaque tuile demandée transmet l'adresse IP du visiteur à Mapbox, établi
+     aux États-Unis. Un fond décoratif n'est pas un service expressément
+     demandé : il ne relève pas de l'exemption de l'article 129 de la loi du
+     13 juin 2005 et attend donc une réponse au bandeau. */
+  const { autorise } = useConsent();
+  const carteAutorisee = autorise("mapbox");
   // 2. On utilise une référence (qui ne déclenche AUCUN re-rendu React)
   const mapRef = useRef<MapRef>(null);
 
   useEffect(() => {
+    /* Sans carte, la boucle tournerait soixante fois par seconde pour ne
+       rien animer. */
+    if (!carteAutorisee) return;
+
     let start: number;
     let animationFrameId: number;
     const duration = 5000;
@@ -71,7 +105,7 @@ export default function MapBackground() {
 
     animationFrameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [carteAutorisee]);
 
   const lineLayer = useMemo(
     () => ({
@@ -146,6 +180,9 @@ export default function MapBackground() {
           position: "relative",
         }}
       >
+        {!carteAutorisee ? (
+          <FondSansCarte />
+        ) : (
         <Map
           ref={mapRef} // 👈 On connecte notre référence ici
           initialViewState={{
@@ -181,6 +218,7 @@ export default function MapBackground() {
             <Layer {...carLayer} />
           </Source>
         </Map>
+        )}
       </div>
     </div>
   );

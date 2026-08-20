@@ -2,24 +2,31 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
-// 1. L'import Google
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { ConsentProvider } from "./context/ConsentContext";
 
-// 2. Ta clé magique
-const GOOGLE_CLIENT_ID =
-  "415112384949-i0jihhuatgp8hrnuvptqujenhmmn0kb1.apps.googleusercontent.com";
-
+/**
+ * Le fournisseur Google a quitté cet emplacement.
+ *
+ * <p>Monté ici, `GoogleOAuthProvider` injectait le script Google Identity
+ * Services dans toutes les pages du site — accueil comprise — au premier
+ * rendu. Un visiteur qui lisait la page « À propos » sans intention de se
+ * connecter transmettait donc son adresse IP à Google, sans consentement et
+ * sans qu'aucune fonction de la page ne l'exige.</p>
+ *
+ * <p>Le fournisseur est désormais monté par l'écran de connexion, et
+ * seulement lorsque le consentement a été donné. Voir
+ * {@link ./components/Consent/GoogleGate}.</p>
+ */
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    {/* 3. On enveloppe l'App */}
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <ThemeProvider>
+    <ThemeProvider>
+      <ConsentProvider>
         <AuthProvider>
           <App />
         </AuthProvider>
-      </ThemeProvider>
-    </GoogleOAuthProvider>
+      </ConsentProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 );

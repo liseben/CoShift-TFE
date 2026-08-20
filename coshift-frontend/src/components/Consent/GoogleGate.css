@@ -1,0 +1,42 @@
+/* Repli affiché à la place du bouton Google lorsque le service n'est pas
+   autorisé. Volontairement sobre : ce n'est ni une erreur, ni une punition. */
+
+.gate {
+  padding: var(--sp-4);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-sunk);
+  text-align: center;
+}
+
+.gate__texte {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-soft);
+}
+
+.gate__texte--sourdine {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.gate__lien {
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gate__lien:hover { color: var(--brand-hover); }
+
+.gate__lien:focus-visible {
+  outline: none;
+  border-radius: var(--r-sm);
+  box-shadow: var(--focus-ring);
+}

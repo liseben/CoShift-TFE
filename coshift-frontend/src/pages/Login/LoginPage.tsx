@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Input } from "../../components/ui";
+import GoogleGate from "../../components/Consent/GoogleGate";
 import { useSeo } from "../../hooks/useSeo";
 import "../Auth/auth.css";
 
@@ -189,12 +190,17 @@ export default function LoginPage() {
         {view === "login" ? (
           <>
             <div className="auth__google">
-              <GoogleLogin
-                onSuccess={(r) => handleGoogle(r.credential)}
-                onError={() => setError("La fenêtre Google s'est fermée ou une erreur est survenue.")}
-                shape="pill"
-                text="continue_with"
-              />
+              {/* Le fournisseur Google n'est monté que si le service a été
+                  autorisé : sans barrière, son script partirait dès l'affichage
+                  de l'écran, avant tout clic. */}
+              <GoogleGate>
+                <GoogleLogin
+                  onSuccess={(r) => handleGoogle(r.credential)}
+                  onError={() => setError("La fenêtre Google s'est fermée ou une erreur est survenue.")}
+                  shape="pill"
+                  text="continue_with"
+                />
+              </GoogleGate>
             </div>
 
             <p className="auth__sep">ou</p>
