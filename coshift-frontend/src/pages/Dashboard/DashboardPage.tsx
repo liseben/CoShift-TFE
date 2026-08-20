@@ -1,5 +1,5 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaCar, FaTicketAlt, FaLeaf, FaStar, FaInbox, FaUsers } from "react-icons/fa";
 import { FiEdit3, FiCamera, FiGrid, FiTruck, FiArrowRight } from "react-icons/fi";
@@ -39,7 +39,8 @@ const TABS: { key: TabKey; label: string; icon: React.ReactElement }[] = [
 ];
 
 export default function DashboardPage() {
-  const { user, isLoading, login } = useAuth();
+  const { user, isLoading, login, logout } = useAuth();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // CreateTripPage redirige vers /dashboard?tab=vehicles : le paramètre doit
@@ -112,6 +113,17 @@ export default function DashboardPage() {
     setModalError(null);
     try {
       const res = await axios.put(`${API_BASE}/api/users/profile`, form, { headers: headers() });
+
+      /* Changer d'adresse remet le compte en attente de vérification : le
+         serveur ne renvoie alors aucun jeton et l'accès est coupé dès la
+         requête suivante. Sans cette redirection, l'utilisateur restait sur un
+         tableau de bord qui se mettait à répondre 401 sans rien expliquer. */
+      if (res.data?.emailVerified === false) {
+        logout();
+        navigate(`/verify-email?email=${encodeURIComponent(form.email)}`);
+        return;
+      }
+
       if (res.data?.token) login(res.data.token);
       setEditOpen(false);
     } catch (err) {
