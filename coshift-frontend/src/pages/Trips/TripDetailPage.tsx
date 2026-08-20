@@ -4,12 +4,12 @@ import {
   FaStar, FaUsers, FaCar, FaBolt, FaLeaf, FaGasPump,
   FaSuitcase, FaDog, FaMusic, FaComments,
 } from "react-icons/fa";
-import { FiArrowLeft, FiClock, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiClock, FiMapPin, FiXCircle } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 import {
-  Alert, Avatar, Button, Card, Spinner, StatusBadge, type Status,
+  Alert, Avatar, Button, Card, Modal, Spinner, StatusBadge, type Status,
 } from "../../components/ui";
 import "./TripDetailPage.css";
 
@@ -59,6 +59,9 @@ export default function TripDetailPage() {
   const [seats, setSeats] = useState(1);
   const [booking, setBooking] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelDone, setCancelDone] = useState(false);
 
   const headers = () => ({
     Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}`,
@@ -102,6 +105,32 @@ export default function TripDetailPage() {
     }
   };
 
+  /* F18 — Annulation par le conducteur. Le backend passe en cascade toutes les
+     réservations en attente ou confirmées en CANCELLED : d'où la confirmation
+     explicite avant l'appel, l'action étant irréversible. */
+  const cancelTrip = async () => {
+    setCancelling(true);
+    setError(null);
+    try {
+      const res = await axios.patch<Trip>(
+        `${API_BASE}/api/trips/${uuid}/cancel`,
+        {},
+        { headers: headers() },
+      );
+      setTrip(res.data);
+      setCancelOpen(false);
+      setCancelDone(true);
+    } catch (err) {
+      setCancelOpen(false);
+      setError(
+        (axios.isAxiosError(err) && err.response?.data?.message) ||
+          "Le trajet n'a pas pu être annulé.",
+      );
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container page">
@@ -131,6 +160,13 @@ export default function TripDetailPage() {
      seraient sinon confondus, et l'un se verrait refuser la réservation. */
   const isOwnTrip = !!user?.uuid && user.uuid === trip.driver.uuid;
   const isBookable = trip.status === "PLANNED" && trip.availableSeats > 0 && !isOwnTrip;
+
+  /* Le backend refuse d'annuler un trajet déjà parti, et la tâche planifiée
+     bascule seule les trajets passés en COMPLETED : le bouton n'a de sens que
+     sur un trajet à venir encore actif. */
+  const isPast = dt.getTime() < Date.now();
+  const isCancellable =
+    isOwnTrip && !isPast && (trip.status === "PLANNED" || trip.status === "FULL");
   const energy = ENERGY[trip.vehicule.energy] ?? { label: trip.vehicule.energy, icon: <FaCar /> };
   const driverName = `${trip.driver.firstname} ${trip.driver.lastname}`;
 
@@ -150,6 +186,12 @@ export default function TripDetailPage() {
       {success && (
         <Alert tone="success" title="Demande envoyée">
           Le conducteur doit maintenant l'accepter. Redirection vers vos réservations…
+        </Alert>
+      )}
+      {cancelDone && (
+        <Alert tone="success" title="Trajet annulé">
+          Il n'apparaît plus dans les recherches. Les réservations qui le
+          concernaient ont été annulées.
         </Alert>
       )}
       {error && !success && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
@@ -299,9 +341,53 @@ export default function TripDetailPage() {
                     : "Il ne reste plus de place disponible."}
               </Alert>
             )}
+
+            {isCancellable && (
+              <div className="td__owner-actions">
+                <Button
+                  variant="danger"
+                  size="lg"
+                  block
+                  icon={<FiXCircle />}
+                  onClick={() => setCancelOpen(true)}
+                >
+                  Annuler ce trajet
+                </Button>
+                <p className="td__hint">
+                  Les demandes et réservations en cours seront annulées.
+                </p>
+              </div>
+            )}
           </Card>
         </aside>
       </div>
+
+      <Modal
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        title="Annuler ce trajet ?"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setCancelOpen(false)}>
+              Retour
+            </Button>
+            <Button variant="danger" loading={cancelling} onClick={cancelTrip}>
+              Annuler le trajet
+            </Button>
+          </>
+        }
+      >
+        <p>
+          Le trajet <strong>{trip.departureCity} → {trip.arrivalCity}</strong> du{" "}
+          {jour} à {heure} sera retiré des recherches.
+        </p>
+        <p>
+          Toutes les demandes en attente et les réservations déjà confirmées
+          seront annulées avec le motif « Trajet annulé par le conducteur ».
+          Cette action est définitive.
+        </p>
+      </Modal>
     </div>
   );
 }
