@@ -1,7 +1,11 @@
+import { useT } from "../../context/LangContext";
 import "./MarqueeText.css";
 
 export default function MarqueeText() {
-  const phrase = "PRENEZ PART AU CHANGEMENT AVEC COSHIFT — ";
+  const t = useT();
+  /* Le tiret cadratin sépare les répétitions du défilement : il appartient à
+     la mise en forme, pas au texte, et n'a donc pas sa place au catalogue. */
+  const phrase = `${t("banniere.defilante")} — `;
 
   return (
     <div className="marquee-wrapper">

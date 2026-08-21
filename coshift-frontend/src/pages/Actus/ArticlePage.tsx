@@ -4,8 +4,10 @@ import { FiArrowLeft, FiExternalLink } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Card, Spinner } from "../../components/ui";
-import { CATEGORIES, formatArticleDate, lienArticle, type Article } from "./ActusPage";
+import { libelleCategorie, formatArticleDate, lienArticle, type Article } from "./ActusPage";
 import { useSeo, useDonneesStructurees } from "../../hooks/useSeo";
+import { useLang } from "../../context/LangContext";
+import { LANGUES } from "../../i18n";
 import "./ArticlePage.css";
 
 /**
@@ -27,15 +29,16 @@ export default function ArticlePage() {
     : parametre;
 
   const [article, setArticle] = useState<Article | null>(null);
+  const { langue, t } = useLang();
   const [related, setRelated] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useSeo({
-    titre: article ? article.title : "Actus mobilité",
+    titre: article ? article.title : t("article.titreDefaut"),
     description: article
       ? article.summary.slice(0, 300)
-      : "Article du flux d'actualités CoShift sur la mobilité.",
+      : t("article.descriptionDefaut"),
     chemin: article ? lienArticle(article) : undefined,
     image: article?.imageUrl,
     type: "article",
@@ -73,14 +76,14 @@ export default function ArticlePage() {
           ),
         );
       })
-      .catch(() => setError("Cet article est introuvable."))
+      .catch(() => setError(t("article.introuvable")))
       .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
     return (
       <div className="container page">
-        <Spinner size="lg" center showLabel label="Chargement de l'article" />
+        <Spinner size="lg" center showLabel label={t("article.chargement")} />
       </div>
     );
   }
@@ -88,21 +91,20 @@ export default function ArticlePage() {
   if (!article) {
     return (
       <div className="container page stack-6">
-        <Alert tone="danger">{error ?? "Cet article est introuvable."}</Alert>
+        <Alert tone="danger">{error ?? t("article.introuvable")}</Alert>
         <Button variant="secondary" icon={<FiArrowLeft />} to="/actus">
-          Retour aux actualités
+          {t("article.retourActus")}
         </Button>
       </div>
     );
   }
 
-  const categoryLabel =
-    CATEGORIES.find((c) => c.id === article.category)?.label ?? article.category;
+  const categoryLabel = libelleCategorie(t, article.category);
 
   return (
     <div className="container page stack-8">
       <Button variant="ghost" size="sm" icon={<FiArrowLeft />} to="/actus">
-        Toutes les actualités
+        {t("article.toutesActus")}
       </Button>
 
       {/* Colonne de lecture étroite : au-delà de ~70 caractères par ligne,
@@ -110,13 +112,15 @@ export default function ArticlePage() {
       <article className="container container--prose container--flush ar">
         <p className="ar__meta">
           <Link to="/actus" className="ar__tag">{categoryLabel}</Link>
-          <time dateTime={article.date}>{formatArticleDate(article.date)}</time>
+          <time dateTime={article.date}>
+            {formatArticleDate(article.date, LANGUES[langue].balise)}
+          </time>
         </p>
 
         <h1 className="ar__title">{article.title}</h1>
 
         <p className="ar__source">
-          Source : <strong>{article.source}</strong>
+          {t("article.source")} <strong>{article.source}</strong>
         </p>
 
         {article.imageUrl && (
@@ -134,28 +138,27 @@ export default function ArticlePage() {
         </div>
 
         <Card className="ar__cta" padding="lg">
-          <p className="ar__cta-text">
-            CoShift agrège et résume l'actualité mobilité. L'article complet
-            reste chez son éditeur.
-          </p>
+          <p className="ar__cta-text">{t("article.avertissement")}</p>
           <Button
             variant="secondary"
             icon={<FiExternalLink />}
             onClick={() => window.open(article.url, "_blank", "noopener,noreferrer")}
           >
-            Lire l'article sur {article.source}
+            {t("article.lireSur", { source: article.source })}
           </Button>
         </Card>
       </article>
 
       {related.length > 0 && (
         <section className="stack-6">
-          <h2 className="ar__related-title">Dans la même rubrique</h2>
+          <h2 className="ar__related-title">{t("article.memeRubrique")}</h2>
           <div className="grid-auto">
             {related.map((a) => (
               <Card key={a.id} to={lienArticle(a)}>
                 <p className="ar__related-date">
-                  <time dateTime={a.date}>{formatArticleDate(a.date)}</time>
+                  <time dateTime={a.date}>
+                    {formatArticleDate(a.date, LANGUES[langue].balise)}
+                  </time>
                 </p>
                 <h3 className="ar__related-headline">{a.title}</h3>
               </Card>

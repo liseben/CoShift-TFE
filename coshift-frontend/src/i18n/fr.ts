@@ -51,6 +51,92 @@ export const fr = {
     actuelle: "Langue actuelle : {nom}",
   },
 
+  banniere: {
+    defilante: "PRENEZ PART AU CHANGEMENT AVEC COSHIFT",
+    accroche: "Une mobilité plus",
+    mot1: "simple",
+    mot2: "verte",
+    mot3: "intelligente",
+    mot4: "rapide",
+    mot5: "collaborative",
+  },
+
+  theme: {
+    sombre: "Mode sombre",
+    passerEnClair: "Passer en mode clair",
+    passerEnSombre: "Passer en mode sombre",
+  },
+
+  verification: {
+    titre: "Vérifiez votre e-mail",
+    accroche: "Nous avons envoyé un code à {n} chiffres à",
+    votreAdresse: "votre adresse",
+    legende: "Code de vérification à {n} chiffres",
+    chiffre: "Chiffre {i} sur {n}",
+    activer: "Activer mon compte",
+    pasRecu: "Vous n'avez pas reçu de code ?",
+    renvoyer: "Renvoyer le code",
+    renvoyerDans: "Renvoyer dans {s} s",
+    codeIncomplet: "Entrez les {n} chiffres de votre code de vérification.",
+    codeIncorrect: "Code incorrect ou expiré. Réessayez.",
+    codeRenvoye: "Un nouveau code vient d'être envoyé à votre adresse.",
+    envoiImpossible: "Impossible d'envoyer le code. Réessayez.",
+  },
+
+  actus: {
+    titre: "Actus mobilité — covoiturage, transports et mobilité durable",
+    description:
+      "Le flux d'actualités CoShift sur la mobilité : covoiturage, transports en commun, mobilité douce et politiques de déplacement en Belgique et en Europe.",
+    entete: "Info mobilité",
+    accroche:
+      "L'essentiel de l'actualité transport et écologie, filtré pour les navetteurs.",
+    filtrer: "Filtrer par thème",
+    toutes: "Toutes les actus",
+    mobilite: "Mobilité & transport",
+    ecologie: "Écologie & climat",
+    entreprises: "Entreprises & RH",
+    technologie: "Tech & innovation",
+    chargement: "Chargement des actualités",
+    aucunArticle: "Aucun article dans ce thème",
+    aucunArticleTexte: "Choisissez un autre filtre pour retrouver le flux complet.",
+    voirTout: "Voir tout",
+    paginationLabel: "Pages d'articles",
+    retourAccueil: "Retour à l'accueil",
+    lire: "Lire",
+    serveurInjoignable:
+      "Impossible de contacter le serveur. Réessayez dans un moment.",
+  },
+
+  article: {
+    titreDefaut: "Actus mobilité",
+    descriptionDefaut: "Article du flux d'actualités CoShift sur la mobilité.",
+    chargement: "Chargement de l'article",
+    introuvable: "Cet article est introuvable.",
+    retourActus: "Retour aux actualités",
+    toutesActus: "Toutes les actualités",
+    source: "Source :",
+    avertissement:
+      "CoShift agrège et résume l'actualité mobilité. L'article complet reste chez son éditeur.",
+    lireSur: "Lire l'article sur {source}",
+    memeRubrique: "Dans la même rubrique",
+  },
+
+  trajets: {
+    trouverTitre: "Trouver un trajet",
+    trouverAccroche:
+      "Recherchez parmi les trajets disponibles et réservez votre place.",
+    chargementRecherche: "Recherche des trajets",
+    lancezRecherche: "Lancez une recherche",
+    lancezRechercheTexte:
+      "Indiquez au moins une ville de départ ou d'arrivée pour voir les trajets disponibles.",
+    aucunResultat: "Aucun trajet pour ces critères",
+    aucunResultatTexte:
+      "Élargissez la date ou l'heure de départ, ou retirez le filtre sur le nombre de places.",
+    disponible_un: "{n} trajet disponible",
+    disponible_plusieurs: "{n} trajets disponibles",
+    erreurRecherche: "Une erreur est survenue lors de la recherche.",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",

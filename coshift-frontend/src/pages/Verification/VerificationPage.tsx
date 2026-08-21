@@ -6,12 +6,14 @@ import { useAuth } from "../../context/AuthContext";
 import { API_BASE } from "../../config/api";
 import { Alert, Button } from "../../components/ui";
 import Logo from "../../components/Logo/Logo";
+import { useT } from "../../context/LangContext";
 import "../Auth/auth.css";
 import "./VerificationPage.css";
 
 const LENGTH = 6;
 
 export default function VerificationPage() {
+  const t = useT();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const navigate = useNavigate();
@@ -72,7 +74,7 @@ export default function VerificationPage() {
     e.preventDefault();
     const code = digits.join("");
     if (code.length < LENGTH) {
-      setError(`Entrez les ${LENGTH} chiffres de votre code de vérification.`);
+      setError(t("verification.codeIncomplet", { n: LENGTH }));
       return;
     }
     setLoading(true);
@@ -89,7 +91,7 @@ export default function VerificationPage() {
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Code incorrect ou expiré. Réessayez.",
+          t("verification.codeIncorrect"),
       );
     } finally {
       setLoading(false);
@@ -101,12 +103,12 @@ export default function VerificationPage() {
     setError(null);
     try {
       await axios.post(`${API_BASE}/api/auth/resend-verification`, { email });
-      setSuccess("Un nouveau code vient d'être envoyé à votre adresse.");
+      setSuccess(t("verification.codeRenvoye"));
       setCooldown(60);
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Impossible d'envoyer le code. Réessayez.",
+          t("verification.envoiImpossible"),
       );
     }
   };
@@ -117,10 +119,10 @@ export default function VerificationPage() {
         <header className="auth__head">
           <Logo size={36} />
           <span className="verify__icon" aria-hidden="true"><FiMail /></span>
-          <h1 className="auth__title">Vérifiez votre e-mail</h1>
+          <h1 className="auth__title">{t("verification.titre")}</h1>
           <p className="auth__lead">
-            Nous avons envoyé un code à {LENGTH} chiffres à{" "}
-            <strong>{email || "votre adresse"}</strong>.
+            {t("verification.accroche", { n: LENGTH })}{" "}
+            <strong>{email || t("verification.votreAdresse")}</strong>.
           </p>
         </header>
 
@@ -129,7 +131,7 @@ export default function VerificationPage() {
 
         <form onSubmit={verify} className="auth__form">
           <fieldset className="verify__code" onPaste={onPaste}>
-            <legend className="sr-only">Code de vérification à {LENGTH} chiffres</legend>
+            <legend className="sr-only">{t("verification.legende", { n: LENGTH })}</legend>
             {digits.map((d, i) => (
               <input
                 key={i}
@@ -143,20 +145,22 @@ export default function VerificationPage() {
                 onKeyDown={(e) => onKeyDown(i, e)}
                 className={`verify__digit ${d ? "is-filled" : ""}`}
                 disabled={loading}
-                aria-label={`Chiffre ${i + 1} sur ${LENGTH}`}
+                aria-label={t("verification.chiffre", { i: i + 1, n: LENGTH })}
               />
             ))}
           </fieldset>
 
           <Button type="submit" size="lg" block loading={loading}>
-            Activer mon compte
+            {t("verification.activer")}
           </Button>
         </form>
 
         <div className="auth__foot verify__foot">
-          <p>Vous n'avez pas reçu de code ?</p>
+          <p>{t("verification.pasRecu")}</p>
           <button type="button" className="auth__link" onClick={resend} disabled={cooldown > 0}>
-            {cooldown > 0 ? `Renvoyer dans ${cooldown} s` : "Renvoyer le code"}
+            {cooldown > 0
+              ? t("verification.renvoyerDans", { s: cooldown })
+              : t("verification.renvoyer")}
           </button>
         </div>
       </div>

@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
+import { useT } from "../../context/LangContext";
 import "./MobilityTagline.css";
 
 export default function MobilityTagline() {
-  const words = ["simple", "verte", "intelligente", "rapide", "collaborative"];
+  const t = useT();
+  /* Les mots défilent sur une accroche accordée au féminin en français.
+     L'anglais n'accorde pas : chaque mot est une clé, ce qui laisse au
+     traducteur la liberté de la tournure. */
+  const words = [1, 2, 3, 4, 5].map((i) => t(`banniere.mot${i}`));
 
   const [index, setIndex] = useState(0);
 
@@ -15,7 +20,7 @@ export default function MobilityTagline() {
 
   return (
     <div className="mobility-tagline">
-      <span>Une mobilité plus </span>
+      <span>{t("banniere.accroche")} </span>
       <div className="roller-container">
         <div
           className="roller-list"

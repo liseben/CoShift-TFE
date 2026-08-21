@@ -8,6 +8,7 @@ import TripSearchForm, {
 } from "../../components/TripSearchForm/TripSearchForm";
 import { Alert, EmptyState, Spinner } from "../../components/ui";
 import TripCard from "../../components/TripCard/TripCard";
+import { useT } from "../../context/LangContext";
 import "./TripsPage.css";
 
 interface Trip {
@@ -36,6 +37,7 @@ interface Trip {
 }
 
 export default function SearchTripsPage() {
+  const t = useT();
   const [params, setParams] = useSearchParams();
   const [trips, setTrips] = useState<Trip[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -78,7 +80,7 @@ export default function SearchTripsPage() {
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Une erreur est survenue lors de la recherche.",
+          t("trajets.erreurRecherche"),
       );
     } finally {
       setLoading(false);
@@ -99,10 +101,8 @@ export default function SearchTripsPage() {
   return (
     <div className="container page stack-8">
       <header>
-        <h1>Trouver un trajet</h1>
-        <p className="trips__lead">
-          Recherchez parmi les trajets disponibles et réservez votre place.
-        </p>
+        <h1>{t("trajets.trouverTitre")}</h1>
+        <p className="trips__lead">{t("trajets.trouverAccroche")}</p>
       </header>
 
       <TripSearchForm initial={criteria} onSubmit={submit} loading={loading} />
@@ -110,24 +110,25 @@ export default function SearchTripsPage() {
       {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
 
       {loading ? (
-        <Spinner size="lg" center showLabel label="Recherche des trajets" />
+        <Spinner size="lg" center showLabel label={t("trajets.chargementRecherche")} />
       ) : trips === null ? (
         <EmptyState
           icon={<FiSearch />}
-          title="Lancez une recherche"
-          description="Indiquez au moins une ville de départ ou d'arrivée pour voir les trajets disponibles."
+          title={t("trajets.lancezRecherche")}
+          description={t("trajets.lancezRechercheTexte")}
         />
       ) : trips.length === 0 ? (
         <EmptyState
           icon={<FiSearch />}
-          title="Aucun trajet pour ces critères"
-          description="Élargissez la date ou l'heure de départ, ou retirez le filtre sur le nombre de places."
+          title={t("trajets.aucunResultat")}
+          description={t("trajets.aucunResultatTexte")}
         />
       ) : (
         <>
           <p className="trips__count">
-            {trips.length} trajet{trips.length > 1 ? "s" : ""} disponible
-            {trips.length > 1 ? "s" : ""}
+            {trips.length > 1
+              ? t("trajets.disponible_plusieurs", { n: trips.length })
+              : t("trajets.disponible_un", { n: trips.length })}
           </p>
 
           <div className="grid-auto">

@@ -1,5 +1,6 @@
 import { FiSun, FiMoon } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
+import { useT } from "../../context/LangContext";
 import "./ThemeToggle.css";
 
 /**
@@ -12,6 +13,7 @@ import "./ThemeToggle.css";
  */
 export default function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const t = useT();
   const dark = theme === "dark";
 
   return (
@@ -21,9 +23,9 @@ export default function ThemeToggle() {
       aria-checked={dark}
       className={`theme-toggle ${dark ? "is-dark" : ""}`}
       onClick={toggle}
-      title={dark ? "Passer en mode clair" : "Passer en mode sombre"}
+      title={dark ? t("theme.passerEnClair") : t("theme.passerEnSombre")}
     >
-      <span className="sr-only">Mode sombre</span>
+      <span className="sr-only">{t("theme.sombre")}</span>
       <span className="theme-toggle__track" aria-hidden="true">
         <FiSun className="theme-toggle__icon theme-toggle__icon--sun" />
         <FiMoon className="theme-toggle__icon theme-toggle__icon--moon" />

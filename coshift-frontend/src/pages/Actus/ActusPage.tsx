@@ -5,6 +5,8 @@ import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { Alert, Button, Card, EmptyState, Spinner } from "../../components/ui";
 import { useSeo, slug } from "../../hooks/useSeo";
+import { useLang } from "../../context/LangContext";
+import { LANGUES } from "../../i18n";
 import "./ActusPage.css";
 
 export interface Article {
@@ -35,17 +37,25 @@ export function lienArticle(a: { id: string; title: string }): string {
  * Les inventer côté front produirait des filtres qui ne trouvent rien.
  */
 export const CATEGORIES = [
-  { id: "toutes", label: "Toutes les actus" },
-  { id: "mobilite", label: "Mobilité & transport" },
-  { id: "ecologie", label: "Écologie & climat" },
-  { id: "entreprises", label: "Entreprises & RH" },
-  { id: "technologie", label: "Tech & innovation" },
+  { id: "toutes" },
+  { id: "mobilite" },
+  { id: "ecologie" },
+  { id: "entreprises" },
+  { id: "technologie" },
 ] as const;
+
+/** Libellé traduit d'une catégorie ; la valeur brute sert de repli. */
+export function libelleCategorie(
+  t: (c: string) => string,
+  id: string,
+): string {
+  return CATEGORIES.some((c) => c.id === id) ? t(`actus.${id}`) : id;
+}
 
 const PAR_PAGE = 9;
 
-export function formatArticleDate(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR", {
+export function formatArticleDate(iso: string, balise: string) {
+  return new Date(iso).toLocaleDateString(balise, {
     day: "numeric", month: "long", year: "numeric",
   });
 }
@@ -58,10 +68,11 @@ function truncate(text: string, max: number) {
 
 /** Page rubrique : liste filtrable et paginée des articles. */
 export default function ActusPage() {
+  const { langue, t } = useLang();
+
   useSeo({
-    titre: "Actus mobilité — covoiturage, transports et mobilité durable",
-    description:
-      "Le flux d'actualités CoShift sur la mobilité : covoiturage, transports en commun, mobilité douce et politiques de déplacement en Belgique et en Europe.",
+    titre: t("actus.titre"),
+    description: t("actus.description"),
     chemin: "/actus",
   });
 
@@ -75,7 +86,7 @@ export default function ActusPage() {
     axios
       .get<Article[]>(`${API_BASE}/api/pwa/articles`)
       .then((r) => setArticles(r.data))
-      .catch(() => setError("Impossible de contacter le serveur. Réessayez dans un moment."))
+      .catch(() => setError(t("actus.serveurInjoignable")))
       .finally(() => setLoading(false));
   }, []);
 
@@ -100,17 +111,14 @@ export default function ActusPage() {
   return (
     <div className="container container--wide page stack-8">
       <header className="ac__header">
-        <h1>Info mobilité</h1>
-        <p className="ac__lead">
-          L'essentiel de l'actualité transport et écologie, filtré pour les
-          navetteurs.
-        </p>
+        <h1>{t("actus.entete")}</h1>
+        <p className="ac__lead">{t("actus.accroche")}</p>
       </header>
 
       {error && <Alert tone="danger">{error}</Alert>}
 
       {/* Filtres : une vraie liste de boutons, pas une barre de navigation. */}
-      <div className="ac__filters" role="group" aria-label="Filtrer par thème">
+      <div className="ac__filters" role="group" aria-label={t("actus.filtrer")}>
         {CATEGORIES.map((c) => (
           <button
             key={c.id}
@@ -118,20 +126,20 @@ export default function ActusPage() {
             onClick={() => setCategory(c.id)}
             aria-pressed={category === c.id}
           >
-            {c.label}
+            {t(`actus.${c.id}`)}
             <span className="ac__filter-count">{counts[c.id] ?? 0}</span>
           </button>
         ))}
       </div>
 
       {loading ? (
-        <Spinner size="lg" center showLabel label="Chargement des actualités" />
+        <Spinner size="lg" center showLabel label={t("actus.chargement")} />
       ) : visible.length === 0 ? (
         <EmptyState
           icon={<FiRss />}
-          title="Aucun article dans ce thème"
-          description="Choisissez un autre filtre pour retrouver le flux complet."
-          action={<Button variant="secondary" onClick={() => setCategory("toutes")}>Voir tout</Button>}
+          title={t("actus.aucunArticle")}
+          description={t("actus.aucunArticleTexte")}
+          action={<Button variant="secondary" onClick={() => setCategory("toutes")}>{t("actus.voirTout")}</Button>}
         />
       ) : (
         <>
@@ -139,10 +147,12 @@ export default function ActusPage() {
             {visible.map((a) => (
               <Card key={a.id} to={lienArticle(a)}>
                 <p className="ac__meta">
-                  <span className="ac__tag">{
-                    CATEGORIES.find((c) => c.id === a.category)?.label ?? a.category
-                  }</span>
-                  <time dateTime={a.date}>{formatArticleDate(a.date)}</time>
+                  <span className="ac__tag">
+                    {libelleCategorie(t, a.category)}
+                  </span>
+                  <time dateTime={a.date}>
+                    {formatArticleDate(a.date, LANGUES[langue].balise)}
+                  </time>
                 </p>
 
                 <h2 className="ac__title">{a.title}</h2>
@@ -151,7 +161,7 @@ export default function ActusPage() {
                 <p className="ac__foot">
                   <span className="ac__source">{a.source}</span>
                   <span className="ac__more" aria-hidden="true">
-                    Lire <FiArrowRight />
+                    {t("actus.lire")} <FiArrowRight />
                   </span>
                 </p>
               </Card>
@@ -159,15 +169,15 @@ export default function ActusPage() {
           </div>
 
           {totalPages > 1 && (
-            <nav className="ac__pagination" aria-label="Pages d'articles">
+            <nav className="ac__pagination" aria-label={t("actus.paginationLabel")}>
               <Button variant="secondary" size="sm" disabled={page === 1}
                       onClick={() => setPage((p) => p - 1)}>
-                Précédent
+                {t("commun.precedent")}
               </Button>
-              <p aria-live="polite">Page {page} sur {totalPages}</p>
+              <p aria-live="polite">{t("accueil.pagination", { page, total: totalPages })}</p>
               <Button variant="secondary" size="sm" disabled={page === totalPages}
                       onClick={() => setPage((p) => p + 1)}>
-                Suivant
+                {t("commun.suivant")}
               </Button>
             </nav>
           )}
@@ -175,7 +185,7 @@ export default function ActusPage() {
       )}
 
       <p className="ac__note">
-        <Link to="/">Retour à l'accueil</Link>
+        <Link to="/">{t("actus.retourAccueil")}</Link>
       </p>
     </div>
   );

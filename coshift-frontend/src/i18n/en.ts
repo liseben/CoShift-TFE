@@ -51,6 +51,90 @@ export const en: Traductions = {
     actuelle: "Current language: {nom}",
   },
 
+  banniere: {
+    defilante: "BE PART OF THE CHANGE WITH COSHIFT",
+    accroche: "Mobility that is more",
+    mot1: "simple",
+    mot2: "green",
+    mot3: "intelligent",
+    mot4: "fast",
+    mot5: "collaborative",
+  },
+
+  theme: {
+    sombre: "Dark mode",
+    passerEnClair: "Switch to light mode",
+    passerEnSombre: "Switch to dark mode",
+  },
+
+  verification: {
+    titre: "Verify your email address",
+    accroche: "We sent a {n}-digit code to",
+    votreAdresse: "your address",
+    legende: "{n}-digit verification code",
+    chiffre: "Digit {i} of {n}",
+    activer: "Activate my account",
+    pasRecu: "Didn't receive a code?",
+    renvoyer: "Send a new code",
+    renvoyerDans: "Resend in {s}s",
+    codeIncomplet: "Enter all {n} digits of your verification code.",
+    codeIncorrect: "Incorrect or expired code. Please try again.",
+    codeRenvoye: "A new code has just been sent to your address.",
+    envoiImpossible: "The code could not be sent. Please try again.",
+  },
+
+  actus: {
+    titre: "Mobility news — carpooling, transport and sustainable travel",
+    description:
+      "CoShift's mobility news feed: carpooling, public transport, active travel and mobility policy in Belgium and across Europe.",
+    entete: "Mobility briefing",
+    accroche:
+      "The essentials of transport and environment news, filtered for commuters.",
+    filtrer: "Filter by topic",
+    toutes: "All news",
+    mobilite: "Mobility & transport",
+    ecologie: "Environment & climate",
+    entreprises: "Business & HR",
+    technologie: "Tech & innovation",
+    chargement: "Loading the news feed",
+    aucunArticle: "No article in this topic",
+    aucunArticleTexte: "Pick another filter to see the full feed.",
+    voirTout: "See all",
+    paginationLabel: "Article pages",
+    retourAccueil: "Back to home",
+    lire: "Read",
+    serveurInjoignable: "Could not reach the server. Please try again shortly.",
+  },
+
+  article: {
+    titreDefaut: "Mobility news",
+    descriptionDefaut: "An article from CoShift's mobility news feed.",
+    chargement: "Loading the article",
+    introuvable: "This article could not be found.",
+    retourActus: "Back to the news feed",
+    toutesActus: "All news",
+    source: "Source:",
+    avertissement:
+      "CoShift aggregates and summarises mobility news. The full article stays with its publisher.",
+    lireSur: "Read the article on {source}",
+    memeRubrique: "More in this topic",
+  },
+
+  trajets: {
+    trouverTitre: "Find a ride",
+    trouverAccroche: "Search the available rides and book your seat.",
+    chargementRecherche: "Searching for rides",
+    lancezRecherche: "Start a search",
+    lancezRechercheTexte:
+      "Enter at least a departure or arrival city to see the available rides.",
+    aucunResultat: "No ride matches these criteria",
+    aucunResultatTexte:
+      "Widen the departure date or time, or remove the filter on the number of seats.",
+    disponible_un: "{n} ride available",
+    disponible_plusieurs: "{n} rides available",
+    erreurRecherche: "Something went wrong during the search.",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",
