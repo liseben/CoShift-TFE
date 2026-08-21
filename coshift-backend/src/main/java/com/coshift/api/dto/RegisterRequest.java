@@ -16,18 +16,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterRequest {
 
-    @NotBlank(message = "Le prénom est obligatoire")
+    @NotBlank(message = "{validation.prenom.requis}")
     private String firstname;
 
-    @NotBlank(message = "Le nom est obligatoire")
+    @NotBlank(message = "{validation.nom.requis}")
     private String lastname;
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "Format d'email invalide")
+    @NotBlank(message = "{validation.email.requis}")
+    @Email(message = "{validation.email.format}")
     private String email;
 
-    @NotBlank(message = "Le mot de passe est obligatoire")
-    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
+    @NotBlank(message = "{validation.motdepasse.requis}")
+    @Size(min = 6, message = "{validation.motdepasse.longueur}")
     private String password;
 
     /**
@@ -53,7 +53,7 @@ public class RegisterRequest {
      * contrat. Une acceptation déduite du seul fait de s'inscrire ne vaudrait
      * donc rien.</p>
      */
-    @NotNull(message = "Vous devez accepter les conditions générales et la politique de confidentialité.")
-    @AssertTrue(message = "Vous devez accepter les conditions générales et la politique de confidentialité.")
+    @NotNull(message = "{validation.cgu.requis}")
+    @AssertTrue(message = "{validation.cgu.requis}")
     private Boolean acceptedTerms;
 }

@@ -8,11 +8,11 @@ import lombok.Data;
 @Data
 public class VerifyEmailRequest {
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "Format d'email invalide")
+    @NotBlank(message = "{validation.email.requis}")
+    @Email(message = "{validation.email.format}")
     private String email;
 
-    @NotBlank(message = "Le code de vérification est obligatoire")
-    @Pattern(regexp = "^[0-9]{6}$", message = "Le code doit être composé de 6 chiffres")
+    @NotBlank(message = "{validation.code.requis}")
+    @Pattern(regexp = "^[0-9]{6}$", message = "{validation.code.format}")
     private String code;
 }

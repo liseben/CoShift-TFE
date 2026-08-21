@@ -9,19 +9,19 @@ import lombok.Data;
 @Data
 public class VehiculeRequest {
 
-    @NotBlank(message = "La marque est obligatoire")
+    @NotBlank(message = "{validation.vehicule.marque}")
     private String brand;
 
-    @NotBlank(message = "Le modèle est obligatoire")
+    @NotBlank(message = "{validation.vehicule.modele}")
     private String model;
 
-    @NotBlank(message = "L'immatriculation est obligatoire")
+    @NotBlank(message = "{validation.vehicule.plaque}")
     private String licensePlate;
 
-    @Min(value = 2, message = "Il faut au moins 2 places (conducteur + 1 passager)")
+    @Min(value = 2, message = "{validation.vehicule.places}")
     private int seats;
 
-    @NotNull(message = "Le type de carburant est obligatoire")
+    @NotNull(message = "{validation.vehicule.energie}")
     private EnergyType energy;
 
     private String photoUrl;

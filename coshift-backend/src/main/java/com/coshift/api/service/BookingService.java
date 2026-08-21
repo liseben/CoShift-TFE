@@ -40,6 +40,7 @@ import java.util.List;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final Messages messages;
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
 
@@ -56,25 +57,23 @@ public class BookingService {
     public BookingResponse book(String passengerEmail, BookingRequest request) {
         User passenger = findUser(passengerEmail);
         Trip trip = tripRepository.findByUuid(request.getTripUuid())
-                .orElseThrow(() -> new ResourceNotFoundException("Trajet introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.introuvable")));
 
         if (trip.getDriver().getId().equals(passenger.getId())) {
-            throw new BadRequestException("Vous ne pouvez pas réserver une place dans votre propre trajet.");
+            throw new BadRequestException(messages.get("reservation.proprePropreTrajet"));
         }
         if (trip.getStatus() != TripStatus.PLANNED) {
-            throw new ConflictException("Ce trajet n'accepte plus de réservation.");
+            throw new ConflictException(messages.get("reservation.trajetFerme"));
         }
         if (trip.getDepartureTime().isBefore(LocalDateTime.now().plusHours(MIN_HOURS_BEFORE_BOOKING))) {
-            throw new ConflictException("Une réservation doit être faite au moins "
-                    + MIN_HOURS_BEFORE_BOOKING + " heure avant le départ.");
+            throw new ConflictException(messages.get("reservation.delai", MIN_HOURS_BEFORE_BOOKING * 60));
         }
         if (bookingRepository.existsByTripIdAndPassengerIdAndStatusIn(
                 trip.getId(), passenger.getId(), ACTIVE_STATUSES)) {
-            throw new ConflictException("Vous avez déjà une réservation en cours sur ce trajet.");
+            throw new ConflictException(messages.get("reservation.dejaEnCours"));
         }
         if (request.getSeatsBooked() > trip.getAvailableSeats()) {
-            throw new NoSeatsAvailableException("Il ne reste que " + trip.getAvailableSeats()
-                    + " place(s) disponible(s) sur ce trajet.");
+            throw new NoSeatsAvailableException(messages.get("reservation.placesRestantes", trip.getAvailableSeats()));
         }
 
         BigDecimal total = trip.getPricePerSeat()
@@ -120,10 +119,10 @@ public class BookingService {
     public List<BookingResponse> getBookingsForTrip(String driverEmail, String tripUuid) {
         User driver = findUser(driverEmail);
         Trip trip = tripRepository.findByUuid(tripUuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Trajet introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.introuvable")));
 
         if (!trip.getDriver().getId().equals(driver.getId())) {
-            throw new UnauthorizedException("Vous n'êtes pas le conducteur de ce trajet.");
+            throw new UnauthorizedException(messages.get("trajet.pasConducteur"));
         }
         return bookingRepository.findByTripIdOrderByCreatedAtDesc(trip.getId())
                 .stream()
@@ -139,14 +138,13 @@ public class BookingService {
         Trip trip = booking.getTrip();
 
         if (trip.getStatus() != TripStatus.PLANNED) {
-            throw new ConflictException("Ce trajet n'est plus ouvert aux réservations.");
+            throw new ConflictException(messages.get("reservation.trajetPlusOuvert"));
         }
         // Contrôle décisif : plusieurs demandes en attente peuvent totaliser plus
         // de places qu'il n'en reste réellement.
         if (booking.getSeatsBooked() > trip.getAvailableSeats()) {
-            throw new NoSeatsAvailableException("Il ne reste que " + trip.getAvailableSeats()
-                    + " place(s) : impossible d'accepter cette demande de "
-                    + booking.getSeatsBooked() + " place(s).");
+            throw new NoSeatsAvailableException(messages.get("reservation.placesInsuffisantes",
+                    trip.getAvailableSeats(), booking.getSeatsBooked()));
         }
 
         trip.setAvailableSeats(trip.getAvailableSeats() - booking.getSeatsBooked());
@@ -180,18 +178,18 @@ public class BookingService {
     public BookingResponse cancel(String passengerEmail, String bookingUuid, String reason) {
         User passenger = findUser(passengerEmail);
         Booking booking = bookingRepository.findByUuid(bookingUuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Réservation introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("reservation.introuvable")));
 
         if (!booking.getPassenger().getId().equals(passenger.getId())) {
-            throw new UnauthorizedException("Cette réservation n'est pas la vôtre.");
+            throw new UnauthorizedException(messages.get("reservation.pasLaVotre"));
         }
         if (!ACTIVE_STATUSES.contains(booking.getStatus())) {
-            throw new ConflictException("Cette réservation ne peut plus être annulée.");
+            throw new ConflictException(messages.get("reservation.plusAnnulable"));
         }
 
         Trip trip = booking.getTrip();
         if (trip.getDepartureTime().isBefore(LocalDateTime.now())) {
-            throw new ConflictException("Impossible d'annuler une réservation sur un trajet déjà parti.");
+            throw new ConflictException(messages.get("reservation.trajetParti"));
         }
 
         // Seule une réservation confirmée avait consommé des places : les rendre
@@ -223,20 +221,20 @@ public class BookingService {
     private Booking findPendingBookingOfDriver(String driverEmail, String bookingUuid) {
         User driver = findUser(driverEmail);
         Booking booking = bookingRepository.findByUuid(bookingUuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Réservation introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("reservation.introuvable")));
 
         if (!booking.getTrip().getDriver().getId().equals(driver.getId())) {
-            throw new UnauthorizedException("Cette réservation ne concerne pas l'un de vos trajets.");
+            throw new UnauthorizedException(messages.get("reservation.pasVotreTrajet"));
         }
         if (booking.getStatus() != BookingStatus.PENDING) {
-            throw new ConflictException("Cette demande a déjà été traitée.");
+            throw new ConflictException(messages.get("reservation.dejaTraitee"));
         }
         return booking;
     }
 
     private User findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
     }
 
     private String blankToNull(String s) {

@@ -1,6 +1,7 @@
 package com.coshift.api.controller.user;
 
 import com.coshift.api.dto.AuthenticationResponse;
+import com.coshift.api.service.Messages;
 import com.coshift.api.dto.DeleteAccountRequest;
 import com.coshift.api.dto.UserProfileResponse;
 import com.coshift.api.dto.UserProfileUpdateRequest;
@@ -40,6 +41,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final Messages messages;
     private final UserService userService;
     private final PersonalDataService personalDataService;
 
@@ -66,7 +68,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUser(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
 
         return ResponseEntity.ok(UserProfileResponse.builder()
                 .uuid(user.getUuid())
@@ -136,16 +138,16 @@ public class UserController {
             Authentication authentication) throws IOException {
 
         if (file.isEmpty()) {
-            throw new BadRequestException("Le fichier envoyé est vide.");
+            throw new BadRequestException(messages.get("profil.fichierVide"));
         }
 
         String contentType = file.getContentType();
         if (contentType == null || (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
-            throw new BadRequestException("Seuls les formats JPG et PNG sont acceptés.");
+            throw new BadRequestException(messages.get("profil.formatImage"));
         }
 
         if (file.getSize() > 2 * 1024 * 1024) {
-            throw new BadRequestException("La photo ne doit pas dépasser 2 Mo.");
+            throw new BadRequestException(messages.get("profil.tailleImage"));
         }
 
         // Créer le dossier si nécessaire
@@ -163,7 +165,7 @@ public class UserController {
         // Mettre à jour la DB
         String pictureUrl = baseUrl + "/uploads/avatars/" + filename;
         User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
 
         // Supprimer l'ancienne photo locale si elle existe
         if (user.getPictureUrl() != null && user.getPictureUrl().startsWith(baseUrl)) {

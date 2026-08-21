@@ -64,6 +64,7 @@ import java.util.*;
 public class PersonalDataService {
 
     private final UserRepository userRepository;
+    private final Messages messages;
     private final TripRepository tripRepository;
     private final BookingRepository bookingRepository;
     private final VehiculeRepository vehiculeRepository;
@@ -240,7 +241,7 @@ public class PersonalDataService {
 
         if (confirmation == null || !confirmation.trim().equalsIgnoreCase(u.getEmail())) {
             throw new BadRequestException(
-                    "Retapez votre adresse électronique exactement pour confirmer la suppression.");
+                    messages.get("profil.confirmationIncorrecte"));
         }
 
         String identifiant = u.getUuid();
@@ -279,7 +280,7 @@ public class PersonalDataService {
                     t.getId(), List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
             touchees.forEach(b -> {
                 b.setStatus(BookingStatus.CANCELLED);
-                b.setStatusReason("Le conducteur a supprimé son compte.");
+                b.setStatusReason(messages.get("reservation.conducteurCompteSupprime"));
             });
             bookingRepository.saveAll(touchees);
             t.setStatus(TripStatus.CANCELLED);
@@ -297,7 +298,7 @@ public class PersonalDataService {
 
         mesDemandes.forEach(b -> {
             b.setStatus(BookingStatus.CANCELLED);
-            b.setStatusReason("Le passager a supprimé son compte.");
+            b.setStatusReason(messages.get("reservation.passagerCompteSupprime"));
         });
         bookingRepository.saveAll(mesDemandes);
 
@@ -376,7 +377,7 @@ public class PersonalDataService {
 
     private User trouver(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
     }
 
     private String texte(LocalDateTime d) {

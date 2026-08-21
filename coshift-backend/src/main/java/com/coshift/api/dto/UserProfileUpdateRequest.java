@@ -7,14 +7,14 @@ import lombok.Data;
 @Data
 public class UserProfileUpdateRequest {
 
-    @NotBlank(message = "Le prénom est obligatoire")
+    @NotBlank(message = "{validation.prenom.requis}")
     private String firstname;
 
-    @NotBlank(message = "Le nom est obligatoire")
+    @NotBlank(message = "{validation.nom.requis}")
     private String lastname;
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "Format d'email invalide")
+    @NotBlank(message = "{validation.email.requis}")
+    @Email(message = "{validation.email.format}")
     private String email;
 
     private String phoneNumber;

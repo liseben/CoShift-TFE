@@ -32,13 +32,13 @@ public class Trip {
 
     // --- INFOS TRAJET ---
 
-    @NotBlank(message = "Ville de départ obligatoire")
+    @NotBlank(message = "{validation.trajet.villeDepart}")
     private String departureCity;
 
     @Column(name = "departure_address")
     private String departureAddress;
 
-    @NotBlank(message = "Ville d'arrivée obligatoire")
+    @NotBlank(message = "{validation.trajet.villeArrivee}")
     private String arrivalCity;
 
     @Column(name = "arrival_address")
@@ -68,14 +68,14 @@ public class Trip {
      * création. Une entité décrit un fait, une requête exprime une intention —
      * et « le départ doit être à venir » qualifie l'intention, pas le fait.</p>
      */
-    @NotNull(message = "Date de départ obligatoire")
+    @NotNull(message = "{validation.trajet.date}")
     private LocalDateTime departureTime;
 
-    @Min(value = 1, message = "Il faut au moins 1 place")
+    @Min(value = 1, message = "{validation.trajet.places}")
     private int availableSeats;
 
-    @NotNull(message = "Le prix est obligatoire")
-    @Min(value = 0, message = "Le prix ne peut pas être négatif")
+    @NotNull(message = "{validation.trajet.prixRequis}")
+    @Min(value = 0, message = "{validation.trajet.prixNegatif}")
     private BigDecimal pricePerSeat;
 
     @Column(columnDefinition = "TEXT")

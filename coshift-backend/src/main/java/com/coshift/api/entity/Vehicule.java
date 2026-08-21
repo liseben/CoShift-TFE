@@ -27,17 +27,17 @@ public class Vehicule {
     @Column(unique = true, nullable = false, updatable = false)
     private String uuid = UUID.randomUUID().toString();
 
-    @NotBlank(message = "La marque est obligatoire")
+    @NotBlank(message = "{validation.vehicule.marque}")
     private String brand; // ex: Tesla, Renault
 
-    @NotBlank(message = "Le modèle est obligatoire")
+    @NotBlank(message = "{validation.vehicule.modele}")
     private String model; // ex: Model 3, Clio
 
-    @NotBlank(message = "L'immatriculation est obligatoire")
+    @NotBlank(message = "{validation.vehicule.plaque}")
     @Column(unique = true) // Une plaque est unique !
     private String licensePlate;
 
-    @Min(value = 1, message = "Il faut au moins 1 place")
+    @Min(value = 1, message = "{validation.trajet.places}")
     private int seats; // Nombre de places TOTALES (conducteur compris)
 
     @Enumerated(EnumType.STRING)

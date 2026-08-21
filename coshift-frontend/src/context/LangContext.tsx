@@ -5,6 +5,7 @@ import {
 import {
   LANGUES, estUneLangue, langueDuNavigateur, traduire, type Langue,
 } from "../i18n";
+import { annoncerLangue } from "../config/api";
 
 /**
  * Langue de l'interface.
@@ -73,6 +74,11 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = LANGUES[langue].balise;
+    /* Le serveur compose lui aussi du texte — messages d'erreur, contenu des
+       courriels. Sans cet en-tête, une interface en anglais afficherait des
+       refus en français, précisément au moment où l'on a le plus besoin de
+       comprendre. */
+    annoncerLangue(langue);
   }, [langue]);
 
   /* Le choix se propage entre onglets : changer de langue dans l'un ne doit

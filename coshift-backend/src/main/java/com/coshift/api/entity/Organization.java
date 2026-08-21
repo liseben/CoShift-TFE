@@ -30,13 +30,13 @@ public class Organization {
     @Column(unique = true, nullable = false, updatable = false)
     private String uuid = UUID.randomUUID().toString();
 
-    @NotBlank(message = "Le nom de l'organisation est obligatoire")
+    @NotBlank(message = "{validation.organisation.nom}")
     @Size(max = 100)
     @Column(nullable = false, length = 100)
     private String name;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Le slug est obligatoire pour le multi-tenant")
+    @NotBlank(message = "{validation.organisation.slug}")
     private String slug; 
 
     private String logoUrl;

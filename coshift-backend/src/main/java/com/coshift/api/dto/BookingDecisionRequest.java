@@ -10,6 +10,6 @@ import lombok.Data;
 @Data
 public class BookingDecisionRequest {
 
-    @Size(max = 500, message = "Le motif ne peut pas dépasser 500 caractères")
+    @Size(max = 500, message = "{validation.reservation.motifLongueur}")
     private String reason;
 }

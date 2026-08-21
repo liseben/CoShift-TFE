@@ -41,11 +41,11 @@ public class Booking {
 
     // --- DÉTAILS ---
 
-    @Min(value = 1, message = "Il faut réserver au moins 1 place")
+    @Min(value = 1, message = "{validation.reservation.placesMin}")
     @Column(nullable = false)
     private int seatsBooked;
 
-    @NotNull(message = "Le prix total est obligatoire")
+    @NotNull(message = "{validation.reservation.prixTotal}")
     @Column(nullable = false)
     private BigDecimal totalPrice;
 

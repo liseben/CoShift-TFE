@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GoogleLoginRequest {
-    @NotBlank(message = "Le token Google est obligatoire")
+    @NotBlank(message = "{validation.google.token}")
     private String token;
 }

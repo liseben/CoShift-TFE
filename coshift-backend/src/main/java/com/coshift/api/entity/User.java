@@ -35,8 +35,8 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false, updatable = false)
     private String uuid = UUID.randomUUID().toString();
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "Format d'email invalide")
+    @NotBlank(message = "{validation.email.requis}")
+    @Email(message = "{validation.email.format}")
     @Column(unique = true, nullable = false)
     private String email;
 

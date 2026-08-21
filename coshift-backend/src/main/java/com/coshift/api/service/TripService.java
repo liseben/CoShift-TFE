@@ -27,6 +27,7 @@ import java.util.List;
 public class TripService {
 
     private final TripRepository tripRepository;
+    private final Messages messages;
     private final UserRepository userRepository;
     private final VehiculeRepository vehiculeRepository;
     private final BookingRepository bookingRepository;
@@ -47,8 +48,7 @@ public class TripService {
         LocalDateTime earliest = LocalDateTime.now().plusHours(MIN_HOURS_BEFORE_DEPARTURE);
         if (request.getDepartureTime().isBefore(earliest)) {
             throw new BadRequestException(
-                    "Un trajet doit être publié au moins " + MIN_HOURS_BEFORE_DEPARTURE
-                            + " heures avant le départ.");
+                    messages.get("trajet.delaiPublication", MIN_HOURS_BEFORE_DEPARTURE));
         }
 
         // Max 5 trajets actifs simultanément (règle cahier des charges)
@@ -57,15 +57,14 @@ public class TripService {
                 .filter(t -> t.getStatus() == TripStatus.PLANNED || t.getStatus() == TripStatus.FULL)
                 .count();
         if (activeTrips >= MAX_ACTIVE_TRIPS) {
-            throw new ConflictException("Vous ne pouvez pas avoir plus de " + MAX_ACTIVE_TRIPS
-                    + " trajets actifs simultanément.");
+            throw new ConflictException(messages.get("trajet.quotaAtteint", MAX_ACTIVE_TRIPS));
         }
 
         Vehicule vehicule = vehiculeRepository.findByUuid(request.getVehiculeUuid())
-                .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.vehiculeIntrouvable")));
 
         if (!vehicule.getOwner().getId().equals(driver.getId())) {
-            throw new UnauthorizedException("Ce véhicule ne vous appartient pas.");
+            throw new UnauthorizedException(messages.get("trajet.vehiculeAutrui"));
         }
 
         // Le conducteur occupe une place : on ne peut pas proposer plus de sièges
@@ -73,9 +72,8 @@ public class TripService {
         // 8 places dans une voiture qui en déclare 2.
         int maxPassengers = vehicule.getSeats() - 1;
         if (request.getAvailableSeats() > maxPassengers) {
-            throw new BadRequestException("Votre " + vehicule.getBrand() + " " + vehicule.getModel()
-                    + " compte " + vehicule.getSeats() + " places, soit " + maxPassengers
-                    + " passager(s) maximum une fois votre place déduite.");
+            throw new BadRequestException(messages.get("trajet.placesSuperieuresAuVehicule",
+                    vehicule.getSeats(), maxPassengers));
         }
 
         Trip trip = Trip.builder()
@@ -130,7 +128,7 @@ public class TripService {
     // F26 — Détail d'un trajet
     public TripResponse getTripByUuid(String uuid) {
         Trip trip = tripRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Trajet introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.introuvable")));
         return TripResponse.from(trip);
     }
 
@@ -139,13 +137,13 @@ public class TripService {
     public TripResponse cancelTrip(String driverEmail, String uuid) {
         User driver = findUser(driverEmail);
         Trip trip = tripRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Trajet introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.introuvable")));
 
         if (!trip.getDriver().getId().equals(driver.getId())) {
-            throw new UnauthorizedException("Vous n'êtes pas le conducteur de ce trajet.");
+            throw new UnauthorizedException(messages.get("trajet.pasConducteur"));
         }
         if (trip.getDepartureTime().isBefore(LocalDateTime.now())) {
-            throw new ConflictException("Impossible d'annuler un trajet déjà passé.");
+            throw new ConflictException(messages.get("trajet.dejaPasse"));
         }
 
         // Les réservations en cours doivent suivre le sort du trajet : sans ça,
@@ -155,7 +153,7 @@ public class TripService {
 
         impacted.forEach(booking -> {
             booking.setStatus(BookingStatus.CANCELLED);
-            booking.setStatusReason("Trajet annulé par le conducteur.");
+            booking.setStatusReason(messages.get("trajet.annuleParConducteur"));
         });
         bookingRepository.saveAll(impacted);
 
@@ -191,7 +189,7 @@ public class TripService {
 
     private User findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
     }
 
     private String blankToNull(String s) {

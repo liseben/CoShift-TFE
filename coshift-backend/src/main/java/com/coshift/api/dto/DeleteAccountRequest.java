@@ -21,7 +21,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DeleteAccountRequest {
 
-    @NotBlank(message = "Retapez votre adresse électronique pour confirmer.")
+    @NotBlank(message = "{validation.confirmation.requise}")
     @Schema(description = "Adresse électronique du compte, retapée à l'identique.",
             example = "marc@coshift.be")
     private String confirmationEmail;

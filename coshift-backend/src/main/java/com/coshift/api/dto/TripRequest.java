@@ -9,31 +9,31 @@ import java.time.LocalDateTime;
 @Data
 public class TripRequest {
 
-    @NotBlank(message = "La ville de départ est obligatoire")
+    @NotBlank(message = "{validation.trajet.villeDepart}")
     private String departureCity;
 
     private String departureAddress;
 
-    @NotBlank(message = "La ville d'arrivée est obligatoire")
+    @NotBlank(message = "{validation.trajet.villeArrivee}")
     private String arrivalCity;
 
     private String arrivalAddress;
 
-    @NotNull(message = "La date et l'heure de départ sont obligatoires")
-    @Future(message = "Le trajet doit être dans le futur")
+    @NotNull(message = "{validation.trajet.date}")
+    @Future(message = "{validation.trajet.futur}")
     private LocalDateTime departureTime;
 
-    @Min(value = 1, message = "Il faut proposer au moins 1 place")
+    @Min(value = 1, message = "{validation.trajet.places}")
     private int availableSeats;
 
-    @NotNull(message = "Le prix par place est obligatoire")
-    @DecimalMin(value = "0.0", message = "Le prix ne peut pas être négatif")
+    @NotNull(message = "{validation.trajet.prixRequis}")
+    @DecimalMin(value = "0.0", message = "{validation.trajet.prixNegatif}")
     private BigDecimal pricePerSeat;
 
     private String description;
 
     // UUID du véhicule à utiliser (doit appartenir au conducteur)
-    @NotBlank(message = "Vous devez sélectionner un véhicule")
+    @NotBlank(message = "{validation.trajet.vehicule}")
     private String vehiculeUuid;
 
     // Préférences

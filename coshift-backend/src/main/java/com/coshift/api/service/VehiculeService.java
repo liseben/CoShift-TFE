@@ -19,6 +19,7 @@ import java.util.List;
 public class VehiculeService {
 
     private final VehiculeRepository vehiculeRepository;
+    private final Messages messages;
     private final UserRepository userRepository;
 
     public List<VehiculeResponse> getMyVehicules(String email) {
@@ -71,15 +72,15 @@ public class VehiculeService {
 
     private User findUser(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
     }
 
     private Vehicule findOwnedVehicule(String email, String uuid) {
         User owner = findUser(email);
         Vehicule vehicule = vehiculeRepository.findByUuid(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Véhicule introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("vehicule.introuvable")));
         if (!vehicule.getOwner().getId().equals(owner.getId())) {
-            throw new UnauthorizedException("Vous n'êtes pas propriétaire de ce véhicule.");
+            throw new UnauthorizedException(messages.get("vehicule.pasProprietaire"));
         }
         return vehicule;
     }

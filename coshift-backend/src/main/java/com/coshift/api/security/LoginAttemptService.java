@@ -1,6 +1,7 @@
 package com.coshift.api.security;
 
 import com.coshift.api.exception.TooManyRequestsException;
+import com.coshift.api.service.Messages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @lombok.RequiredArgsConstructor
 public class LoginAttemptService {
+
+    private final Messages messages;
 
     private final SecurityAuditService audit;
 
@@ -98,9 +101,11 @@ public class LoginAttemptService {
             // Arrondi à la minute supérieure : annoncer « 0 minute » alors que le
             // blocage court encore serait incompréhensible pour l'utilisateur.
             long minutes = Duration.between(now, counter.lockedUntil).toMinutes() + 1;
+            /* Le message etait assemble par concatenation, avec un « s »
+               de pluriel ajoute a la main : une mecanique francaise imposee a
+               toutes les langues. Il passe par le catalogue. */
             throw new TooManyRequestsException(
-                    "Trop de tentatives infructueuses. Réessayez dans " + minutes + " minute"
-                            + (minutes > 1 ? "s" : "") + ".");
+                    messages.get("auth.tropDeTentatives", minutes));
         }
     }
 

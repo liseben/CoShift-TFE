@@ -17,15 +17,22 @@ import java.time.LocalDateTime;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final Messages messages;
     private final JwtService jwtService; // Ton service qui génère les tokens
     private final EmailService emailService;
     private final SecurityAuditService audit;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public UserService(UserRepository userRepository, JwtService jwtService,
-                       EmailService emailService, SecurityAuditService audit) {
+    /* Constructeur écrit à la main plutôt que produit par Lombok : ajouter un
+       champ final ici impose donc d'ajouter le paramètre correspondant, sans
+       quoi la compilation échoue — ce qui est arrivé en introduisant
+       `messages`. */
+    public UserService(UserRepository userRepository, Messages messages,
+                       JwtService jwtService, EmailService emailService,
+                       SecurityAuditService audit) {
         this.userRepository = userRepository;
+        this.messages = messages;
         this.jwtService = jwtService;
         this.emailService = emailService;
         this.audit = audit;
@@ -36,13 +43,13 @@ public class UserService {
                                                     String clientIp) {
         // 1. Récupérer l'utilisateur actuel
         User user = userRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
 
         // 2. Vérifier si l'email a changé ET s'il est déjà pris par un autre utilisateur
         boolean emailChange = !user.getEmail().equals(request.getEmail());
         if (emailChange) {
             if (userRepository.existsByEmail(request.getEmail())) {
-                throw new ConflictException("Cet email est déjà utilisé par un autre compte.");
+                throw new ConflictException(messages.get("profil.emailUtilise"));
             }
             user.setEmail(request.getEmail());
 
@@ -77,11 +84,11 @@ public class UserService {
             // personne d'établir plus tard ce qui s'est passé.
             audit.consigner(SecurityAuditService.Evenement.ADRESSE_MODIFIEE, currentEmail, clientIp,
                     "nouvelle adresse : " + user.getEmail());
-            emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(), user.getVerificationCode());
+            emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(),
+                    user.getVerificationCode(), messages.langueCourante());
             return AuthenticationResponse.builder()
                     .emailVerified(false)
-                    .message("Adresse modifiée. Un code de vérification vient d'être envoyé à "
-                            + user.getEmail() + ".")
+                    .message(messages.get("profil.adresseModifiee", user.getEmail()))
                     .build();
         }
 
@@ -91,7 +98,7 @@ public class UserService {
         // 6. Renvoyer le token (en utilisant le même DTO que pour le Login)
         return AuthenticationResponse.builder()
                 .token(newToken)
-                .message("Profil mis à jour.")
+                .message(messages.get("profil.misAJour"))
                 .build();
     }
 

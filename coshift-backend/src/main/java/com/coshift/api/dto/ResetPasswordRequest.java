@@ -15,16 +15,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResetPasswordRequest {
 
-    @NotBlank(message = "L'email est obligatoire")
-    @Email(message = "Format d'email invalide")
+    @NotBlank(message = "{validation.email.requis}")
+    @Email(message = "{validation.email.format}")
     private String email;
 
-    @NotBlank(message = "Le code reçu par email est obligatoire")
+    @NotBlank(message = "{validation.code.reset}")
     private String code;
 
     // Même règle qu'à l'inscription : une exigence plus faible ici ouvrirait un
     // contournement, la réinitialisation devenant le chemin le moins protégé.
-    @NotBlank(message = "Le mot de passe est obligatoire")
-    @Size(min = 6, message = "Le mot de passe doit contenir au moins 6 caractères")
+    @NotBlank(message = "{validation.motdepasse.requis}")
+    @Size(min = 6, message = "{validation.motdepasse.longueur}")
     private String newPassword;
 }

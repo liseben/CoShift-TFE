@@ -11,10 +11,10 @@ import lombok.Data;
 @Data
 public class BookingRequest {
 
-    @NotBlank(message = "Le trajet à réserver est obligatoire")
+    @NotBlank(message = "{validation.reservation.trajet}")
     private String tripUuid;
 
-    @Min(value = 1, message = "Il faut réserver au moins 1 place")
-    @Max(value = 8, message = "Vous ne pouvez pas réserver plus de 8 places")
+    @Min(value = 1, message = "{validation.reservation.placesMin}")
+    @Max(value = 8, message = "{validation.reservation.placesMax}")
     private int seatsBooked = 1;
 }

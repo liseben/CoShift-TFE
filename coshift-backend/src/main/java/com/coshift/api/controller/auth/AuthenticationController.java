@@ -1,6 +1,7 @@
 package com.coshift.api.controller.auth;
 
 import com.coshift.api.dto.AuthenticationResponse;
+import com.coshift.api.service.Messages;
 import com.coshift.api.dto.ForgotPasswordRequest;
 import com.coshift.api.dto.GoogleLoginRequest;
 import com.coshift.api.dto.LoginRequest;
@@ -39,6 +40,7 @@ import java.util.Map;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final Messages messages;
 
     @Operation(
             summary = "Se connecter avec un compte Google",
@@ -144,7 +146,7 @@ public class AuthenticationController {
         String email = body.get("email");
         if (email == null || email.isBlank()) {
             return ResponseEntity.badRequest()
-                    .body(AuthenticationResponse.builder().message("Email requis.").build());
+                    .body(AuthenticationResponse.builder().message(messages.get("auth.emailRequis")).build());
         }
         return ResponseEntity.ok(service.resendVerificationCode(email));
     }

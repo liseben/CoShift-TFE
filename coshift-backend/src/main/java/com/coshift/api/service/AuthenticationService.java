@@ -51,6 +51,7 @@ public class AuthenticationService {
     public static final String VERSION_CGU = "1.0";
 
     private final UserRepository repository;
+    private final Messages messages;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -86,7 +87,7 @@ public class AuthenticationService {
                 User user = repository.findByEmail(email).orElseThrow(() -> {
                     log.warn("Tentative de connexion Google avec un email non inscrit : {}", email);
                     // On utilise ton exception personnalisée ici !
-                    return new UnauthorizedException("Cet utilisateur n'existe pas. Veuillez créer un compte.");
+                    return new UnauthorizedException(messages.get("auth.utilisateurInconnu"));
                 });
 
                 // NOTE: On ne met plus à jour le `pictureUrl` avec celui de Google.
@@ -99,7 +100,7 @@ public class AuthenticationService {
                 //    l'application via Google, contournant complètement F7.
                 if (!user.isEmailVerified()) {
                     throw new DisabledException(
-                            "Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
+                            messages.get("auth.compteNonActive"));
                 }
 
                 // 5. Générer NOTRE Token JWT CoShift
@@ -107,25 +108,25 @@ public class AuthenticationService {
 
                 return AuthenticationResponse.builder()
                         .token(jwtToken)
-                        .message("Connexion Google réussie")
+                        .message(messages.get("auth.google.reussie"))
                         .build();
 
             } else {
-                throw new UnauthorizedException("Le token Google est invalide.");
+                throw new UnauthorizedException(messages.get("auth.google.invalide"));
             }
         } catch (RuntimeException e) {
             // Permet de faire remonter notre message "Ce compte n'existe pas..." sans l'écraser
             throw e;
         } catch (Exception e) {
             log.error("Erreur lors de la vérification du Token Google : ", e);
-            throw new UnauthorizedException("Échec de l'authentification Google.");
+            throw new UnauthorizedException(messages.get("auth.google.echec"));
         }
     }
 
     // --- INSCRIPTION (F4) ---
     public AuthenticationResponse register(RegisterRequest request) {
         if (repository.findByEmail(request.getEmail()).isPresent()) {
-            throw new ConflictException("Un compte existe déjà avec cet email.");
+            throw new ConflictException(messages.get("auth.compteExiste"));
         }
 
         String code = generateVerificationCode();
@@ -151,10 +152,11 @@ public class AuthenticationService {
         repository.save(user);
 
         // Envoi asynchrone — ne bloque pas la réponse
-        emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(), code);
+        emailService.sendVerificationEmail(
+                user.getEmail(), user.getFirstname(), code, messages.langueCourante());
 
         return AuthenticationResponse.builder()
-                .message("Compte créé ! Vérifiez votre email pour activer votre compte.")
+                .message(messages.get("auth.compteCree"))
                 .build();
     }
 
@@ -167,13 +169,13 @@ public class AuthenticationService {
         loginAttemptService.assertNotBlocked(attemptKey);
 
         User user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Aucun compte associé à cet email."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.aucunCompte")));
 
         if (user.isEmailVerified()) {
             var token = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
                     .token(token)
-                    .message("Compte déjà vérifié.")
+                    .message(messages.get("auth.compteDejaVerifie"))
                     .build();
         }
 
@@ -181,12 +183,12 @@ public class AuthenticationService {
                 || !user.getVerificationCode().equals(request.getCode())) {
             loginAttemptService.recordFailure(attemptKey);
             audit.consigner(Evenement.CODE_INVALIDE, user.getEmail(), clientIp, "activation du compte");
-            throw new BadRequestException("Code de vérification incorrect.");
+            throw new BadRequestException(messages.get("auth.code.incorrect"));
         }
 
         if (user.getVerificationCodeExpiry() == null
                 || user.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("Ce code a expiré. Veuillez en demander un nouveau.");
+            throw new BadRequestException(messages.get("auth.code.expire"));
         }
 
         user.setEmailVerified(true);
@@ -198,17 +200,17 @@ public class AuthenticationService {
         var token = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)
-                .message("Compte vérifié avec succès ! Bienvenue sur CoShift.")
+                .message(messages.get("auth.compteVerifie"))
                 .build();
     }
 
     // --- RENVOI DU CODE (F7) ---
     public AuthenticationResponse resendVerificationCode(String email) {
         User user = repository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Aucun compte associé à cet email."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.aucunCompte")));
 
         if (user.isEmailVerified()) {
-            throw new ConflictException("Ce compte est déjà vérifié.");
+            throw new ConflictException(messages.get("auth.compteDejaVerifie"));
         }
 
         String newCode = generateVerificationCode();
@@ -216,10 +218,11 @@ public class AuthenticationService {
         user.setVerificationCodeExpiry(LocalDateTime.now().plusHours(24));
         repository.save(user);
 
-        emailService.sendVerificationEmail(user.getEmail(), user.getFirstname(), newCode);
+        emailService.sendVerificationEmail(
+                user.getEmail(), user.getFirstname(), newCode, messages.langueCourante());
 
         return AuthenticationResponse.builder()
-                .message("Un nouveau code a été envoyé à votre adresse email.")
+                .message(messages.get("auth.codeRenvoye"))
                 .build();
     }
 
@@ -235,7 +238,7 @@ public class AuthenticationService {
             // adresses au hasard resterait entièrement gratuit.
             loginAttemptService.recordFailure(attemptKey);
             audit.consigner(Evenement.CONNEXION_ECHOUEE, request.getEmail(), clientIp, "compte inconnu");
-            throw new BadCredentialsException("Email ou mot de passe incorrect.");
+            throw new BadCredentialsException(messages.get("auth.identifiantsRefuses"));
         });
 
         // Compte non activé : ce n'est pas une erreur de mot de passe, la
@@ -243,7 +246,7 @@ public class AuthenticationService {
         // d'avoir lu son courriel de vérification.
         if (!user.isEmailVerified()) {
             audit.consigner(Evenement.COMPTE_NON_ACTIVE, user.getEmail(), clientIp);
-            throw new DisabledException("Votre compte n'est pas encore activé. Vérifiez votre boîte email.");
+            throw new DisabledException(messages.get("auth.compteNonActive"));
         }
 
         try {
@@ -263,7 +266,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
-                .message("Connexion réussie")
+                .message(messages.get("auth.connexionReussie"))
                 .build();
     }
 
@@ -286,11 +289,12 @@ public class AuthenticationService {
             user.setPasswordResetExpiry(LocalDateTime.now().plusHours(RESET_CODE_VALIDITY_HOURS));
             repository.save(user);
 
-            emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstname(), code);
+            emailService.sendPasswordResetEmail(
+                    user.getEmail(), user.getFirstname(), code, messages.langueCourante());
         });
 
         return AuthenticationResponse.builder()
-                .message("Si un compte existe pour cette adresse, un code vient d'y être envoyé.")
+                .message(messages.get("auth.resetEnvoye"))
                 .build();
     }
 
@@ -308,7 +312,7 @@ public class AuthenticationService {
 
         User user = repository.findByEmail(email).orElseGet(() -> {
             loginAttemptService.recordFailure(attemptKey);
-            throw new BadRequestException("Code invalide ou expiré.");
+            throw new BadRequestException(messages.get("auth.code.invalideOuExpire"));
         });
 
         // Message unique pour un code absent, faux ou périmé : le distinguer
@@ -319,7 +323,7 @@ public class AuthenticationService {
                 || user.getPasswordResetExpiry().isBefore(LocalDateTime.now())) {
             loginAttemptService.recordFailure(attemptKey);
             audit.consigner(Evenement.CODE_INVALIDE, user.getEmail(), clientIp, "reinitialisation du mot de passe");
-            throw new BadRequestException("Code invalide ou expiré.");
+            throw new BadRequestException(messages.get("auth.code.invalideOuExpire"));
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -333,7 +337,7 @@ public class AuthenticationService {
         audit.consigner(Evenement.MOT_DE_PASSE_REINITIALISE, user.getEmail(), clientIp);
 
         return AuthenticationResponse.builder()
-                .message("Mot de passe modifié. Vous pouvez maintenant vous connecter.")
+                .message(messages.get("auth.motDePasseModifie"))
                 .build();
     }
 }

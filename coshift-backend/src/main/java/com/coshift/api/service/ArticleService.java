@@ -31,6 +31,7 @@ import java.util.UUID;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final Messages messages;
     private final ObjectMapper objectMapper = new ObjectMapper();
     // Utilisation du nouveau RestClient (moderne) au lieu de RestTemplate
     private final RestClient restClient = RestClient.create();
@@ -312,6 +313,6 @@ public class ArticleService {
     /** Un article isolé, pour la page de détail. */
     public Article getArticleById(String id) {
         return articleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Article introuvable."));
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("article.introuvable")));
     }
 }
