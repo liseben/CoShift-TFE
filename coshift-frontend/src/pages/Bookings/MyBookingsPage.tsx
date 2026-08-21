@@ -8,7 +8,10 @@ import {
   Alert, Avatar, Button, Card, EmptyState, Modal, Spinner, StatusBadge,
   type Status,
 } from "../../components/ui";
+import { useLang } from "../../context/LangContext";
+import { LANGUES } from "../../i18n";
 import "./BookingsPage.css";
+import { useSeo } from "../../hooks/useSeo";
 
 interface Booking {
   uuid: string;
@@ -44,6 +47,18 @@ const TONE: Record<string, "brand" | "eco" | "pending" | "danger" | undefined> =
 
 /** F30 — Le passager consulte et gère ses réservations. */
 export default function MyBookingsPage() {
+  const { langue, t } = useLang();
+  /* Le format de date suit la langue : il était figé en fr-FR. */
+
+  /* Sans ces metadonnees, l'onglet gardait le titre francais
+     d'index.html, quelle que soit la langue choisie. */
+  useSeo({
+    titre: t("pages.reservationsTitre"),
+    description: t("pages.reservationsDescription"),
+    chemin: "/bookings",
+    horsIndex: true,
+  });
+  const balise = LANGUES[langue].balise;
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +79,7 @@ export default function MyBookingsPage() {
       } catch (err) {
         setError(
           (axios.isAxiosError(err) && err.response?.data?.message) ||
-            "Impossible de charger vos réservations.",
+            t("reservations.indisponibles"),
         );
       } finally {
         setLoading(false);
@@ -85,7 +100,7 @@ export default function MyBookingsPage() {
       setToCancel(null);
     } catch (err) {
       setError(
-        (axios.isAxiosError(err) && err.response?.data?.message) || "L'annulation a échoué.",
+        (axios.isAxiosError(err) && err.response?.data?.message) || t("reservations.annulationEchouee"),
       );
     } finally {
       setBusy(null);
@@ -100,22 +115,24 @@ export default function MyBookingsPage() {
     <div className="container page stack-8">
       <header className="bk-header">
         <div>
-          <h1>Mes réservations</h1>
-          <p className="bk-lead">Vos demandes de place et leur suivi.</p>
+          <h1>{t("reservations.titre")}</h1>
+          <p className="bk-lead">{t("reservations.accroche")}</p>
         </div>
-        <Button to="/trips/search" icon={<FiSearch />}>Trouver un trajet</Button>
+        <Button to="/trips/search" icon={<FiSearch />}>
+          {t("reservations.trouverTrajet")}
+        </Button>
       </header>
 
       {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
 
       {loading ? (
-        <Spinner size="lg" center showLabel label="Chargement de vos réservations" />
+        <Spinner size="lg" center showLabel label={t("reservations.chargement")} />
       ) : bookings.length === 0 ? (
         <EmptyState
           icon={<FaTicketAlt />}
-          title="Aucune réservation"
-          description="Vous n'avez pas encore réservé de place. Cherchez un trajet pour commencer."
-          action={<Button to="/trips/search" icon={<FiSearch />}>Trouver un trajet</Button>}
+          title={t("reservations.aucune")}
+          description={t("reservations.aucuneTexte")}
+          action={<Button to="/trips/search" icon={<FiSearch />}>{t("reservations.trouverTrajet")}</Button>}
         />
       ) : (
         <div className="grid-auto">
@@ -132,10 +149,12 @@ export default function MyBookingsPage() {
               }
               action={<StatusBadge status={b.status as Status} size="sm" />}
             >
-              <p className="bk-date">{formatTripDate(b.trip.departureTime)}</p>
+              <p className="bk-date">
+                {formatTripDate(b.trip.departureTime, balise, t("carte.aHeure"))}
+              </p>
 
               {b.statusReason && (
-                <p className="bk-reason">Motif : {b.statusReason}</p>
+                <p className="bk-reason">{t("reservations.motif")} {b.statusReason}</p>
               )}
 
               <div className="bk-body">
@@ -154,7 +173,7 @@ export default function MyBookingsPage() {
                         {b.trip.driverAverageRating.toFixed(1)}
                       </>
                     ) : (
-                      "Nouveau conducteur"
+                      t("reservations.nouveauConducteur")
                     )}
                     {" · "}
                     <FaCar aria-hidden="true" /> {b.trip.vehiculeBrand} {b.trip.vehiculeModel}
@@ -164,8 +183,9 @@ export default function MyBookingsPage() {
               </div>
 
               <p className="bk-seats">
-                {b.seatsBooked} place{b.seatsBooked > 1 ? "s" : ""} réservée
-                {b.seatsBooked > 1 ? "s" : ""}
+                {b.seatsBooked > 1
+                  ? t("reservations.reservee_plusieurs", { n: b.seatsBooked })
+                  : t("reservations.reservee_une", { n: b.seatsBooked })}
               </p>
 
               {/* Le téléphone n'arrive du serveur qu'une fois la réservation confirmée. */}
@@ -177,11 +197,11 @@ export default function MyBookingsPage() {
 
               <div className="bk-actions">
                 <Button variant="secondary" size="sm" to={`/trips/${b.trip.uuid}`}>
-                  Voir le trajet
+                  {t("reservations.voirLeTrajet")}
                 </Button>
                 {isCancellable(b) && (
                   <Button variant="ghost" size="sm" onClick={() => setToCancel(b)}>
-                    Annuler
+                    {t("commun.annuler")}
                   </Button>
                 )}
               </div>
@@ -193,22 +213,22 @@ export default function MyBookingsPage() {
       <Modal
         open={toCancel !== null}
         onClose={() => setToCancel(null)}
-        title="Annuler cette réservation ?"
+        title={t("reservations.annulerTitre")}
         size="sm"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setToCancel(null)}>Retour</Button>
+            <Button variant="ghost" onClick={() => setToCancel(null)}>{t("commun.retour")}</Button>
             <Button variant="danger" loading={busy !== null} onClick={cancel}>
-              Confirmer l'annulation
+              {t("reservations.confirmerAnnulation")}
             </Button>
           </>
         }
       >
         {toCancel && (
           <p>
-            Votre place sur le trajet {toCancel.trip.departureCity} →{" "}
-            {toCancel.trip.arrivalCity} sera remise à disposition, et le
-            conducteur sera prévenu. Cette action est définitive.
+            {t("reservations.annulerTexte", {
+              trajet: `${toCancel.trip.departureCity} → ${toCancel.trip.arrivalCity}`,
+            })}
           </p>
         )}
       </Modal>

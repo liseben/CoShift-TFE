@@ -137,6 +137,387 @@ export const fr = {
     erreurRecherche: "Une erreur est survenue lors de la recherche.",
   },
 
+  photos: {
+    habitacle:
+      "Quatre personnes souriantes installées dans une voiture, ceintures bouclées.",
+    depart: "Un conducteur au volant et trois passagers, sur le point de partir.",
+    rendezVous:
+      "Une passagère se penche à la portière d'une voiture pour retrouver sa conductrice.",
+    application:
+      "Un passager consulte l'application CoShift sur son téléphone pendant le trajet.",
+  },
+
+  apropos: {
+    titre: "À propos — pourquoi CoShift existe",
+    description:
+      "CoShift est né d'un constat : la plupart des voitures qui vont au travail chaque matin transportent une seule personne. Voici la démarche et les choix du projet.",
+    heroTitre:
+      "Le covoiturage qui commence à la porte de votre organisation",
+    heroAccroche:
+      "CoShift met en relation les personnes qui font le même trajet, au même moment, pour aller au même endroit — leur lieu de travail, leur campus, un événement. Rien de plus, et c'est déjà beaucoup.",
+
+    constatTitre: "Le constat de départ",
+    constatP1:
+      "Chaque matin, des voitures parcourent le même itinéraire, à la même heure, vers la même destination — avec une seule personne à bord. Ce n'est pas un choix : c'est l'absence d'alternative pratique. Le train ne dessert pas le zoning, le bus impose deux correspondances, et personne ne sait qui, parmi ses collègues, part du même quartier.",
+    constatP2:
+      "Les plateformes de covoiturage grand public répondent mal à ce besoin. Elles sont conçues pour le trajet exceptionnel — un Bruxelles-Paris un vendredi soir — pas pour les vingt kilomètres répétés deux fois par jour, cinq jours par semaine, avec des gens qu'on retrouve à la machine à café.",
+    constatFort:
+      "CoShift part de l'organisation, pas du trajet. C'est ce déplacement du point de départ qui change tout le reste.",
+
+    fonctionnementTitre: "Comment ça fonctionne",
+    fonctionnementLegende:
+      "Le point de rendez-vous est indiqué par le conducteur au moment où il publie son trajet.",
+    etape1Titre: "Vous rejoignez votre organisation",
+    etape1Texte:
+      "L'inscription se fait avec votre adresse professionnelle. C'est elle qui vous rattache à votre entreprise, votre école ou l'événement, et qui garantit à vos collègues qu'ils partagent la route avec quelqu'un d'identifié.",
+    etape2Titre: "Vous publiez ou vous cherchez",
+    etape2Texte:
+      "Un conducteur déclare son véhicule, indique son itinéraire, son horaire et le nombre de places. Un passager cherche par ville, par date et par heure de départ.",
+    etape3Titre: "Le conducteur accepte",
+    etape3Texte:
+      "Une demande n'est pas une réservation ferme : le conducteur l'accepte ou la refuse, en motivant son refus. C'est lui qui décide qui monte dans sa voiture.",
+    etape4Titre: "Vous partagez la route et les frais",
+    etape4Texte:
+      "Le numéro de téléphone du conducteur n'est transmis qu'une fois la réservation confirmée. Le prix couvre le partage des frais, jamais un bénéfice.",
+
+    pourQui: "Pour qui",
+    public1Titre: "Entreprises",
+    public1Texte:
+      "Le stationnement sature, les horaires se ressemblent et les trajets se doublent. Regrouper les navetteurs d'un même site est le levier le plus simple.",
+    public2Titre: "Universités et hautes écoles",
+    public2Texte:
+      "Des milliers d'étudiants convergent aux mêmes heures vers un campus rarement desservi comme un centre-ville. Le covoiturage comble ce que le train ne fait pas.",
+    public3Titre: "Festivals et salons",
+    public3Texte:
+      "Un événement crée un pic de circulation sur quelques heures. Organiser le partage en amont évite un parking improvisé dans un champ.",
+
+    partisPris: "Nos partis pris",
+    principe1Titre: "Un cercle fermé, pas une place publique",
+    principe1Texte:
+      "CoShift n'est pas un service ouvert à tous. On y covoiture avec les membres de son organisation, ce qui change entièrement le rapport de confiance.",
+    principe2Titre: "Le partage plutôt que le trajet",
+    principe2Texte:
+      "Un trajet effectué à deux ne devient pas plus écologique : c'est la voiture restée au garage qui compte. Toute l'interface met en avant les places effectivement partagées.",
+    principe3Titre: "Le minimum de données",
+    principe3Texte:
+      "Adresse professionnelle, nom, éventuellement un téléphone. Pas de géolocalisation continue, pas de suivi publicitaire, pas de revente.",
+
+    origineTitre: "D'où vient CoShift",
+    origineP1:
+      "CoShift est né d'un travail de fin d'études, développé de bout en bout — interface, API, base de données. Ce n'est pas une entreprise avec des années d'existence derrière elle, et la page que vous lisez ne prétendra pas le contraire.",
+    origineP2:
+      "Ce que le projet revendique, en revanche, c'est d'être fonctionnel : la publication d'un trajet, la recherche, la demande de place, l'acceptation par le conducteur et le suivi des réservations fonctionnent réellement, avec une vraie base de données derrière.",
+    fait1: "Publication et recherche de trajets",
+    fait2: "Réservation, acceptation, refus motivé, annulation",
+    fait3: "Gestion des véhicules et du profil",
+    fait4: "Vérification de l'adresse par code à six chiffres",
+    fait5: "Flux d'actualités mobilité",
+    origineNote:
+      "L'espace dédié aux organisations, la notation entre membres et la messagerie interne sont les chantiers suivants. Les annoncer comme disponibles serait plus vendeur, mais faux.",
+
+    ctaTitre: "Prêt à partager la route ?",
+    ctaTexte:
+      "Créez votre compte avec votre adresse professionnelle et voyez qui, autour de vous, fait déjà le même trajet.",
+    ctaVoirTrajets: "Voir les trajets",
+    ctaContact: "Une question sur le déploiement dans votre organisation ?",
+    ctaContactLien: "Espace entreprises",
+  },
+
+  publier: {
+    titre: "Proposer un trajet",
+    accroche: "Partagez votre trajet et réduisez votre empreinte carbone.",
+    publie: "Trajet publié",
+    redirection: "Redirection vers votre tableau de bord…",
+    chargementVehicules: "Chargement de vos véhicules",
+    vehiculesIndisponibles: "Impossible de charger vos véhicules.",
+    aucunVehicule: "Aucun véhicule enregistré",
+    aucunVehiculeTexte:
+      "Un trajet se publie avec un véhicule. Enregistrez-en un d'abord.",
+    ajouterVehicule: "Ajouter un véhicule",
+    selectionnezVehicule: "Sélectionnez un véhicule.",
+
+    itineraire: "Itinéraire",
+    villeDepart: "Ville de départ",
+    villeDepartExemple: "Liège",
+    villeArrivee: "Ville d'arrivée",
+    villeArriveeExemple: "Bruxelles",
+    pointDepart: "Point de départ précis",
+    pointDepartExemple: "Gare de Liège-Guillemins",
+    pointDepartAide: "Aide vos passagers à vous retrouver.",
+    pointArrivee: "Point d'arrivée précis",
+    pointArriveeExemple: "Gare du Midi, Bruxelles",
+
+    datePlaces: "Date et places",
+    dateHeure: "Date et heure de départ",
+    dateHeureAide: "Au plus tôt dans deux heures.",
+    placesProposees: "Places proposées",
+    placesProposeesAide: "Jusqu'à {max}, votre siège déduit.",
+    prixParPlace: "Prix par place (€)",
+    prixParPlaceAide: "Partage de frais, pas un bénéfice.",
+
+    vehicule: "Véhicule",
+    choisirVehicule: "Choisissez le véhicule du trajet",
+    placesVehicule: "{n} places",
+
+    details: "Détails et préférences",
+    description: "Description",
+    descriptionAide: "Point de ramassage, étapes, contraintes particulières.",
+    preferences: "Préférences du trajet",
+    bagagesAcceptes: "Bagages acceptés",
+    animauxAcceptes: "Animaux acceptés",
+    musiqueAutorisee: "Musique autorisée",
+    discussionBienvenue: "Discussion bienvenue",
+
+    publierLeTrajet: "Publier le trajet",
+  },
+
+  detail: {
+    chargement: "Chargement du trajet",
+    introuvable: "Ce trajet est introuvable.",
+    retourRecherche: "Retour à la recherche",
+
+    demandeEnvoyee: "Demande envoyée",
+    demandeEnvoyeeTexte:
+      "Le conducteur doit maintenant l'accepter. Redirection vers vos réservations…",
+    trajetAnnule: "Trajet annulé",
+    trajetAnnuleTexte:
+      "Il n'apparaît plus dans les recherches. Les réservations qui le concernaient ont été annulées.",
+    reservationImpossible: "La réservation n'a pas pu être enregistrée.",
+    annulationImpossible: "Le trajet n'a pas pu être annulé.",
+
+    bagagesAcceptes: "Bagages acceptés",
+    bagagesRefuses: "Bagages refusés",
+    animauxAcceptes: "Animaux acceptés",
+    animauxRefuses: "Animaux refusés",
+    musiqueAutorisee: "Musique autorisée",
+    sansMusique: "Sans musique",
+    discussionBienvenue: "Discussion bienvenue",
+    trajetSilencieux: "Trajet silencieux",
+
+    conducteur: "Conducteur",
+    nouveauConducteur: "Nouveau conducteur",
+    trajet_un: "{n} trajet",
+    trajet_plusieurs: "{n} trajets",
+    vehicule: "Véhicule",
+    placesVehicule: "{n} places",
+
+    parPlace: " / place",
+    placesRestantes_une: "{n} place restante",
+    placesRestantes_plusieurs: "{n} places restantes",
+    complet: "Complet",
+    nombreDePlaces: "Nombre de places",
+    retirerPlace: "Retirer une place",
+    ajouterPlace: "Ajouter une place",
+    total: "Total",
+    reserver: "Réserver",
+    indicationDemande:
+      "Votre demande part au conducteur. Elle n'est confirmée qu'après son accord.",
+    vousEtesConducteur: "Vous êtes le conducteur de ce trajet.",
+    plusDeReservation: "Ce trajet n'accepte plus de réservation.",
+    plusDePlace: "Il ne reste plus de place disponible.",
+
+    annulerCeTrajet: "Annuler ce trajet",
+    annulerIndication: "Les demandes et réservations en cours seront annulées.",
+    annulerTitre: "Annuler ce trajet ?",
+    annulerBouton: "Annuler le trajet",
+    annulerP1: "Le trajet {trajet} du {quand} sera retiré des recherches.",
+    annulerP2:
+      "Toutes les demandes en attente et les réservations déjà confirmées seront annulées avec le motif « Trajet annulé par le conducteur ». Cette action est définitive.",
+  },
+
+  reservations: {
+    titre: "Mes réservations",
+    accroche: "Vos demandes de place et leur suivi.",
+    trouverTrajet: "Trouver un trajet",
+    chargement: "Chargement de vos réservations",
+    indisponibles: "Impossible de charger vos réservations.",
+    aucune: "Aucune réservation",
+    aucuneTexte:
+      "Vous n'avez pas encore réservé de place. Cherchez un trajet pour commencer.",
+    motif: "Motif :",
+    nouveauConducteur: "Nouveau conducteur",
+    reservee_une: "{n} place réservée",
+    reservee_plusieurs: "{n} places réservées",
+    voirLeTrajet: "Voir le trajet",
+    annuler: "Annuler",
+    annulationEchouee: "L'annulation a échoué.",
+    annulerTitre: "Annuler cette réservation ?",
+    confirmerAnnulation: "Confirmer l'annulation",
+    annulerTexte:
+      "Votre place sur le trajet {trajet} sera remise à disposition, et le conducteur sera prévenu. Cette action est définitive.",
+  },
+
+  demandes: {
+    titre: "Demandes reçues",
+    accroche: "Les passagers qui ont demandé une place dans vos trajets.",
+    enAttente_une: "{n} demande en attente de votre réponse.",
+    enAttente_plusieurs: "{n} demandes en attente de votre réponse.",
+    chargement: "Chargement des demandes",
+    indisponibles: "Impossible de charger les demandes reçues.",
+    aucune: "Aucune demande pour l'instant",
+    aucuneTexte:
+      "Les demandes de réservation sur vos trajets apparaîtront ici.",
+    nouveauPassager: "Nouveau passager",
+    trajet_un: "{n} trajet",
+    trajet_plusieurs: "{n} trajets",
+    place_une: "{n} place",
+    place_plusieurs: "{n} places",
+    accepter: "Accepter",
+    refuser: "Refuser",
+    operationEchouee: "L'opération a échoué.",
+    refuserTitre: "Refuser cette demande ?",
+    motifDuRefus: "Motif du refus",
+    motifAide:
+      "Facultatif, mais le passager le verra. Une raison brève évite les malentendus.",
+    motifExemple: "La voiture est déjà complète pour ce trajet.",
+  },
+
+  tableau: {
+    membre: "Membre CoShift",
+    administrateur: "Administrateur",
+    emailNonVerifie: "E-mail non vérifié",
+    trajet_un: "{n} trajet",
+    trajet_plusieurs: "{n} trajets",
+    modifierProfil: "Modifier le profil",
+    adresseNonVerifieeTitre: "Votre adresse n'est pas vérifiée",
+    adresseNonVerifieeTexte:
+      "Vous ne pourrez pas réserver de trajet tant que votre e-mail n'est pas confirmé.",
+
+    sections: "Sections du tableau de bord",
+    vueEnsemble: "Vue d'ensemble",
+    demandesRecues: "Demandes reçues",
+    mesVehicules: "Mes véhicules",
+    mesDonnees: "Mes données",
+    demandesEnAttente: "demandes en attente",
+
+    chargement: "Chargement de vos données",
+    mesTrajets: "Mes trajets proposés",
+    nouveau: "Nouveau",
+    aucunTrajetPropose:
+      "Vous n'avez pas encore proposé de trajet à vos collègues.",
+    mesReservations: "Mes réservations",
+    toutVoir: "Tout voir",
+    aucuneReservationEnCours: "Vous n'avez aucune réservation en cours.",
+
+    activite: "Mon activité de partage",
+    publie_un: "trajet publié",
+    publie_plusieurs: "trajets publiés",
+    reservation_une: "réservation",
+    reservation_plusieurs: "réservations",
+    partagee_une: "place effectivement partagée",
+    partagee_plusieurs: "places effectivement partagées",
+    noteCo2:
+      "Le CO₂ évité n'est pas affiché : son calcul demande la distance de chaque trajet, que l'API ne fournit pas encore.",
+
+    modifierMonProfil: "Modifier mon profil",
+    envoi: "Envoi…",
+    changerPhoto: "Changer la photo",
+    photoAide: "JPG ou PNG, 2 Mo maximum.",
+    prenom: "Prénom",
+    nom: "Nom",
+    email: "Adresse e-mail",
+    emailAide: "La changer demandera une nouvelle vérification.",
+    telephone: "Téléphone",
+    telephoneAide:
+      "Communiqué à vos passagers une fois la réservation confirmée.",
+  },
+
+  vehicules: {
+    titre: "Mes véhicules",
+    accroche: "Enregistrez vos véhicules pour pouvoir proposer des trajets.",
+    ajouter: "Ajouter un véhicule",
+    chargement: "Chargement de vos véhicules",
+    indisponibles: "Impossible de charger vos véhicules.",
+    aucun: "Aucun véhicule enregistré",
+    aucunTexte: "Un trajet se publie avec un véhicule. Commencez par en déclarer un.",
+    places: "{n} places",
+    modifier: "Modifier",
+    supprimer: "Supprimer",
+    suppressionImpossible: "Impossible de supprimer ce véhicule.",
+    modifierTitre: "Modifier le véhicule",
+    ajouterAction: "Ajouter",
+    marque: "Marque",
+    marqueExemple: "Renault",
+    modele: "Modèle",
+    modeleExemple: "Clio",
+    plaque: "Plaque d'immatriculation",
+    plaqueExemple: "1-ABC-123",
+    plaqueAide: "Elle identifie votre véhicule de façon unique.",
+    nombreDePlaces: "Nombre de places",
+    nombreDePlacesAide: "Places totales, votre siège compris.",
+    motorisation: "Motorisation",
+    supprimerTitre: "Supprimer ce véhicule ?",
+    supprimerTexte:
+      "{vehicule} sera retiré de votre compte. Les trajets déjà publiés avec ce véhicule ne sont pas supprimés.",
+  },
+
+  donnees: {
+    recuperer: "Récupérer mes données",
+    recupererRef: "Articles 15 et 20 du RGPD",
+    recupererTexte:
+      "Téléchargez tout ce que CoShift détient sur vous : votre compte, vos organisations, vos véhicules, les trajets que vous avez proposés et les réservations que vous avez demandées. Le fichier est au format JSON, lisible par une machine comme par un humain.",
+    recupererNote:
+      "Les données des autres membres en sont exclues. Un trajet réservé chez quelqu'un apparaît avec son itinéraire et son horaire, jamais avec son téléphone : ce sont ses données, pas les vôtres.",
+    exporter: "Exporter mes données",
+    exportReussi: "Votre export a été téléchargé au format JSON.",
+    exportEchoue: "L'export n'a pas pu être produit. Réessayez dans un instant.",
+
+    tiers: "Mes services tiers",
+    tiersRef: "Article 7.3 du RGPD",
+    carteMapbox: "Carte animée — Mapbox :",
+    connexionGoogle: "Connexion Google :",
+    autorisee: "autorisée",
+    refusee: "refusée",
+    choixExprime:
+      "Choix exprimé le {date}, sur la version {version} de la politique de confidentialité.",
+    pasEncoreRepondu:
+      "Vous n'avez pas encore répondu au bandeau. Aucun service tiers n'est chargé.",
+    revoirChoix: "Revoir mon choix",
+
+    documents: "Ce à quoi vous avez souscrit",
+    documentsRef: "Article 13 du RGPD",
+    docConfidentialite: "ce qui est collecté, pourquoi, et pour combien de temps",
+    docCgu: "les engagements de chacun",
+    docCookies: "ce qui est stocké dans votre navigateur",
+    docMentions: "qui édite le service",
+
+    supprimer: "Supprimer mon compte",
+    supprimerRef: "Article 17 du RGPD",
+    supprimerIrreversible: "Cette action est irréversible.",
+    supprimerP1:
+      "Votre nom, votre adresse, votre téléphone, votre photographie et vos plaques d'immatriculation sont effacés immédiatement, sans copie de sauvegarde.",
+    supprimerP2:
+      "Vos trajets et réservations passés sont anonymisés plutôt que supprimés : ils engagent d'autres membres, dont l'historique ne peut pas être détruit par votre demande. Une fois détachés de vous, ils ne désignent plus personne.",
+    supprimerP3:
+      "Vos trajets à venir et vos réservations en cours sont annulés, avec un motif explicite, pour que personne ne se présente à un rendez-vous qui n'aura pas lieu.",
+    supprimerBouton: "Supprimer définitivement mon compte",
+    confirmerTitre: "Confirmer la suppression",
+    aucunRetour: "Aucun retour en arrière",
+    aucunRetourTexte:
+      "Une fois l'opération lancée, ni vous ni CoShift ne pourrez récupérer votre compte. Pensez à exporter vos données auparavant si vous souhaitez les conserver.",
+    retapezAdresse: "Retapez votre adresse électronique pour confirmer",
+    retapezAide:
+      "Le serveur exige la même confirmation : sans elle, la requête est refusée.",
+    supprimerConfirmation: "Supprimer mon compte",
+    suppressionEchouee: "La suppression n'a pas abouti. Réessayez dans un instant.",
+  },
+
+  pages: {
+    tableauDeBordTitre: "Tableau de bord",
+    tableauDeBordDescription:
+      "Vos trajets proposés, vos réservations et vos véhicules.",
+    reservationsTitre: "Mes réservations",
+    reservationsDescription: "Le suivi de vos demandes de place.",
+    publierTitre: "Proposer un trajet",
+    publierDescription:
+      "Publiez un trajet et partagez les frais avec vos collègues.",
+    detailTitre: "Détail du trajet",
+    detailDescription: "Horaire, conducteur, véhicule et places disponibles.",
+    styleguideTitre: "Charte graphique",
+    styleguideDescription:
+      "Planche de référence des composants et des couleurs de CoShift.",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",

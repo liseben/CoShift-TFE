@@ -5,11 +5,11 @@
  * StatusBadge, qui est désormais seul à traduire BookingStatus et
  * TripStatus en libellés et en couleurs.
  */
-export function formatTripDate(iso: string): string {
+export function formatTripDate(iso: string, balise: string, liaison: string): string {
   const d = new Date(iso);
   return (
-    d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long" }) +
-    " à " +
-    d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+    d.toLocaleDateString(balise, { weekday: "short", day: "numeric", month: "long" }) +
+    liaison +
+    d.toLocaleTimeString(balise, { hour: "2-digit", minute: "2-digit" })
   );
 }

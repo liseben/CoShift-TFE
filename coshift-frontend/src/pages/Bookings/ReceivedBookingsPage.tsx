@@ -7,6 +7,7 @@ import {
   Alert, Avatar, Button, Card, EmptyState, Modal, Spinner, StatusBadge, Textarea,
   type Status,
 } from "../../components/ui";
+import { useT } from "../../context/LangContext";
 import "./BookingsPage.css";
 
 interface Received {
@@ -40,6 +41,7 @@ const TONE: Record<string, "brand" | "eco" | "pending" | "danger" | undefined> =
  * puis les accepte ou les refuse. S'affiche comme onglet du tableau de bord.
  */
 export default function ReceivedBookingsPage() {
+  const t = useT();
   const [items, setItems] = useState<Received[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,7 @@ export default function ReceivedBookingsPage() {
       } catch (err) {
         setError(
           (axios.isAxiosError(err) && err.response?.data?.message) ||
-            "Impossible de charger les demandes reçues.",
+            t("demandes.indisponibles"),
         );
       } finally {
         setLoading(false);
@@ -81,7 +83,7 @@ export default function ReceivedBookingsPage() {
       setReason("");
     } catch (err) {
       setError(
-        (axios.isAxiosError(err) && err.response?.data?.message) || "L'opération a échoué.",
+        (axios.isAxiosError(err) && err.response?.data?.message) || t("demandes.operationEchouee"),
       );
     } finally {
       setBusy(null);
@@ -94,11 +96,13 @@ export default function ReceivedBookingsPage() {
     <div className="stack-6">
       <header className="bk-header">
         <div>
-          <h2>Demandes reçues</h2>
+          <h2>{t("demandes.titre")}</h2>
           <p className="bk-lead">
             {pending > 0
-              ? `${pending} demande${pending > 1 ? "s" : ""} en attente de votre réponse.`
-              : "Les passagers qui ont demandé une place dans vos trajets."}
+              ? pending > 1
+                ? t("demandes.enAttente_plusieurs", { n: pending })
+                : t("demandes.enAttente_une", { n: pending })
+              : t("demandes.accroche")}
           </p>
         </div>
       </header>
@@ -106,12 +110,12 @@ export default function ReceivedBookingsPage() {
       {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
 
       {loading ? (
-        <Spinner size="lg" center showLabel label="Chargement des demandes" />
+        <Spinner size="lg" center showLabel label={t("demandes.chargement")} />
       ) : items.length === 0 ? (
         <EmptyState
           icon={<FaInbox />}
-          title="Aucune demande pour l'instant"
-          description="Les demandes de réservation sur vos trajets apparaîtront ici."
+          title={t("demandes.aucune")}
+          description={t("demandes.aucuneTexte")}
         />
       ) : (
         <div className="grid-auto">
@@ -125,8 +129,11 @@ export default function ReceivedBookingsPage() {
                 action={<StatusBadge status={b.status as Status} size="sm" />}
               >
                 <p className="bk-date">
-                  <FaUsers aria-hidden="true" /> {b.seatsBooked} place
-                  {b.seatsBooked > 1 ? "s" : ""} · {b.totalPrice.toFixed(2)} €
+                  <FaUsers aria-hidden="true" />{" "}
+                  {b.seatsBooked > 1
+                    ? t("demandes.place_plusieurs", { n: b.seatsBooked })
+                    : t("demandes.place_une", { n: b.seatsBooked })}{" "}
+                  · {b.totalPrice.toFixed(2)} €
                 </p>
 
                 <div className="bk-body">
@@ -139,16 +146,17 @@ export default function ReceivedBookingsPage() {
                           {b.passenger.averageRating.toFixed(1)}
                         </>
                       ) : (
-                        "Nouveau passager"
+                        t("demandes.nouveauPassager")
                       )}
                       {" · "}
-                      {b.passenger.tripsCount} trajet
-                      {b.passenger.tripsCount > 1 ? "s" : ""}
+                      {b.passenger.tripsCount > 1
+                        ? t("demandes.trajet_plusieurs", { n: b.passenger.tripsCount })
+                        : t("demandes.trajet_un", { n: b.passenger.tripsCount })}
                     </p>
                   </div>
                 </div>
 
-                {b.statusReason && <p className="bk-reason">Motif : {b.statusReason}</p>}
+                {b.statusReason && <p className="bk-reason">{t("reservations.motif")} {b.statusReason}</p>}
 
                 {b.passenger.phoneNumber && (
                   <a className="bk-contact" href={`tel:${b.passenger.phoneNumber}`}>
@@ -165,7 +173,7 @@ export default function ReceivedBookingsPage() {
                       loading={busy === b.uuid}
                       onClick={() => decide(b.uuid, "accept")}
                     >
-                      Accepter
+                      {t("demandes.accepter")}
                     </Button>
                     <Button
                       variant="secondary"
@@ -173,7 +181,7 @@ export default function ReceivedBookingsPage() {
                       icon={<FiX />}
                       onClick={() => setToReject(b)}
                     >
-                      Refuser
+                      {t("demandes.refuser")}
                     </Button>
                   </div>
                 )}
@@ -186,29 +194,29 @@ export default function ReceivedBookingsPage() {
       <Modal
         open={toReject !== null}
         onClose={() => setToReject(null)}
-        title="Refuser cette demande ?"
+        title={t("demandes.refuserTitre")}
         size="sm"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setToReject(null)}>Retour</Button>
+            <Button variant="ghost" onClick={() => setToReject(null)}>{t("commun.retour")}</Button>
             <Button
               variant="danger"
               loading={busy !== null}
               onClick={() => toReject && decide(toReject.uuid, "reject", reason)}
             >
-              Refuser
+              {t("demandes.refuser")}
             </Button>
           </>
         }
       >
         <Textarea
-          label="Motif du refus"
-          hint="Facultatif, mais le passager le verra. Une raison brève évite les malentendus."
+          label={t("demandes.motifDuRefus")}
+          hint={t("demandes.motifAide")}
           maxLength={200}
           showCount
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="La voiture est déjà complète pour ce trajet."
+          placeholder={t("demandes.motifExemple")}
         />
       </Modal>
     </div>

@@ -6,14 +6,15 @@ import { API_BASE } from "../../config/api";
 import {
   Alert, Button, Card, EmptyState, Input, Modal, Select, Spinner,
 } from "../../components/ui";
+import { useT } from "../../context/LangContext";
 import "./VehiclePage.css";
 
 const ENERGY: Record<string, { label: string; icon: ReactElement; tone: string }> = {
-  ELECTRIC: { label: "Électrique", icon: <FaBolt />, tone: "eco" },
-  HYBRID:   { label: "Hybride",    icon: <FaLeaf />, tone: "eco" },
-  GASOLINE: { label: "Essence",    icon: <FaGasPump />, tone: "pending" },
-  DIESEL:   { label: "Diesel",     icon: <FaGasPump />, tone: "danger" },
-  LPG:      { label: "GPL",        icon: <FaGasPump />, tone: "brand" },
+  ELECTRIC: { label: "ELECTRIC", icon: <FaBolt />, tone: "eco" },
+  HYBRID:   { label: "HYBRID",   icon: <FaLeaf />, tone: "eco" },
+  GASOLINE: { label: "GASOLINE", icon: <FaGasPump />, tone: "pending" },
+  DIESEL:   { label: "DIESEL",   icon: <FaGasPump />, tone: "danger" },
+  LPG:      { label: "LPG",      icon: <FaGasPump />, tone: "brand" },
 };
 
 interface Vehicule {
@@ -29,6 +30,7 @@ interface Vehicule {
 const EMPTY = { brand: "", model: "", licensePlate: "", seats: 5, energy: "GASOLINE", photoUrl: "" };
 
 export default function VehiclePage() {
+  const t = useT();
   const { user } = useAuth();
   const [vehicules, setVehicules] = useState<Vehicule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export default function VehiclePage() {
     axios
       .get<Vehicule[]>(`${API_BASE}/api/vehicules/mine`, { headers: headers() })
       .then((r) => setVehicules(r.data))
-      .catch(() => setError("Impossible de charger vos véhicules."))
+      .catch(() => setError(t("vehicules.indisponibles")))
       .finally(() => setLoading(false));
   }, []);
 
@@ -106,7 +108,7 @@ export default function VehiclePage() {
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Impossible de supprimer ce véhicule.",
+          t("vehicules.suppressionImpossible"),
       );
       setToDelete(null);
     } finally {
@@ -120,24 +122,24 @@ export default function VehiclePage() {
     <div className="stack-6">
       <header className="vc__header">
         <div>
-          <h2>Mes véhicules</h2>
+          <h2>{t("vehicules.titre")}</h2>
           <p className="vc__lead">
-            Enregistrez vos véhicules pour pouvoir proposer des trajets.
+            {t("vehicules.accroche")}
           </p>
         </div>
-        <Button icon={<FaPlus />} onClick={openAdd}>Ajouter un véhicule</Button>
+        <Button icon={<FaPlus />} onClick={openAdd}>{t("vehicules.ajouter")}</Button>
       </header>
 
       {error && !open && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
 
       {loading ? (
-        <Spinner size="lg" center showLabel label="Chargement de vos véhicules" />
+        <Spinner size="lg" center showLabel label={t("vehicules.chargement")} />
       ) : vehicules.length === 0 ? (
         <EmptyState
           icon={<FaCar />}
-          title="Aucun véhicule enregistré"
-          description="Un trajet se publie avec un véhicule. Commencez par en déclarer un."
-          action={<Button icon={<FaPlus />} onClick={openAdd}>Ajouter un véhicule</Button>}
+          title={t("vehicules.aucun")}
+          description={t("vehicules.aucunTexte")}
+          action={<Button icon={<FaPlus />} onClick={openAdd}>{t("vehicules.ajouter")}</Button>}
         />
       ) : (
         <div className="grid-auto">
@@ -149,19 +151,19 @@ export default function VehiclePage() {
 
                 <ul className="vc__tags">
                   <li className={`vc__tag vc__tag--${e.tone}`}>
-                    <span aria-hidden="true">{e.icon}</span> {e.label}
+                    <span aria-hidden="true">{e.icon}</span> {t(`energie.${e.label}`) || e.label}
                   </li>
                   <li className="vc__tag">
-                    <FaUsers aria-hidden="true" /> {v.seats} places
+                    <FaUsers aria-hidden="true" /> {t("vehicules.places", { n: v.seats })}
                   </li>
                 </ul>
 
                 <div className="vc__actions">
                   <Button variant="secondary" size="sm" icon={<FaEdit />} onClick={() => openEdit(v)}>
-                    Modifier
+                    {t("vehicules.modifier")}
                   </Button>
                   <Button variant="ghost" size="sm" icon={<FaTrash />} onClick={() => setToDelete(v)}>
-                    Supprimer
+                    {t("vehicules.supprimer")}
                   </Button>
                 </div>
               </Card>
@@ -174,12 +176,12 @@ export default function VehiclePage() {
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title={editing ? "Modifier le véhicule" : "Ajouter un véhicule"}
+        title={editing ? t("vehicules.modifierTitre") : t("vehicules.ajouter")}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)}>{t("commun.annuler")}</Button>
             <Button type="submit" form="vc-form" loading={saving}>
-              {editing ? "Enregistrer" : "Ajouter"}
+              {editing ? t("commun.enregistrer") : t("vehicules.ajouterAction")}
             </Button>
           </>
         }
@@ -188,25 +190,28 @@ export default function VehiclePage() {
 
         <form id="vc-form" onSubmit={submit} className="stack">
           <div className="vc__grid">
-            <Input label="Marque" placeholder="Renault" required
+            <Input label={t("vehicules.marque")} placeholder={t("vehicules.marqueExemple")} required
               value={form.brand} onChange={(e) => set("brand", e.target.value)} />
-            <Input label="Modèle" placeholder="Clio" required
+            <Input label={t("vehicules.modele")} placeholder={t("vehicules.modeleExemple")} required
               value={form.model} onChange={(e) => set("model", e.target.value)} />
           </div>
 
-          <Input label="Plaque d'immatriculation" placeholder="1-ABC-123" required
-            hint="Elle identifie votre véhicule de façon unique."
+          <Input label={t("vehicules.plaque")} placeholder={t("vehicules.plaqueExemple")} required
+            hint={t("vehicules.plaqueAide")}
             value={form.licensePlate}
             onChange={(e) => set("licensePlate", e.target.value.toUpperCase())} />
 
           <div className="vc__grid">
-            <Input label="Nombre de places" type="number" min={2} max={9} required
-              hint="Places totales, votre siège compris."
+            <Input label={t("vehicules.nombreDePlaces")} type="number" min={2} max={9} required
+              hint={t("vehicules.nombreDePlacesAide")}
               value={form.seats}
               onChange={(e) => set("seats", parseInt(e.target.value) || 2)} />
-            <Select label="Motorisation" value={form.energy}
+            <Select label={t("vehicules.motorisation")} value={form.energy}
               onChange={(e) => set("energy", e.target.value)}
-              options={Object.entries(ENERGY).map(([value, { label }]) => ({ value, label }))} />
+              options={Object.keys(ENERGY).map((value) => ({
+                value,
+                label: t(`energie.${value}`) || value,
+              }))} />
           </div>
         </form>
       </Modal>
@@ -215,20 +220,20 @@ export default function VehiclePage() {
       <Modal
         open={toDelete !== null}
         onClose={() => setToDelete(null)}
-        title="Supprimer ce véhicule ?"
+        title={t("vehicules.supprimerTitre")}
         size="sm"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setToDelete(null)}>Retour</Button>
-            <Button variant="danger" loading={saving} onClick={remove}>Supprimer</Button>
+            <Button variant="ghost" onClick={() => setToDelete(null)}>{t("commun.retour")}</Button>
+            <Button variant="danger" loading={saving} onClick={remove}>{t("vehicules.supprimer")}</Button>
           </>
         }
       >
         {toDelete && (
           <p>
-            {toDelete.brand} {toDelete.model} ({toDelete.licensePlate}) sera retiré
-            de votre compte. Les trajets déjà publiés avec ce véhicule ne sont pas
-            supprimés.
+            {t("vehicules.supprimerTexte", {
+              vehicule: `${toDelete.brand} ${toDelete.model} (${toDelete.licensePlate})`,
+            })}
           </p>
         )}
       </Modal>

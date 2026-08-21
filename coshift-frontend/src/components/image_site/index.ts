@@ -22,7 +22,14 @@ import applicationEnMain from "./application-en-main.webp";
 
 export type Photo = {
   src: string;
-  /** Décrit la scène pour qui ne voit pas l'image. */
+  /**
+   * Clé de traduction du texte alternatif.
+   *
+   * <p>Une chaîne écrite ici serait figée en français : ce module est évalué
+   * au chargement, avant que la langue soit connue. Un texte alternatif est
+   * pourtant le seul contenu dont dispose qui ne voit pas l'image — le laisser
+   * dans une langue qui n'est pas celle de la page le rend inutilisable.</p>
+   */
   alt: string;
   /** Rapport largeur/hauteur, à réserver en CSS pour éviter le saut de page. */
   ratio: string;
@@ -31,22 +38,22 @@ export type Photo = {
 export const PHOTOS = {
   habitacle: {
     src: covoitureursHabitacle,
-    alt: "Quatre personnes souriantes installées dans une voiture, ceintures bouclées.",
+    alt: "photos.habitacle",
     ratio: "2 / 3",
   },
   depart: {
     src: departCovoiturage,
-    alt: "Un conducteur au volant et trois passagers, sur le point de partir.",
+    alt: "photos.depart",
     ratio: "2 / 3",
   },
   rendezVous: {
     src: passagereRendezVous,
-    alt: "Une passagère se penche à la portière d'une voiture pour retrouver sa conductrice.",
+    alt: "photos.rendezVous",
     ratio: "3 / 2",
   },
   application: {
     src: applicationEnMain,
-    alt: "Un passager consulte l'application CoShift sur son téléphone pendant le trajet.",
+    alt: "photos.application",
     ratio: "3 / 2",
   },
 } satisfies Record<string, Photo>;

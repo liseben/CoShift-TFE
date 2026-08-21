@@ -11,13 +11,16 @@ import { useAuth } from "../../context/AuthContext";
 import {
   Alert, Avatar, Button, Card, Modal, Spinner, StatusBadge, type Status,
 } from "../../components/ui";
+import { useLang } from "../../context/LangContext";
+import { LANGUES } from "../../i18n";
 import "./TripDetailPage.css";
+import { useSeo } from "../../hooks/useSeo";
 
 const ENERGY: Record<string, { label: string; icon: ReactElement }> = {
-  ELECTRIC: { label: "Électrique", icon: <FaBolt /> },
-  HYBRID:   { label: "Hybride",    icon: <FaLeaf /> },
-  GASOLINE: { label: "Essence",    icon: <FaGasPump /> },
-  DIESEL:   { label: "Diesel",     icon: <FaGasPump /> },
+  ELECTRIC: { label: "ELECTRIC", icon: <FaBolt /> },
+  HYBRID:   { label: "HYBRID",   icon: <FaLeaf /> },
+  GASOLINE: { label: "GASOLINE", icon: <FaGasPump /> },
+  DIESEL:   { label: "DIESEL",   icon: <FaGasPump /> },
   LPG:      { label: "GPL",        icon: <FaGasPump /> },
 };
 
@@ -49,6 +52,17 @@ interface Trip {
 
 /** F26 — Détail d'un trajet, et point d'entrée de la réservation (F27). */
 export default function TripDetailPage() {
+  const { langue, t } = useLang();
+  /* Le format de date suit la langue : il etait fige en fr-FR. */
+
+  /* Sans ces metadonnees, l'onglet gardait le titre francais
+     d'index.html, quelle que soit la langue choisie. */
+  useSeo({
+    titre: t("pages.detailTitre"),
+    description: t("pages.detailDescription"),
+    horsIndex: true,
+  });
+  const balise = LANGUES[langue].balise;
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -98,7 +112,7 @@ export default function TripDetailPage() {
     } catch (err) {
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "La réservation n'a pas pu être enregistrée.",
+          t("detail.reservationImpossible"),
       );
     } finally {
       setBooking(false);
@@ -124,7 +138,7 @@ export default function TripDetailPage() {
       setCancelOpen(false);
       setError(
         (axios.isAxiosError(err) && err.response?.data?.message) ||
-          "Le trajet n'a pas pu être annulé.",
+          t("detail.annulationImpossible"),
       );
     } finally {
       setCancelling(false);
@@ -134,7 +148,7 @@ export default function TripDetailPage() {
   if (loading) {
     return (
       <div className="container page">
-        <Spinner size="lg" center showLabel label="Chargement du trajet" />
+        <Spinner size="lg" center showLabel label={t("detail.chargement")} />
       </div>
     );
   }
@@ -142,19 +156,19 @@ export default function TripDetailPage() {
   if (!trip) {
     return (
       <div className="container page stack-6">
-        <Alert tone="danger">{error ?? "Ce trajet est introuvable."}</Alert>
+        <Alert tone="danger">{error ?? t("detail.introuvable")}</Alert>
         <Button variant="secondary" icon={<FiArrowLeft />} to="/trips/search">
-          Retour à la recherche
+          {t("detail.retourRecherche")}
         </Button>
       </div>
     );
   }
 
   const dt = new Date(trip.departureTime);
-  const jour = dt.toLocaleDateString("fr-FR", {
+  const jour = dt.toLocaleDateString(balise, {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
-  const heure = dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  const heure = dt.toLocaleTimeString(balise, { hour: "2-digit", minute: "2-digit" });
 
   /* Comparaison sur l'identifiant public et non sur le nom : deux homonymes
      seraient sinon confondus, et l'un se verrait refuser la réservation. */
@@ -171,21 +185,21 @@ export default function TripDetailPage() {
   const driverName = `${trip.driver.firstname} ${trip.driver.lastname}`;
 
   const prefs = [
-    { on: trip.acceptsLuggage, icon: <FaSuitcase />, yes: "Bagages acceptés", no: "Bagages refusés" },
-    { on: trip.acceptsPets, icon: <FaDog />, yes: "Animaux acceptés", no: "Animaux refusés" },
-    { on: trip.musicAllowed, icon: <FaMusic />, yes: "Musique autorisée", no: "Sans musique" },
-    { on: trip.talkingAllowed, icon: <FaComments />, yes: "Discussion bienvenue", no: "Trajet silencieux" },
+    { on: trip.acceptsLuggage, icon: <FaSuitcase />, yes: "bagagesAcceptes", no: "bagagesRefuses" },
+    { on: trip.acceptsPets, icon: <FaDog />, yes: "animauxAcceptes", no: "animauxRefuses" },
+    { on: trip.musicAllowed, icon: <FaMusic />, yes: "musiqueAutorisee", no: "sansMusique" },
+    { on: trip.talkingAllowed, icon: <FaComments />, yes: "discussionBienvenue", no: "trajetSilencieux" },
   ];
 
   return (
     <div className="container page stack-6">
       <Button variant="ghost" size="sm" icon={<FiArrowLeft />} onClick={() => navigate(-1)}>
-        Retour
+        {t("commun.retour")}
       </Button>
 
       {success && (
-        <Alert tone="success" title="Demande envoyée">
-          Le conducteur doit maintenant l'accepter. Redirection vers vos réservations…
+        <Alert tone="success" title={t("detail.demandeEnvoyee")}>
+          {t("detail.demandeEnvoyeeTexte")}
         </Alert>
       )}
       {cancelDone && (
@@ -244,13 +258,13 @@ export default function TripDetailPage() {
             <ul className="td__prefs">
               {prefs.map((p, i) => (
                 <li key={i} className={`td__chip ${p.on ? "is-on" : ""}`}>
-                  <span aria-hidden="true">{p.icon}</span> {p.on ? p.yes : p.no}
+                  <span aria-hidden="true">{p.icon}</span> {t(`detail.${p.on ? p.yes : p.no}`)}
                 </li>
               ))}
             </ul>
           </Card>
 
-          <Card title="Conducteur">
+          <Card title={t("detail.conducteur")}>
             <div className="td__person">
               <Avatar src={trip.driver.pictureUrl} name={driverName} size="lg" />
               <div>
@@ -262,15 +276,17 @@ export default function TripDetailPage() {
                       {trip.driver.averageRating.toFixed(1)} / 5 ·{" "}
                     </>
                   ) : (
-                    "Nouveau conducteur · "
+                    `${t("detail.nouveauConducteur")} · `
                   )}
-                  {trip.driver.tripsCount} trajet{trip.driver.tripsCount !== 1 ? "s" : ""}
+                  {trip.driver.tripsCount !== 1
+                    ? t("detail.trajet_plusieurs", { n: trip.driver.tripsCount })
+                    : t("detail.trajet_un", { n: trip.driver.tripsCount })}
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card title="Véhicule">
+          <Card title={t("detail.vehicule")}>
             <div className="td__person">
               <span className="td__vehicle-icon" aria-hidden="true"><FaCar /></span>
               <div>
@@ -278,8 +294,10 @@ export default function TripDetailPage() {
                   {trip.vehicule.brand} {trip.vehicule.model}
                 </p>
                 <p className="td__person-meta">
-                  <span aria-hidden="true">{energy.icon}</span> {energy.label} ·{" "}
-                  <FaUsers aria-hidden="true" /> {trip.vehicule.seats} places
+                  <span aria-hidden="true">{energy.icon}</span>{" "}
+                  {t(`energie.${energy.label}`)} ·{" "}
+                  <FaUsers aria-hidden="true" />{" "}
+                  {t("detail.placesVehicule", { n: trip.vehicule.seats })}
                 </p>
               </div>
             </div>
@@ -291,54 +309,53 @@ export default function TripDetailPage() {
           <Card padding="lg">
             <p className="td__price">
               {trip.pricePerSeat.toFixed(2)} €
-              <span className="td__price-unit"> / place</span>
+              <span className="td__price-unit">{t("detail.parPlace")}</span>
             </p>
 
             <p className="td__seats">
               {trip.availableSeats > 0 ? (
                 <>
-                  <FaUsers aria-hidden="true" /> {trip.availableSeats} place
-                  {trip.availableSeats > 1 ? "s" : ""} restante
-                  {trip.availableSeats > 1 ? "s" : ""}
+                  <FaUsers aria-hidden="true" />{" "}
+                  {trip.availableSeats > 1
+                    ? t("detail.placesRestantes_plusieurs", { n: trip.availableSeats })
+                    : t("detail.placesRestantes_une", { n: trip.availableSeats })}
                 </>
               ) : (
-                "Complet"
+                t("detail.complet")
               )}
             </p>
 
             {isBookable ? (
               <>
-                <p className="td__label" id="td-seats-label">Nombre de places</p>
+                <p className="td__label" id="td-seats-label">{t("detail.nombreDePlaces")}</p>
                 <div className="td__picker" role="group" aria-labelledby="td-seats-label">
                   <button type="button" onClick={() => setSeats((s) => Math.max(1, s - 1))}
-                          disabled={seats <= 1} aria-label="Retirer une place">−</button>
+                          disabled={seats <= 1} aria-label={t("detail.retirerPlace")}>−</button>
                   <output aria-live="polite">{seats}</output>
                   <button type="button"
                           onClick={() => setSeats((s) => Math.min(trip.availableSeats, s + 1))}
-                          disabled={seats >= trip.availableSeats} aria-label="Ajouter une place">+</button>
+                          disabled={seats >= trip.availableSeats} aria-label={t("detail.ajouterPlace")}>+</button>
                 </div>
 
                 <p className="td__total">
-                  <span>Total</span>
+                  <span>{t("detail.total")}</span>
                   <strong>{(trip.pricePerSeat * seats).toFixed(2)} €</strong>
                 </p>
 
                 <Button variant="eco" size="lg" block loading={booking}
                         disabled={success} onClick={book}>
-                  {success ? "Demande envoyée" : "Réserver"}
+                  {success ? t("detail.demandeEnvoyee") : t("detail.reserver")}
                 </Button>
 
-                <p className="td__hint">
-                  Votre demande part au conducteur. Elle n'est confirmée qu'après son accord.
-                </p>
+                <p className="td__hint">{t("detail.indicationDemande")}</p>
               </>
             ) : (
               <Alert tone="info">
                 {isOwnTrip
-                  ? "Vous êtes le conducteur de ce trajet."
+                  ? t("detail.vousEtesConducteur")
                   : trip.status !== "PLANNED"
-                    ? "Ce trajet n'accepte plus de réservation."
-                    : "Il ne reste plus de place disponible."}
+                    ? t("detail.plusDeReservation")
+                    : t("detail.plusDePlace")}
               </Alert>
             )}
 
@@ -351,11 +368,9 @@ export default function TripDetailPage() {
                   icon={<FiXCircle />}
                   onClick={() => setCancelOpen(true)}
                 >
-                  Annuler ce trajet
+                  {t("detail.annulerCeTrajet")}
                 </Button>
-                <p className="td__hint">
-                  Les demandes et réservations en cours seront annulées.
-                </p>
+                <p className="td__hint">{t("detail.annulerIndication")}</p>
               </div>
             )}
           </Card>
@@ -365,28 +380,26 @@ export default function TripDetailPage() {
       <Modal
         open={cancelOpen}
         onClose={() => setCancelOpen(false)}
-        title="Annuler ce trajet ?"
+        title={t("detail.annulerTitre")}
         size="sm"
         footer={
           <>
             <Button variant="ghost" onClick={() => setCancelOpen(false)}>
-              Retour
+              {t("commun.retour")}
             </Button>
             <Button variant="danger" loading={cancelling} onClick={cancelTrip}>
-              Annuler le trajet
+              {t("detail.annulerBouton")}
             </Button>
           </>
         }
       >
         <p>
-          Le trajet <strong>{trip.departureCity} → {trip.arrivalCity}</strong> du{" "}
-          {jour} à {heure} sera retiré des recherches.
+          {t("detail.annulerP1", {
+            trajet: `${trip.departureCity} → ${trip.arrivalCity}`,
+            quand: `${jour}${t("carte.aHeure")}${heure}`,
+          })}
         </p>
-        <p>
-          Toutes les demandes en attente et les réservations déjà confirmées
-          seront annulées avec le motif « Trajet annulé par le conducteur ».
-          Cette action est définitive.
-        </p>
+        <p>{t("detail.annulerP2")}</p>
       </Modal>
     </div>
   );

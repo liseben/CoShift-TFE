@@ -5,6 +5,8 @@ import { FiDownload, FiTrash2, FiShield, FiFileText } from "react-icons/fi";
 import { Alert, Button, Card, Input, Modal } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import { useConsent } from "../../context/ConsentContext";
+import { useLang } from "../../context/LangContext";
+import { LANGUES } from "../../i18n";
 import { API_BASE } from "../../config/api";
 import "./PrivacyPage.css";
 
@@ -30,6 +32,7 @@ import "./PrivacyPage.css";
 export default function PrivacyPage() {
   const { user, logout } = useAuth();
   const { choix, reinitialiser } = useConsent();
+  const { langue, t } = useLang();
   const navigate = useNavigate();
 
   const [exportEnCours, setExportEnCours] = useState(false);
@@ -69,9 +72,9 @@ export default function PrivacyPage() {
          page — et il contient l'intégralité des données personnelles. */
       URL.revokeObjectURL(url);
 
-      setSucces("Votre export a été téléchargé au format JSON.");
+      setSucces(t("donnees.exportReussi"));
     } catch {
-      setErreur("L'export n'a pas pu être produit. Réessayez dans un instant.");
+      setErreur(t("donnees.exportEchoue"));
     } finally {
       setExportEnCours(false);
     }
@@ -91,7 +94,7 @@ export default function PrivacyPage() {
       const message = axios.isAxiosError(e)
         ? e.response?.data?.message
         : null;
-      setErreur(message ?? "La suppression n'a pas abouti. Réessayez dans un instant.");
+      setErreur(message ?? t("donnees.suppressionEchouee"));
       setSuppressionEnCours(false);
     }
   };
@@ -109,25 +112,16 @@ export default function PrivacyPage() {
         <div className="pv__tete">
           <span className="pv__icone" aria-hidden="true"><FiDownload /></span>
           <div>
-            <h2 className="pv__titre">Récupérer mes données</h2>
-            <p className="pv__ref">Articles 15 et 20 du RGPD</p>
+            <h2 className="pv__titre">{t("donnees.recuperer")}</h2>
+            <p className="pv__ref">{t("donnees.recupererRef")}</p>
           </div>
         </div>
 
-        <p className="pv__texte">
-          Téléchargez tout ce que CoShift détient sur vous : votre compte, vos
-          organisations, vos véhicules, les trajets que vous avez proposés et
-          les réservations que vous avez demandées. Le fichier est au format
-          JSON, lisible par une machine comme par un humain.
-        </p>
-        <p className="pv__texte pv__texte--sourdine">
-          Les données des autres membres en sont exclues. Un trajet réservé chez
-          quelqu'un apparaît avec son itinéraire et son horaire, jamais avec son
-          téléphone : ce sont ses données, pas les vôtres.
-        </p>
+        <p className="pv__texte">{t("donnees.recupererTexte")}</p>
+        <p className="pv__texte pv__texte--sourdine">{t("donnees.recupererNote")}</p>
 
         <Button onClick={exporter} loading={exportEnCours} icon={<FiDownload />}>
-          Exporter mes données
+          {t("donnees.exporter")}
         </Button>
       </Card>
 
@@ -136,38 +130,41 @@ export default function PrivacyPage() {
         <div className="pv__tete">
           <span className="pv__icone" aria-hidden="true"><FiShield /></span>
           <div>
-            <h2 className="pv__titre">Mes services tiers</h2>
-            <p className="pv__ref">Article 7.3 du RGPD</p>
+            <h2 className="pv__titre">{t("donnees.tiers")}</h2>
+            <p className="pv__ref">{t("donnees.tiersRef")}</p>
           </div>
         </div>
 
         {choix ? (
           <ul className="pv__liste">
             <li>
-              Carte animée — Mapbox :{" "}
-              <strong>{choix.mapbox ? "autorisée" : "refusée"}</strong>
+              {t("donnees.carteMapbox")}{" "}
+              <strong>
+                {choix.mapbox ? t("donnees.autorisee") : t("donnees.refusee")}
+              </strong>
             </li>
             <li>
-              Connexion Google :{" "}
-              <strong>{choix.google ? "autorisée" : "refusée"}</strong>
+              {t("donnees.connexionGoogle")}{" "}
+              <strong>
+                {choix.google ? t("donnees.autorisee") : t("donnees.refusee")}
+              </strong>
             </li>
             <li className="pv__texte--sourdine">
-              Choix exprimé le{" "}
-              {new Date(choix.date).toLocaleDateString("fr-BE", {
-                day: "numeric", month: "long", year: "numeric",
+              {t("donnees.choixExprime", {
+                date: new Date(choix.date).toLocaleDateString(
+                  LANGUES[langue].balise,
+                  { day: "numeric", month: "long", year: "numeric" },
+                ),
+                version: choix.version,
               })}
-              , sur la version {choix.version} de la politique de confidentialité.
             </li>
           </ul>
         ) : (
-          <p className="pv__texte">
-            Vous n'avez pas encore répondu au bandeau. Aucun service tiers n'est
-            chargé.
-          </p>
+          <p className="pv__texte">{t("donnees.pasEncoreRepondu")}</p>
         )}
 
         <Button variant="secondary" onClick={reinitialiser}>
-          Revoir mon choix
+          {t("donnees.revoirChoix")}
         </Button>
       </Card>
 
@@ -176,15 +173,25 @@ export default function PrivacyPage() {
         <div className="pv__tete">
           <span className="pv__icone" aria-hidden="true"><FiFileText /></span>
           <div>
-            <h2 className="pv__titre">Ce à quoi vous avez souscrit</h2>
-            <p className="pv__ref">Article 13 du RGPD</p>
+            <h2 className="pv__titre">{t("donnees.documents")}</h2>
+            <p className="pv__ref">{t("donnees.documentsRef")}</p>
           </div>
         </div>
         <ul className="pv__liste">
-          <li><Link to="/confidentialite">Politique de confidentialité</Link> — ce qui est collecté, pourquoi, et pour combien de temps</li>
-          <li><Link to="/cgu">Conditions générales</Link> — les engagements de chacun</li>
-          <li><Link to="/cookies">Cookies et traceurs</Link> — ce qui est stocké dans votre navigateur</li>
-          <li><Link to="/mentions-legales">Mentions légales</Link> — qui édite le service</li>
+          <li>
+            <Link to="/confidentialite">{t("pied.confidentialite")}</Link> —{" "}
+            {t("donnees.docConfidentialite")}
+          </li>
+          <li>
+            <Link to="/cgu">{t("pied.cgu")}</Link> — {t("donnees.docCgu")}
+          </li>
+          <li>
+            <Link to="/cookies">{t("pied.cookies")}</Link> — {t("donnees.docCookies")}
+          </li>
+          <li>
+            <Link to="/mentions-legales">{t("pied.mentions")}</Link> —{" "}
+            {t("donnees.docMentions")}
+          </li>
         </ul>
       </Card>
 
@@ -195,67 +202,54 @@ export default function PrivacyPage() {
         <div className="pv__tete">
           <span className="pv__icone pv__icone--danger" aria-hidden="true"><FiTrash2 /></span>
           <div>
-            <h2 className="pv__titre">Supprimer mon compte</h2>
-            <p className="pv__ref">Article 17 du RGPD</p>
+            <h2 className="pv__titre">{t("donnees.supprimer")}</h2>
+            <p className="pv__ref">{t("donnees.supprimerRef")}</p>
           </div>
         </div>
 
         <p className="pv__texte">
-          <strong>Cette action est irréversible.</strong> Votre nom, votre
-          adresse, votre téléphone, votre photographie et vos plaques
-          d'immatriculation sont effacés immédiatement, sans copie de
-          sauvegarde.
+          <strong>{t("donnees.supprimerIrreversible")}</strong>{" "}
+          {t("donnees.supprimerP1")}
         </p>
-        <p className="pv__texte">
-          Vos trajets et réservations passés sont anonymisés plutôt que
-          supprimés : ils engagent d'autres membres, dont l'historique ne peut
-          pas être détruit par votre demande. Une fois détachés de vous, ils ne
-          désignent plus personne.
-        </p>
-        <p className="pv__texte pv__texte--sourdine">
-          Vos trajets à venir et vos réservations en cours sont annulés, avec un
-          motif explicite, pour que personne ne se présente à un rendez-vous qui
-          n'aura pas lieu.
-        </p>
+        <p className="pv__texte">{t("donnees.supprimerP2")}</p>
+        <p className="pv__texte pv__texte--sourdine">{t("donnees.supprimerP3")}</p>
 
         <Button variant="danger" onClick={() => setSuppressionOuverte(true)} icon={<FiTrash2 />}>
-          Supprimer définitivement mon compte
+          {t("donnees.supprimerBouton")}
         </Button>
       </Card>
 
       <Modal
         open={suppressionOuverte}
         onClose={() => { setSuppressionOuverte(false); setConfirmation(""); }}
-        title="Confirmer la suppression"
+        title={t("donnees.confirmerTitre")}
         footer={
           <>
             <Button variant="ghost"
                     onClick={() => { setSuppressionOuverte(false); setConfirmation(""); }}>
-              Annuler
+              {t("commun.annuler")}
             </Button>
             <Button variant="danger"
                     disabled={!confirmationValide}
                     loading={suppressionEnCours}
                     onClick={supprimer}>
-              Supprimer mon compte
+              {t("donnees.supprimerConfirmation")}
             </Button>
           </>
         }
       >
-        <Alert tone="warning" title="Aucun retour en arrière">
-          Une fois l'opération lancée, ni vous ni CoShift ne pourrez récupérer
-          votre compte. Pensez à exporter vos données auparavant si vous
-          souhaitez les conserver.
+        <Alert tone="warning" title={t("donnees.aucunRetour")}>
+          {t("donnees.aucunRetourTexte")}
         </Alert>
 
         <Input
-          label="Retapez votre adresse électronique pour confirmer"
+          label={t("donnees.retapezAdresse")}
           type="email"
           autoComplete="off"
           value={confirmation}
           onChange={(e) => setConfirmation(e.target.value)}
           placeholder={user?.email}
-          hint="Le serveur exige la même confirmation : sans elle, la requête est refusée."
+          hint={t("donnees.retapezAide")}
         />
       </Modal>
     </div>

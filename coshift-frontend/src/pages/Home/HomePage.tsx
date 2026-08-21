@@ -176,7 +176,7 @@ export default function HomePage() {
           <figure className="home__showcase-figure">
             <img
               src={PHOTOS.depart.src}
-              alt={PHOTOS.depart.alt}
+              alt={t(PHOTOS.depart.alt)}
               loading="lazy"
               decoding="async"
             />

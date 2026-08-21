@@ -12,7 +12,10 @@ import { API_BASE } from "../../config/api";
 import {
   Alert, Avatar, Button, Card, Input, Modal, Spinner, StatusBadge, type Status,
 } from "../../components/ui";
+import { useLang } from "../../context/LangContext";
+import { LANGUES } from "../../i18n";
 import "./DashboardPage.css";
+import { useSeo } from "../../hooks/useSeo";
 
 type TabKey = "overview" | "requests" | "vehicles" | "privacy";
 
@@ -33,18 +36,32 @@ interface MyBooking {
   trip: { uuid: string; departureCity: string; arrivalCity: string; departureTime: string };
 }
 
-const TABS: { key: TabKey; label: string; icon: React.ReactElement }[] = [
-  { key: "overview", label: "Vue d'ensemble", icon: <FiGrid /> },
-  { key: "requests", label: "Demandes reçues", icon: <FaInbox /> },
-  { key: "vehicles", label: "Mes véhicules", icon: <FiTruck /> },
+/* Les onglets ne portent qu'une clé : ce tableau est évalué au chargement du
+   module, avant que la langue soit connue. */
+const TABS: { key: TabKey; cle: string; icon: React.ReactElement }[] = [
+  { key: "overview", cle: "vueEnsemble", icon: <FiGrid /> },
+  { key: "requests", cle: "demandesRecues", icon: <FaInbox /> },
+  { key: "vehicles", cle: "mesVehicules", icon: <FiTruck /> },
   /* L'exercice des droits RGPD se fait depuis le compte, pas par courriel :
      l'article 12.2 impose de faciliter cet exercice, et un bouton qui agit
      immédiatement en fait plus qu'un formulaire traité dans le mois. */
-  { key: "privacy", label: "Mes données", icon: <FiShield /> },
+  { key: "privacy", cle: "mesDonnees", icon: <FiShield /> },
 ];
 
 export default function DashboardPage() {
   const { user, isLoading, login, logout } = useAuth();
+  const { langue, t: tr } = useLang();
+  /* Le format de date suit la langue : il était figé en fr-FR. */
+
+  /* Sans ces metadonnees, l'onglet gardait le titre francais
+     d'index.html, quelle que soit la langue choisie. */
+  useSeo({
+    titre: tr("pages.tableauDeBordTitre"),
+    description: tr("pages.tableauDeBordDescription"),
+    chemin: "/dashboard",
+    horsIndex: true,
+  });
+  const balise = LANGUES[langue].balise;
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -196,17 +213,19 @@ export default function DashboardPage() {
 
             <div className="db__badges">
               <span className="db__badge">
-                {user.role === "USER" ? "Membre CoShift" : "Administrateur"}
+                {user.role === "USER" ? tr("tableau.membre") : tr("tableau.administrateur")}
               </span>
               {!user.emailVerified && (
-                <span className="db__badge db__badge--warn">E-mail non vérifié</span>
+                <span className="db__badge db__badge--warn">{tr("tableau.emailNonVerifie")}</span>
               )}
             </div>
 
             <div className="db__stats">
               <span className="db__stat">
                 <FaCar aria-hidden="true" />
-                <strong>{user.tripsCount}</strong> trajet{user.tripsCount !== 1 ? "s" : ""}
+                {user.tripsCount !== 1
+                  ? tr("tableau.trajet_plusieurs", { n: user.tripsCount })
+                  : tr("tableau.trajet_un", { n: user.tripsCount })}
               </span>
               <span className="db__stat">
                 <FaStar aria-hidden="true" className="db__star" />
@@ -217,19 +236,19 @@ export default function DashboardPage() {
           </div>
 
           <Button variant="secondary" icon={<FiEdit3 />} onClick={openEdit}>
-            Modifier le profil
+            {tr("tableau.modifierProfil")}
           </Button>
         </div>
       </Card>
 
       {!user.emailVerified && (
-        <Alert tone="warning" title="Votre adresse n'est pas vérifiée">
-          Vous ne pourrez pas réserver de trajet tant que votre e-mail n'est pas confirmé.
+        <Alert tone="warning" title={tr("tableau.adresseNonVerifieeTitre")}>
+          {tr("tableau.adresseNonVerifieeTexte")}
         </Alert>
       )}
 
       {/* ── Onglets ── */}
-      <div className="db__tabs" role="tablist" aria-label="Sections du tableau de bord">
+      <div className="db__tabs" role="tablist" aria-label={tr("tableau.sections")}>
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -239,11 +258,11 @@ export default function DashboardPage() {
             onClick={() => selectTab(t.key)}
           >
             <span aria-hidden="true">{t.icon}</span>
-            {t.label}
+            {tr(`tableau.${t.cle}`)}
             {t.key === "requests" && pendingCount > 0 && (
               <span className="db__tab-count">
                 {pendingCount}
-                <span className="sr-only"> demandes en attente</span>
+                <span className="sr-only"> {tr("tableau.demandesEnAttente")}</span>
               </span>
             )}
           </button>
@@ -257,21 +276,21 @@ export default function DashboardPage() {
       ) : activeTab === "privacy" ? (
         <PrivacyPage />
       ) : loadingData ? (
-        <Spinner size="lg" center showLabel label="Chargement de vos données" />
+        <Spinner size="lg" center showLabel label={tr("tableau.chargement")} />
       ) : (
         <div className="db__grid">
           <Card
-            title={<><FaCar aria-hidden="true" /> Mes trajets proposés</>}
+            title={<><FaCar aria-hidden="true" /> {tr("tableau.mesTrajets")}</>}
             action={
               myTrips.length > 0 && (
-                <Button variant="ghost" size="sm" to="/trips/create">Nouveau</Button>
+                <Button variant="ghost" size="sm" to="/trips/create">{tr("tableau.nouveau")}</Button>
               )
             }
           >
             {myTrips.length === 0 ? (
               <div className="db__empty">
-                <p>Vous n'avez pas encore proposé de trajet à vos collègues.</p>
-                <Button size="sm" to="/trips/create">Proposer un trajet</Button>
+                <p>{tr("tableau.aucunTrajetPropose")}</p>
+                <Button size="sm" to="/trips/create">{tr("pied.proposerTrajet")}</Button>
               </div>
             ) : (
               <ul className="db__list">
@@ -282,7 +301,7 @@ export default function DashboardPage() {
                         <span className="db__row-title">
                           {t.departureCity} → {t.arrivalCity}
                         </span>
-                        <span className="db__row-meta">{formatTripDate(t.departureTime)}</span>
+                        <span className="db__row-meta">{formatTripDate(t.departureTime, balise, tr("carte.aHeure"))}</span>
                       </span>
                       <span className="db__row-side">
                         {/* Statut de trajet, pas de réservation : les deux
@@ -304,14 +323,14 @@ export default function DashboardPage() {
             title={<><FaTicketAlt aria-hidden="true" /> Mes réservations</>}
             action={
               myBookings.length > 0 && (
-                <Button variant="ghost" size="sm" to="/bookings">Tout voir</Button>
+                <Button variant="ghost" size="sm" to="/bookings">{tr("tableau.toutVoir")}</Button>
               )
             }
           >
             {myBookings.length === 0 ? (
               <div className="db__empty">
-                <p>Vous n'avez aucune réservation en cours.</p>
-                <Button variant="secondary" size="sm" to="/trips/search">Trouver un trajet</Button>
+                <p>{tr("tableau.aucuneReservationEnCours")}</p>
+                <Button variant="secondary" size="sm" to="/trips/search">{tr("reservations.trouverTrajet")}</Button>
               </div>
             ) : (
               <ul className="db__list">
@@ -322,7 +341,7 @@ export default function DashboardPage() {
                         <span className="db__row-title">
                           {b.trip.departureCity} → {b.trip.arrivalCity}
                         </span>
-                        <span className="db__row-meta">{formatTripDate(b.trip.departureTime)}</span>
+                        <span className="db__row-meta">{formatTripDate(b.trip.departureTime, balise, tr("carte.aHeure"))}</span>
                       </span>
                       <span className="db__row-side">
                         <StatusBadge status={b.status as Status} size="sm" />
@@ -337,26 +356,31 @@ export default function DashboardPage() {
 
           <Card
             className="db__wide"
-            title={<><FaLeaf aria-hidden="true" /> Mon activité de partage</>}
+            title={<><FaLeaf aria-hidden="true" /> {tr("tableau.activite")}</>}
           >
             <div className="db__counters">
               <p className="db__counter">
                 <strong>{myTrips.length}</strong>
-                <span>trajet{myTrips.length !== 1 ? "s" : ""} publié{myTrips.length !== 1 ? "s" : ""}</span>
+                <span>
+                  {myTrips.length !== 1 ? tr("tableau.publie_plusieurs") : tr("tableau.publie_un")}
+                </span>
               </p>
               <p className="db__counter">
                 <strong>{myBookings.length}</strong>
-                <span>réservation{myBookings.length !== 1 ? "s" : ""}</span>
+                <span>
+                  {myBookings.length !== 1
+                    ? tr("tableau.reservation_plusieurs")
+                    : tr("tableau.reservation_une")}
+                </span>
               </p>
               <p className="db__counter db__counter--eco">
                 <strong>{sharedSeats}</strong>
-                <span>place{sharedSeats !== 1 ? "s" : ""} effectivement partagée{sharedSeats !== 1 ? "s" : ""}</span>
+                <span>
+                  {sharedSeats !== 1 ? tr("tableau.partagee_plusieurs") : tr("tableau.partagee_une")}
+                </span>
               </p>
             </div>
-            <p className="db__note">
-              Le CO₂ évité n'est pas affiché : son calcul demande la distance de
-              chaque trajet, que l'API ne fournit pas encore.
-            </p>
+            <p className="db__note">{tr("tableau.noteCo2")}</p>
           </Card>
         </div>
       )}
@@ -365,11 +389,11 @@ export default function DashboardPage() {
       <Modal
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        title="Modifier mon profil"
+        title={tr("tableau.modifierMonProfil")}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setEditOpen(false)}>Annuler</Button>
-            <Button type="submit" form="db-profile" loading={saving}>Enregistrer</Button>
+            <Button variant="ghost" onClick={() => setEditOpen(false)}>{tr("commun.annuler")}</Button>
+            <Button type="submit" form="db-profile" loading={saving}>{tr("commun.enregistrer")}</Button>
           </>
         }
       >
@@ -379,25 +403,25 @@ export default function DashboardPage() {
           <Avatar src={user.pictureUrl} name={fullName} size="lg" />
           <label className="db__photo-btn">
             {uploading ? <Spinner size="sm" /> : <FiCamera aria-hidden="true" />}
-            {uploading ? "Envoi…" : "Changer la photo"}
+            {uploading ? tr("tableau.envoi") : tr("tableau.changerPhoto")}
             <input type="file" accept="image/jpeg,image/png" onChange={uploadPhoto}
                    disabled={uploading} />
           </label>
-          <p className="db__photo-hint">JPG ou PNG, 2 Mo maximum.</p>
+          <p className="db__photo-hint">{tr("tableau.photoAide")}</p>
         </div>
 
         <form id="db-profile" onSubmit={saveProfile} className="stack">
           <div className="db__form-grid">
-            <Input label="Prénom" required value={form.firstname}
+            <Input label={tr("tableau.prenom")} required value={form.firstname}
                    onChange={(e) => setForm({ ...form, firstname: e.target.value })} />
-            <Input label="Nom" required value={form.lastname}
+            <Input label={tr("tableau.nom")} required value={form.lastname}
                    onChange={(e) => setForm({ ...form, lastname: e.target.value })} />
           </div>
-          <Input label="Adresse e-mail" type="email" required value={form.email}
-                 hint="La changer demandera une nouvelle vérification."
+          <Input label={tr("tableau.email")} type="email" required value={form.email}
+                 hint={tr("tableau.emailAide")}
                  onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <Input label="Téléphone" type="tel" value={form.phoneNumber}
-                 hint="Communiqué à vos passagers une fois la réservation confirmée."
+          <Input label={tr("tableau.telephone")} type="tel" value={form.phoneNumber}
+                 hint={tr("tableau.telephoneAide")}
                  onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} />
         </form>
       </Modal>
