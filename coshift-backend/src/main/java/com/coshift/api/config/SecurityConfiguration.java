@@ -63,6 +63,14 @@ public class SecurityConfiguration {
                 // réutilisation libre est justement l'objet.
                 .requestMatchers(HttpMethod.GET, "/api/open-data/**").permitAll()
 
+                /* Le blog se lit sans compte : un blog qui exige une inscription
+                   pour etre lu n'est pas un blog. Seul le GET est ouvert — ecrire
+                   passe par @PreAuthorize sur le controleur. La regle est bornee
+                   aux deux chemins de lecture, et non a /api/blog/** en GET, pour
+                   que la liste d'administration reste fermee. */
+                .requestMatchers(HttpMethod.GET, "/api/blog").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/blog/*").permitAll()
+
                 // Plan du site : destiné aux moteurs, qui ne présentent pas de
                 // jeton. Une adresse protégée serait simplement ignorée.
                 .requestMatchers(HttpMethod.GET, "/sitemap.xml").permitAll()

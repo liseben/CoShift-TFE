@@ -681,6 +681,51 @@ export const fr = {
     lien: "Administration",
   },
 
+  /* Redaction des billets, cote administration. */
+  blogAdmin: {
+    titre: "Blog",
+    description: "Écrire et publier les billets de CoShift.",
+    heroTitre: "Billets du blog",
+    heroAccroche:
+      "Les textes publiés sur le site. Un billet peut n'exister que dans une langue : mieux vaut un texte lisible qu'un texte retenu jusqu'à sa traduction.",
+    lien: "Blog",
+
+    nouveau: "Écrire un billet",
+    modifier: "Modifier",
+    supprimer: "Supprimer",
+    confirmerSuppression: "Supprimer définitivement « {titre} » ? Pour le retirer du site sans le détruire, repassez-le en brouillon.",
+    aucun: "Aucun billet pour l'instant.",
+
+    colonneTitre: "Billet",
+    colonneRubrique: "Rubrique",
+    colonneEtat: "État",
+    colonneLangues: "Langues",
+    colonneDate: "Publié le",
+    colonneAction: "Action",
+    etatPublie: "Publié",
+    etatBrouillon: "Brouillon",
+
+    formTitreCreation: "Écrire un billet",
+    formTitreModification: "Modifier le billet",
+    slug: "Adresse du billet",
+    slugAide: "Minuscules, chiffres et tirets. Apparaît dans l'URL. Figée dès la publication : les liens partagés cesseraient de fonctionner.",
+    rubrique: "Rubrique",
+    lecture: "Durée de lecture (minutes)",
+    publier: "Publier tout de suite",
+    publierAide: "Décoché, le billet reste un brouillon, invisible du public.",
+
+    langue: "Langue",
+    titreBillet: "Titre",
+    chapeau: "Chapeau",
+    chapeauAide: "La phrase affichée sous le titre dans la liste.",
+    corps: "Corps",
+    corpsAide: "Un paragraphe par bloc, séparés par une ligne vide. Texte brut : le HTML n'est pas interprété.",
+    ajouterLangue: "Ajouter une traduction",
+    retirerLangue: "Retirer cette traduction",
+    auMoinsUneLangue: "Un billet doit exister dans au moins une langue.",
+    enregistrer: "Enregistrer",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",
@@ -1004,60 +1049,14 @@ export const fr = {
     retour: "Tous les billets",
     aLire: "À lire aussi",
     minutes: "{n} min de lecture",
+    langueAutre:
+      "Ce billet n'existe pas encore dans la langue choisie : il est affiché dans celle où il a été écrit.",
+
     rubrique: {
       produit: "Produit",
       confidentialite: "Confidentialité",
       ouverture: "Ouverture",
       conception: "Conception",
-    },
-
-    "confirmer-un-trajet": {
-      titre: "Pourquoi c'est au passager de confirmer le trajet",
-      chapeau:
-        "Une petite décision de conception qui dit beaucoup sur la façon dont on fabrique une information fiable.",
-      p1: "Quand un covoiturage a eu lieu, quelqu'un doit le déclarer. Ce geste compte : il incrémente le nombre de trajets des deux participants, il ouvre le droit de laisser un avis, et il alimentera demain le partage des frais. La question de savoir qui appuie sur le bouton n'est donc pas un détail d'interface.",
-      p2: "Le réflexe serait de confier la confirmation au conducteur. C'est lui qui organise, lui qui conduit, lui qui a la vue d'ensemble. Sauf que c'est précisément le problème : il a un intérêt à déclarer la course effectuée. Elle alimente son compteur, elle nourrit sa réputation, et le jour où l'argent circulera, elle le paiera.",
-      p3: "Le passager, lui, n'a rien à y gagner. Confirmer ne lui rapporte pas de trajet supplémentaire, ne le fait pas mieux noter, ne lui rembourse rien. Il constate, et c'est tout. C'est exactement ce qui rend sa confirmation crédible.",
-      p4: "La règle générale tient en une phrase : quand une déclaration doit être fiable, confiez-la à la partie qui n'en tire aucun bénéfice. Ce n'est pas une question de confiance dans les personnes, c'est une question de conception. Un système qui repose sur la bonne volonté de celui qui y gagne finit toujours par récompenser ceux qui en abusent.",
-      p5: "Le serveur ajoute deux garde-fous. La réservation doit avoir été acceptée — une demande restée en attente n'a transporté personne. Et le départ doit être passé, sans quoi il suffirait de réserver pour gonfler son compteur. L'opération n'est pas rejouable : une seconde confirmation est refusée, et le compteur ne bouge pas.",
-      p6: "Le même raisonnement se retrouve ailleurs dans le projet. Le freinage des tentatives de connexion compte par couple adresse IP et compte visé, précisément pour qu'un tiers ne puisse pas verrouiller le compte de quelqu'un d'autre en échouant volontairement. Dans les deux cas, on ne se protège pas de la maladresse mais de l'intérêt.",
-    },
-
-    "vos-donnees-en-clair": {
-      titre: "Ce que nous faisons de vos données, en clair",
-      chapeau:
-        "Trois droits que le règlement européen ouvre, et ce qu'il a fallu écrire pour qu'ils existent vraiment.",
-      p1: "Une politique de confidentialité peut annoncer n'importe quoi. Elle ne coûte rien à rédiger, et rien dans le produit n'oblige à ce qu'elle soit vraie. Nous avons voulu que chaque phrase de la nôtre corresponde à du code qu'on peut lire.",
-      p2: "Le droit d'accès et le droit à la portabilité — articles 15 et 20 — se traduisent par un bouton qui produit un fichier JSON contenant tout ce que nous détenons sur vous. Le format n'est pas anodin : le règlement exige quelque chose de « structuré, couramment utilisé et lisible par machine », trois qualités qu'un PDF n'a pas.",
-      p3: "L'export contient vos données, pas celles des autres. Un trajet que vous avez réservé chez quelqu'un y figure avec son itinéraire et son horaire, mais sans le téléphone ni l'adresse du conducteur. Ce sont ses données à lui, et votre droit à la portabilité ne porte pas dessus. Un bloc du fichier énumère d'ailleurs ce qui en est volontairement absent, et pourquoi.",
-      p4: "Le droit à l'effacement — article 17 — a demandé une décision moins évidente. Supprimer purement votre ligne détruirait les trajets auxquels d'autres personnes ont participé : effacer un conducteur priverait ses passagers de leur propre historique. Faire droit à votre demande en portant atteinte aux données d'un tiers n'est pas une option.",
-      p5: "L'effacement procède donc par anonymisation sur place. Nom, adresse, téléphone, photographie, plaque d'immatriculation, empreinte du mot de passe : tout est écrasé, immédiatement, sans copie de sauvegarde. Ce qui subsiste — un trajet Namur-Bruxelles rattaché à un participant sans nom — ne se rapporte plus à une personne identifiable.",
-      p6: "Avant d'anonymiser, l'opération annule vos trajets à venir et prévient leurs passagers. Un trajet futur dont le conducteur a disparu laisserait quelqu'un attendre à un point de rendez-vous. Supprimer un compte doit prévenir, pas seulement se taire.",
-      p7: "Enfin, la limitation de la durée de conservation — article 5.1.e — tourne toutes les nuits. Une inscription jamais confirmée est supprimée au bout de trente jours : une adresse dont personne n'a prouvé qu'elle lui appartenait n'est pas un compte. Les trajets de plus de deux ans perdent leurs adresses précises et leurs descriptions. Restent les villes et les dates, qui ne désignent personne.",
-    },
-
-    "donnees-ouvertes": {
-      titre: "Nos données sont ouvertes, et voici pourquoi",
-      chapeau:
-        "Publier ses chiffres quand on pourrait les garder, et le seuil qui sépare une statistique d'un déplacement individuel.",
-      p1: "CoShift publie un jeu de données ouvertes, sous Licence Ouverte 2.0, accessible sans compte ni clé : volumes de trajets, places partagées, villes desservies, taux de remplissage, répartition par mois. En JSON pour les machines, en CSV pour les tableurs — parce que c'est par le tableur qu'une donnée ouverte est réellement réutilisée par quelqu'un qui n'écrit pas de code.",
-      p2: "Nous le faisons d'abord par cohérence. Nous demandons aux organisations de mesurer leur mobilité plutôt que de la déclarer ; garder nos propres chiffres reviendrait à demander qu'on nous croie sur parole.",
-      p3: "Publier des chiffres de mobilité pose une difficulté que les données personnelles ne posent pas : un agrégat suffisamment fin redevient nominatif. Une liaison entre deux villes empruntée deux fois dans l'année ne décrit pas un flux, elle décrit le déplacement de deux personnes qu'on retrouve sans peine.",
-      p4: "D'où un seuil. Une ville n'apparaît dans le jeu qu'au-delà de cinq trajets. En dessous, elle est retirée — et le nombre de villes ainsi écartées est publié, pour qu'un réutilisateur sache que le jeu n'est pas exhaustif. Les couples départ-arrivée, eux, ne sont pas publiés du tout : au volume actuel, aucun n'atteint le seuil.",
-      p5: "Le jeu exclut par construction l'identité des conducteurs et des passagers, les adresses précises, les horaires de départ, le nom des organisations et les montants payés individuellement. Cette liste figure dans la réponse elle-même : ce qui est absent est annoncé, plutôt que laissé à deviner.",
-      p6: "Les trajets annulés sont comptés séparément des trajets publiés. Les mélanger gonflerait les volumes ; les taire relèverait de la malhonnêteté statistique. Publier ses chiffres n'a d'intérêt que si l'on publie aussi ceux qui arrangent moins.",
-    },
-
-    "domicile-travail": {
-      titre: "Le trajet que personne ne partage",
-      chapeau:
-        "Pourquoi le covoiturage quotidien résiste là où le covoiturage longue distance a réussi.",
-      p1: "Le covoiturage longue distance fonctionne. Un trajet de trois cents kilomètres coûte assez cher pour qu'on accepte un détour, on le planifie des jours à l'avance, et les plateformes grand public l'ont parfaitement résolu.",
-      p2: "Le trajet domicile-travail est l'exact opposé. Il est court, donc l'économie individuelle est faible. Il est quotidien, donc s'organiser à chaque fois est hors de question. Et il est rigide : arriver vingt minutes en retard n'est pas une option quand on est attendu.",
-      p3: "C'est pourtant celui qui compte. Ce ne sont pas les grands départs qui saturent les routes un mardi matin, mais des milliers de voitures qui font le même chemin, aux mêmes heures, avec un siège occupé sur cinq.",
-      p4: "Les plateformes ouvertes butent ici sur un obstacle qui n'est pas technique. Elles doivent fabriquer de la confiance entre inconnus : profils, avis, vérifications, assurances. Cet appareil se justifie pour un trajet exceptionnel. Pour dix minutes de voiture avec quelqu'un qu'on croisera de toute façon à la machine à café, il est disproportionné.",
-      p5: "Dans une organisation, cette confiance existe déjà. On partage un employeur, un bâtiment, des horaires, souvent des connaissances communes. Le problème restant n'est pas de savoir à qui se fier, mais de savoir qui part au même moment vers le même endroit. C'est un problème d'information, et un problème d'information se résout avec un logiciel.",
-      p6: "C'est le pari de CoShift : ne pas recréer ce qui existe déjà, et se concentrer sur ce qui manque vraiment. Le cercle fermé n'est pas une limitation du produit, c'est sa condition de fonctionnement.",
     },
   },
 

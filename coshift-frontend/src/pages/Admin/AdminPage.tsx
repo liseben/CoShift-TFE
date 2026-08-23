@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { FiSearch, FiShield, FiSlash, FiRotateCcw } from "react-icons/fi";
 import { API_BASE } from "../../config/api";
@@ -194,6 +194,13 @@ export default function AdminPage() {
         <h1>
           <FiShield aria-hidden="true" /> {t("admin.heroTitre")}
         </h1>
+        {estSuperAdmin && (
+          /* La redaction du blog est la voix editoriale de la plateforme :
+             elle suit le meme role que la supervision de plateforme. */
+          <p className="ad__liens">
+            <Link to="/administration/blog">{t("blogAdmin.lien")}</Link>
+          </p>
+        )}
         {apercu && (
           <p className="ad__portee">
             {apercu.portee === "PLATEFORME"

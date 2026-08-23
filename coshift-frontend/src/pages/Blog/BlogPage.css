@@ -223,3 +223,20 @@
   .blog__carte { padding: var(--sp-5); }
   .blog__billet-titre { font-size: var(--fs-xl); }
 }
+
+/* Signature de l'auteur, quand le billet en a une. Les quatre premiers billets
+   n'en ont pas : ils précèdent l'éditeur, et leur en attribuer une
+   rétroactivement serait une donnée inventée. */
+.blog__auteur {
+  font-style: italic;
+}
+
+/* Le billet n'existe pas dans la langue choisie. On le dit plutôt que de
+   laisser croire à une traduction — un lecteur qui ne comprend pas pourquoi le
+   texte a changé de langue soupçonne un bogue. */
+.blog__langue {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  border-left: 2px solid var(--border-strong);
+  padding-left: var(--sp-4);
+}
