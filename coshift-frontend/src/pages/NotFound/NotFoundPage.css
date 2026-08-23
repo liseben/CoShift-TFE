@@ -1,0 +1,120 @@
+/* Page introuvable.
+   Un écran d'erreur doit rassurer, pas impressionner : rien qui clignote,
+   rien de plein écran. Le gabarit reste celui des autres pages, en-tête et
+   pied compris, pour que le site ait l'air d'avoir répondu et non d'être
+   tombé. */
+
+.introuvable {
+  max-width: var(--w-prose);
+}
+
+.introuvable__tete {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* Le nombre est un repère visuel, pas une information : il est retiré aux
+   lecteurs d'écran côté composant, le titre suffisant à dire ce qui se passe.
+
+   Pas d'`opacity` pour l'estomper, bien que ce soit le réflexe : une valeur
+   réglée à l'œil sur le thème clair tombe sous 2:1 sur le sombre, où le fond
+   est proche du noir. Le jeton `--brand` est déjà défini deux fois, avec son
+   rapport de contraste mesuré dans chaque thème ; s'appuyer dessus est la
+   seule façon d'obtenir un rendu juste des deux côtés. */
+.introuvable__code {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--brand);
+}
+
+.introuvable__accroche {
+  font-size: var(--fs-md);
+  color: var(--text-soft);
+  line-height: var(--lh-base);
+}
+
+/* ── Adresse demandée ── */
+.introuvable__adresse {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.introuvable__adresse-libelle {
+  flex: none;
+}
+
+.introuvable__adresse code {
+  background: var(--surface-sunk);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 2px var(--sp-2);
+  color: var(--text-soft);
+  /* Une adresse sans espace déborderait sinon de son conteneur sur mobile.
+     `anywhere` coupe où il faut plutôt que d'élargir la page. */
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ── Actions ── */
+.introuvable__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+/* ── Pistes ── */
+.introuvable__pistes {
+  border-top: 1px solid var(--border);
+  padding-top: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.introuvable__pistes-titre {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.introuvable__pistes ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-2) var(--sp-5);
+}
+
+.introuvable__pistes a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
+  color: var(--brand);
+  text-decoration: none;
+  line-height: var(--lh-snug);
+}
+
+.introuvable__pistes a:hover {
+  text-decoration: underline;
+}
+
+.introuvable__pistes a:focus-visible {
+  outline: none;
+  border-radius: var(--r-sm);
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 640px) {
+  .introuvable__code { font-size: var(--fs-2xl); }
+}
