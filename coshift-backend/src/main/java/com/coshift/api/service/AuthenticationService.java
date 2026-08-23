@@ -147,6 +147,11 @@ public class AuthenticationService {
                    ici qu'après une acceptation explicite. */
                 .cguAcceptedAt(LocalDateTime.now())
                 .cguVersion(VERSION_CGU)
+                /* Langue de correspondance, relevee au moment ou la personne
+                   s'exprime. Les notifications partent vers quelqu'un d'autre
+                   que celui qui agit : la langue de la requete ne dira alors
+                   plus rien du destinataire. */
+                .preferredLanguage(messages.langueCourante().getLanguage())
                 .build();
 
         repository.save(user);
@@ -261,6 +266,15 @@ public class AuthenticationService {
 
         loginAttemptService.reset(attemptKey);
         audit.consigner(Evenement.CONNEXION_REUSSIE, user.getEmail(), clientIp);
+
+        /* La langue est rafraichie a chaque connexion : c'est le moment le plus
+           frequent ou la personne s'exprime elle-meme, et il ne demande aucun
+           ecran de preferences supplementaire. */
+        String langue = messages.langueCourante().getLanguage();
+        if (!langue.equals(user.getPreferredLanguage())) {
+            user.setPreferredLanguage(langue);
+            repository.save(user);
+        }
 
         var jwtToken = jwtService.generateToken(user);
 

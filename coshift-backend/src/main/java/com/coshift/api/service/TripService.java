@@ -31,6 +31,7 @@ public class TripService {
     private final UserRepository userRepository;
     private final VehiculeRepository vehiculeRepository;
     private final BookingRepository bookingRepository;
+    private final EmailService emailService;
 
     /** Délai minimum entre la publication et le départ, imposé par F16. */
     private static final int MIN_HOURS_BEFORE_DEPARTURE = 2;
@@ -160,6 +161,14 @@ public class TripService {
         if (!impacted.isEmpty()) {
             log.info("{} réservation(s) annulée(s) suite à l'annulation du trajet {}",
                     impacted.size(), trip.getUuid());
+
+            /* La plus importante des notifications : sans elle, quelqu'un
+               attend à un point de rendez-vous où personne ne viendra. Chaque
+               passager est prévenu dans SA langue — celle du conducteur qui
+               annule n'a rien à voir ici. */
+            String resume = resume(trip);
+            impacted.forEach(booking ->
+                    emailService.notifierTrajetAnnule(booking.getPassenger(), resume));
         }
 
         trip.setStatus(TripStatus.CANCELLED);
@@ -190,6 +199,15 @@ public class TripService {
     private User findUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
+    }
+
+    /** Rappel du trajet, tel qu'il apparaît dans un courriel. */
+    private String resume(Trip trip) {
+        String quand = (trip.getDepartureTime() == null) ? "" :
+                trip.getDepartureTime().format(
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy à HH'h'mm"));
+        return trip.getDepartureCity() + " → " + trip.getArrivalCity()
+                + (quand.isEmpty() ? "" : "<br>" + quand);
     }
 
     private String blankToNull(String s) {

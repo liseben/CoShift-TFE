@@ -123,6 +123,38 @@ public class User implements UserDetails {
     @Column(name = "cgu_version", length = 10)
     private String cguVersion;
 
+    // --- CORRESPONDANCE ---
+
+    /**
+     * Langue dans laquelle écrire à cette personne, ou {@code null} si elle n'a
+     * jamais été relevée.
+     *
+     * <p>Les courriels tiraient leur langue de la requête en cours. C'était
+     * juste tant que le destinataire était celui qui agissait — on demande son
+     * propre code de vérification. Une notification part vers quelqu'un
+     * d'autre : sans cette colonne, un conducteur anglophone recevrait un
+     * courriel en français parce qu'un passager francophone a cliqué.</p>
+     *
+     * @see #langue()
+     */
+    @Column(name = "preferred_language", length = 5)
+    private String preferredLanguage;
+
+    /**
+     * Langue de correspondance, français à défaut.
+     *
+     * <p>Le repli est ici et non en base : {@code null} signifie « jamais
+     * relevée », ce qui n'est pas la même chose que « a choisi le français ».
+     * La distinction se perdrait en écrivant une valeur par défaut dans la
+     * colonne, et avec elle la possibilité de proposer un jour le choix aux
+     * comptes qui n'ont rien exprimé.</p>
+     */
+    public java.util.Locale langue() {
+        return (preferredLanguage == null || preferredLanguage.isBlank())
+                ? java.util.Locale.FRENCH
+                : java.util.Locale.forLanguageTag(preferredLanguage);
+    }
+
     // --- MÉTHODES USERDETAILS (Spring Security) ---
 
     @Override
