@@ -1,0 +1,85 @@
+/* Sélecteur de note — cinq boutons radio déguisés en étoiles. */
+
+.rating {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0; /* fieldset impose une largeur minimale implicite */
+}
+
+.rating__etoiles {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.rating__etoile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* Cible tactile conforme, alors que l'étoile dessinée est plus petite. */
+  min-width: var(--tap);
+  min-height: var(--tap);
+  cursor: pointer;
+  color: var(--border-strong);
+  font-size: var(--fs-xl);
+  border-radius: var(--r-sm);
+  transition: color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+
+.rating__etoile.is-active {
+  color: var(--pending); /* l'ocre du jeu de jetons, pas un jaune inventé */
+}
+
+.rating__etoile:hover {
+  transform: scale(1.08);
+}
+
+/* Le radio reste dans le flux — il doit rester focusable — mais invisible.
+   `display: none` ou `visibility: hidden` le retireraient de l'ordre de
+   tabulation, ce qui supprimerait la navigation au clavier que ce composant
+   existe précisément pour offrir. */
+.rating__radio {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Le focus se peint sur le label, le radio étant transparent. */
+.rating__radio:focus-visible + .sr-only + svg,
+.rating__radio:focus-visible ~ svg {
+  outline: none;
+}
+
+.rating__etoile:has(.rating__radio:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+.rating--invalid .rating__etoile {
+  color: var(--danger);
+}
+
+.rating--invalid .rating__etoile.is-active {
+  color: var(--danger);
+}
+
+.rating:disabled .rating__etoile {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.rating:disabled .rating__etoile:hover {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rating__etoile,
+  .rating__etoile:hover {
+    transition: none;
+    transform: none;
+  }
+}

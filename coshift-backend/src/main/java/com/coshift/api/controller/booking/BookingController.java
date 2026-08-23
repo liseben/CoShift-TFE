@@ -3,7 +3,10 @@ package com.coshift.api.controller.booking;
 import com.coshift.api.dto.BookingDecisionRequest;
 import com.coshift.api.dto.BookingRequest;
 import com.coshift.api.dto.BookingResponse;
+import com.coshift.api.dto.ReviewRequest;
+import com.coshift.api.dto.ReviewResponse;
 import com.coshift.api.service.BookingService;
+import com.coshift.api.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +34,7 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final ReviewService reviewService;
 
     // F27 — Réserver une ou plusieurs places
     @Operation(
@@ -200,5 +204,58 @@ public class BookingController {
             @PathVariable String uuid,
             Authentication auth) {
         return ResponseEntity.ok(bookingService.complete(auth.getName(), uuid));
+    }
+
+    // F22 / F31 — Noter l'autre participant
+    @Operation(
+            summary = "Noter l'autre participant du trajet",
+            description = """
+                    La notation est **réciproque** : sur une même réservation, le passager
+                    note le conducteur et le conducteur note le passager. La personne notée
+                    se déduit de la place qu'occupe l'auteur ; il n'y a rien à préciser.
+
+                    **Trois conditions**, dans cet ordre :
+
+                    1. *Il faut avoir voyagé.* La réservation doit être `COMPLETED`,
+                       c'est-à-dire confirmée par le passager. Sans cela, réserver puis
+                       annuler donnerait le droit de noter.
+                    2. *Il faut avoir voyagé avec la personne notée.* Un tiers reçoit 403.
+                    3. *Une seule fois.* Un trajet, un avis par participant — sinon noter
+                       en boucle suffirait à couler quelqu'un.
+
+                    La note va de 1 à 5 ; le commentaire est facultatif et borné à 500
+                    caractères. La moyenne du profil est **relue depuis la table** après
+                    chaque dépôt, jamais mise à jour par pondération : un calcul incrémental
+                    dérive sans que rien ne le signale.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avis enregistré ; la moyenne du profil noté est recalculée."),
+            @ApiResponse(responseCode = "400", description = "Note hors barème ou commentaire trop long.", content = @Content()),
+            @ApiResponse(responseCode = "403", description = "Vous n'avez pas partagé ce trajet.", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Réservation introuvable.", content = @Content()),
+            @ApiResponse(responseCode = "409", description = "Trajet non confirmé, ou avis déjà déposé.", content = @Content())
+    })
+    @PostMapping("/{uuid}/review")
+    public ResponseEntity<ReviewResponse> review(
+            @Parameter(description = "Identifiant public de la réservation.")
+            @PathVariable String uuid,
+            @Valid @RequestBody ReviewRequest request,
+            Authentication auth) {
+        return ResponseEntity.ok(reviewService.deposer(auth.getName(), uuid, request));
+    }
+
+    // F22 / F31 — Les avis que j'ai reçus
+    @Operation(
+            summary = "Les avis que j'ai reçus",
+            description = """
+                    Les avis laissés sur le membre connecté, du plus récent au plus ancien.
+
+                    Chaque avis porte le **prénom seul** de son auteur : un avis se lit
+                    d'abord pour ce qu'il dit, et afficher un nom complet à côté d'un
+                    jugement exposerait une personne au-delà de ce que la fonctionnalité
+                    demande.""")
+    @ApiResponse(responseCode = "200", description = "Liste des avis reçus, éventuellement vide.")
+    @GetMapping("/reviews/received")
+    public ResponseEntity<List<ReviewResponse>> reviewsRecus(Authentication auth) {
+        return ResponseEntity.ok(reviewService.avisRecus(auth.getName()));
     }
 }

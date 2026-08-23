@@ -5,6 +5,7 @@ import com.coshift.api.exception.BadRequestException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.repository.BookingRepository;
 import com.coshift.api.repository.TripRepository;
+import com.coshift.api.repository.ReviewRepository;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.repository.VehiculeRepository;
 import com.coshift.api.security.SecurityAuditService;
@@ -68,6 +69,7 @@ public class PersonalDataService {
     private final TripRepository tripRepository;
     private final BookingRepository bookingRepository;
     private final VehiculeRepository vehiculeRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
     private final SecurityAuditService audit;
 
@@ -114,6 +116,8 @@ public class PersonalDataService {
         racine.put("vehicules", vehicules(u));
         racine.put("trajetsProposes", trajetsProposes(u));
         racine.put("reservationsDemandees", reservationsDemandees(u));
+        racine.put("avisEcrits", avisEcrits(u));
+        racine.put("avisRecus", avisRecus(u));
         racine.put("_nonInclus", List.of(
                 "L'empreinte du mot de passe : elle n'est pas réversible et ne vous apprendrait rien.",
                 "Les codes de vérification en cours : ils expirent en une heure.",
@@ -219,6 +223,48 @@ public class PersonalDataService {
                 .toList();
     }
 
+    /**
+     * Avis rédigés par la personne.
+     *
+     * <p>Ce sont ses mots : ils lui appartiennent et entrent pleinement dans la
+     * portabilité. Le nom de la personne notée n'y figure pas — c'est sa donnée
+     * à elle, pas celle de l'auteur.</p>
+     */
+    private List<Map<String, Object>> avisEcrits(User u) {
+        return reviewRepository.findByAuthorIdOrderByCreatedAtDesc(u.getId()).stream()
+                .map(r -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("identifiant", r.getUuid());
+                    m.put("note", r.getRating());
+                    m.put("commentaire", r.getComment());
+                    m.put("redigeLe", texte(r.getCreatedAt()));
+                    return m;
+                })
+                .toList();
+    }
+
+    /**
+     * Avis reçus par la personne.
+     *
+     * <p>Ils la concernent, donc l'article 15 impose de les communiquer. Le
+     * prénom de l'auteur est conservé : sans lui, un avis devient un jugement
+     * anonyme sur lequel on ne peut pas revenir. Rien d'autre de l'auteur n'y
+     * figure.</p>
+     */
+    private List<Map<String, Object>> avisRecus(User u) {
+        return reviewRepository.findByTargetIdOrderByCreatedAtDesc(u.getId()).stream()
+                .map(r -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("identifiant", r.getUuid());
+                    m.put("note", r.getRating());
+                    m.put("commentaire", r.getComment());
+                    m.put("auteur", r.getAuthor() == null ? null : r.getAuthor().getFirstname());
+                    m.put("recuLe", texte(r.getCreatedAt()));
+                    return m;
+                })
+                .toList();
+    }
+
     /* ─────────────────────────────────────────────────────────────────────
        Article 17 — effacement
        ───────────────────────────────────────────────────────────────────── */
@@ -248,6 +294,7 @@ public class PersonalDataService {
         LocalDateTime maintenant = LocalDateTime.now();
 
         annulerEngagementsFuturs(u, maintenant);
+        anonymiserAvis(u);
         anonymiserVehicules(u);
         supprimerPhoto(u);
         anonymiserCompte(u, maintenant);
@@ -305,6 +352,36 @@ public class PersonalDataService {
         if (!aAnnuler.isEmpty() || !mesDemandes.isEmpty()) {
             log.info("Effacement : {} trajet(s) et {} réservation(s) annulés",
                     aAnnuler.size(), mesDemandes.size());
+        }
+    }
+
+    /**
+     * Retire des avis tout texte libre rattaché à la personne.
+     *
+     * <p>Deux sens à traiter, et non un seul. Les commentaires <em>écrits</em>
+     * par la personne sont ses mots : ils disparaissent avec elle. Les
+     * commentaires <em>reçus</em> sont ceux d'autrui, mais ils parlent d'elle —
+     * et un texte libre nomme volontiers celui qu'il décrit. Les conserver
+     * laisserait « Marie était très ponctuelle » dans une base d'où Marie est
+     * censée avoir disparu.</p>
+     *
+     * <p>La note chiffrée subsiste dans les deux cas. Détachée de tout nom, elle
+     * ne se rapporte plus à une personne identifiable, et la retirer fausserait
+     * la moyenne d'un tiers qui, lui, n'a rien demandé.</p>
+     */
+    private void anonymiserAvis(User u) {
+        List<Review> ecrits = reviewRepository.findByAuthorIdOrderByCreatedAtDesc(u.getId());
+        List<Review> recus = reviewRepository.findByTargetIdOrderByCreatedAtDesc(u.getId());
+
+        ecrits.forEach(r -> r.setComment(null));
+        recus.forEach(r -> r.setComment(null));
+
+        reviewRepository.saveAll(ecrits);
+        reviewRepository.saveAll(recus);
+
+        if (!ecrits.isEmpty() || !recus.isEmpty()) {
+            log.info("Effacement : {} avis écrit(s) et {} avis reçu(s) vidés de leur commentaire",
+                    ecrits.size(), recus.size());
         }
     }
 

@@ -13,6 +13,7 @@ import com.coshift.api.exception.NoSeatsAvailableException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
 import com.coshift.api.repository.BookingRepository;
+import com.coshift.api.repository.ReviewRepository;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Cycle de vie des réservations (F19, F20, F27, F29, F30).
@@ -43,6 +46,7 @@ public class BookingService {
     private final Messages messages;
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
 
     /** Délai minimum entre la réservation et le départ, imposé par F27. */
     private static final int MIN_HOURS_BEFORE_BOOKING = 1;
@@ -98,10 +102,30 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponse> getMyBookings(String passengerEmail) {
         User passenger = findUser(passengerEmail);
+        Set<Long> dejaNotees = reservationsDejaNoteesPar(passenger);
+
         return bookingRepository.findByPassengerIdOrderByCreatedAtDesc(passenger.getId())
                 .stream()
-                .map(BookingResponse::forPassenger)
+                .map(b -> marquerSiNotee(BookingResponse.forPassenger(b), b, dejaNotees))
                 .toList();
+    }
+
+    /**
+     * Réservations que ce membre a déjà notées.
+     *
+     * <p>Une seule requête pour toute la liste. La solution évidente — demander
+     * pour chaque ligne si un avis existe — coûterait autant d'allers-retours
+     * que de réservations affichées, pour une information que la base rend
+     * d'un coup.</p>
+     */
+    private Set<Long> reservationsDejaNoteesPar(User membre) {
+        return new HashSet<>(reviewRepository.reservationsDejaNoteesPar(membre.getId()));
+    }
+
+    private BookingResponse marquerSiNotee(BookingResponse reponse, Booking booking,
+                                           Set<Long> dejaNotees) {
+        reponse.setReviewed(dejaNotees.contains(booking.getId()));
+        return reponse;
     }
 
     // ─────────────────── F19 — Les demandes reçues par le conducteur ──────────────
@@ -109,9 +133,11 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponse> getBookingsReceived(String driverEmail) {
         User driver = findUser(driverEmail);
+        Set<Long> dejaNotees = reservationsDejaNoteesPar(driver);
+
         return bookingRepository.findAllForDriver(driver.getId())
                 .stream()
-                .map(BookingResponse::forDriver)
+                .map(b -> marquerSiNotee(BookingResponse.forDriver(b), b, dejaNotees))
                 .toList();
     }
 
