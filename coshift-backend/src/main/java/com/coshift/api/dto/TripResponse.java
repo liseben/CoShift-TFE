@@ -37,6 +37,14 @@ public class TripResponse {
     // Infos véhicule (aperçu)
     private VehicleSummary vehicule;
 
+    /**
+     * Organisation à laquelle le trajet est ouvert. Nul si le trajet n'en a
+     * pas : le montrer, c'est rendre visible ce qui distingue CoShift d'une
+     * plateforme ouverte, et c'est aussi ce qui explique au passager pourquoi
+     * il voit ce trajet-là.
+     */
+    private OrganizationSummary organization;
+
     @Data @Builder
     public static class DriverSummary {
         private String uuid;
@@ -45,6 +53,14 @@ public class TripResponse {
         private String pictureUrl;
         private double averageRating;
         private int tripsCount;
+    }
+
+    @Data @Builder
+    public static class OrganizationSummary {
+        private String uuid;
+        private String name;
+        private String slug;
+        private String logoUrl;
     }
 
     @Data @Builder
@@ -81,6 +97,16 @@ public class TripResponse {
                         .averageRating(t.getDriver().getAverageRating())
                         .tripsCount(t.getDriver().getTripsCount())
                         .build())
+                /* Le domaine de courriel n'est pas exposé : il ne dit rien au
+                   lecteur de la fiche et donnerait à qui lit l'API la liste des
+                   adresses qui ouvrent chaque cercle. */
+                .organization(t.getOrganization() == null ? null :
+                        OrganizationSummary.builder()
+                                .uuid(t.getOrganization().getUuid())
+                                .name(t.getOrganization().getName())
+                                .slug(t.getOrganization().getSlug())
+                                .logoUrl(t.getOrganization().getLogoUrl())
+                                .build())
                 .vehicule(VehicleSummary.builder()
                         .brand(t.getVehicule().getBrand())
                         .model(t.getVehicule().getModel())

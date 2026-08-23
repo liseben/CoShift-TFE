@@ -24,10 +24,24 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     /**
      * F25 — Recherche de trajets.
      *
-     * <p>Deux garde-fous s'appliquent systématiquement, quels que soient les
+     * <p>Trois garde-fous s'appliquent systématiquement, quels que soient les
      * filtres saisis : seuls les trajets à venir remontent (auparavant, une
-     * recherche sans date renvoyait aussi les trajets du mois dernier), et le
-     * conducteur ne voit jamais ses propres trajets dans les résultats.</p>
+     * recherche sans date renvoyait aussi les trajets du mois dernier), le
+     * conducteur ne voit jamais ses propres trajets dans les résultats, et un
+     * trajet rattaché à une organisation n'apparaît qu'aux membres de
+     * celle-ci.</p>
+     *
+     * <p>Ce troisième garde-fou est le cercle fermé, qui est la raison d'être
+     * du produit : on ne monte pas dans la voiture d'un inconnu. La
+     * documentation OpenAPI de {@code /api/trips/search} l'annonçait déjà
+     * pendant que la requête renvoyait les trajets de tout le monde.</p>
+     *
+     * <p>Un trajet sans organisation reste visible de tous : son conducteur
+     * n'appartenait à aucun cercle, il n'y a personne à qui le réserver.
+     * Symétriquement, {@code organizationIds} ne doit jamais être vide —
+     * l'appelant y met une valeur impossible plutôt qu'une liste vide, pour
+     * que la clause reste un {@code IN} bien formé et que quelqu'un sans
+     * organisation ne voie que les trajets sans organisation.</p>
      */
     @Query("""
             SELECT t FROM Trip t
@@ -35,6 +49,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             AND t.departureTime >= :now
             AND t.availableSeats > 0
             AND t.driver.id <> :currentUserId
+            AND (t.organization IS NULL OR t.organization.id IN :organizationIds)
             AND (:departure IS NULL OR LOWER(t.departureCity) LIKE LOWER(CONCAT('%', :departure, '%')))
             AND (:arrival  IS NULL OR LOWER(t.arrivalCity)   LIKE LOWER(CONCAT('%', :arrival,  '%')))
             AND (:dateFrom IS NULL OR t.departureTime >= :dateFrom)
@@ -50,7 +65,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("seats")         Integer seats,
             @Param("status")        TripStatus status,
             @Param("now")           LocalDateTime now,
-            @Param("currentUserId") Long currentUserId);
+            @Param("currentUserId") Long currentUserId,
+            @Param("organizationIds") Collection<Long> organizationIds);
 
     // Multi-tenant
     List<Trip> findByOrganizationId(Long organizationId);

@@ -8,6 +8,7 @@ import com.coshift.api.exception.ConflictException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
 import com.coshift.api.repository.BookingRepository;
+import com.coshift.api.repository.OrganizationRepository;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.repository.VehiculeRepository;
@@ -32,12 +33,17 @@ public class TripService {
     private final VehiculeRepository vehiculeRepository;
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
+    private final OrganizationRepository organizationRepository;
+    private final OrganizationService organizationService;
 
     /** Délai minimum entre la publication et le départ, imposé par F16. */
     private static final int MIN_HOURS_BEFORE_DEPARTURE = 2;
 
     /** Nombre maximum de trajets simultanément actifs par conducteur (F16). */
     private static final int MAX_ACTIVE_TRIPS = 5;
+
+    /** Identifiant qu'aucune organisation ne porte : les clés sont auto-incrémentées. */
+    private static final long AUCUNE_ORGANISATION = -1L;
 
     // F16 — Publier un trajet
     @Transactional
@@ -92,6 +98,7 @@ public class TripService {
                 .talkingAllowed(request.isTalkingAllowed())
                 .driver(driver)
                 .vehicule(vehicule)
+                .organization(organisationDuTrajet(driver, request.getOrganizationUuid()))
                 .status(TripStatus.PLANNED)
                 .build();
 
@@ -111,10 +118,26 @@ public class TripService {
                 dateFrom, dateTo, seats,
                 TripStatus.PLANNED,
                 LocalDateTime.now(),
-                searcher.getId())
+                searcher.getId(),
+                cercleDe(searcher))
                 .stream()
                 .map(TripResponse::from)
                 .toList();
+    }
+
+    /**
+     * Organisations dont l'appelant voit les trajets.
+     *
+     * <p>Jamais vide : une liste vide dans un {@code IN} n'est pas du SQL
+     * valide, et la faire disparaître de la requête reviendrait à lever le
+     * cercle pour ceux qui n'appartiennent à rien — exactement l'inverse de ce
+     * qu'on veut. La valeur impossible laisse la clause bien formée et ne
+     * correspond à aucune organisation, si bien que seuls les trajets sans
+     * organisation remontent.</p>
+     */
+    private List<Long> cercleDe(User user) {
+        List<Long> siennes = organizationService.identifiantsDesOrganisations(user);
+        return siennes.isEmpty() ? List.of(AUCUNE_ORGANISATION) : siennes;
     }
 
     // F19 — Mes trajets proposés (conducteur)
@@ -126,10 +149,31 @@ public class TripService {
                 .toList();
     }
 
-    // F26 — Détail d'un trajet
-    public TripResponse getTripByUuid(String uuid) {
+    /**
+     * F26 — Détail d'un trajet.
+     *
+     * <p>Le cercle s'applique ici aussi. Ne filtrer que la recherche
+     * n'apporterait rien : il suffirait d'un lien reçu d'ailleurs pour lire la
+     * fiche complète d'un trajet d'une autre organisation, adresse de départ
+     * comprise.</p>
+     *
+     * <p>Hors du cercle, la réponse est « introuvable » et non « interdit ».
+     * Distinguer les deux confirmerait à l'appelant qu'un trajet existe bien
+     * derrière cet identifiant, et lui apprendrait par la même occasion à
+     * quelle organisation appartient son conducteur. Ce qui n'est pas de son
+     * cercle n'existe pas pour lui.</p>
+     */
+    public TripResponse getTripByUuid(String viewerEmail, String uuid) {
+        User viewer = findUser(viewerEmail);
         Trip trip = tripRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.introuvable")));
+
+        /* Le conducteur voit toujours son propre trajet, y compris s'il a
+           quitté depuis l'organisation à laquelle il l'avait ouvert. */
+        boolean sien = trip.getDriver().getId().equals(viewer.getId());
+        if (!sien && !organizationService.partageLeCercle(viewer, trip.getOrganization())) {
+            throw new ResourceNotFoundException(messages.get("trajet.introuvable"));
+        }
         return TripResponse.from(trip);
     }
 
@@ -194,6 +238,42 @@ public class TripService {
         expired.forEach(trip -> trip.setStatus(TripStatus.COMPLETED));
         tripRepository.saveAll(expired);
         log.info("{} trajet(s) dont l'heure de départ est passée ont été clôturés.", expired.size());
+    }
+
+    /**
+     * Organisation à laquelle ouvrir le trajet.
+     *
+     * <p>Le cercle du trajet est fixé à la publication et n'est pas déduit plus
+     * tard de l'appartenance du conducteur : celle-ci peut changer, alors qu'un
+     * trajet déjà publié a été proposé à un public donné. Le figer, c'est éviter
+     * qu'un trajet passe silencieusement d'un cercle à un autre.</p>
+     *
+     * <p>Sans choix explicite, on retient l'organisation d'origine du
+     * conducteur. Un conducteur qui n'appartient à rien publie un trajet sans
+     * organisation : il sera visible de tous, faute de cercle à qui le
+     * réserver.</p>
+     *
+     * <p>Un choix explicite doit désigner une organisation dont le conducteur
+     * est membre. Sans cette vérification, n'importe qui publierait un trajet
+     * dans le cercle de n'importe quelle entreprise à partir de son seul
+     * identifiant public — la restriction de visibilité se contournerait par
+     * l'écriture au lieu de la lecture.</p>
+     */
+    private Organization organisationDuTrajet(User driver, String organizationUuid) {
+        if (organizationUuid == null || organizationUuid.isBlank()) {
+            return organizationService.organisationParDefaut(driver).orElse(null);
+        }
+
+        Organization visee = organizationRepository.findByUuid(organizationUuid)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        messages.get("trajet.organisationIntrouvable")));
+
+        boolean membre = organizationService.identifiantsDesOrganisations(driver)
+                .contains(visee.getId());
+        if (!membre) {
+            throw new UnauthorizedException(messages.get("trajet.organisationAutrui"));
+        }
+        return visee;
     }
 
     private User findUser(String email) {

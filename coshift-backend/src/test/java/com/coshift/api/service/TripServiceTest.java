@@ -4,6 +4,7 @@ import com.coshift.api.dto.TripRequest;
 import com.coshift.api.entity.Booking;
 import com.coshift.api.entity.BookingStatus;
 import com.coshift.api.entity.EnergyType;
+import com.coshift.api.entity.Organization;
 import com.coshift.api.entity.Trip;
 import com.coshift.api.entity.TripStatus;
 import com.coshift.api.entity.User;
@@ -13,6 +14,7 @@ import com.coshift.api.exception.ConflictException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
 import com.coshift.api.repository.BookingRepository;
+import com.coshift.api.repository.OrganizationRepository;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
 import com.coshift.api.repository.VehiculeRepository;
@@ -65,6 +67,8 @@ class TripServiceTest {
     @Mock private BookingRepository bookingRepository;
     @Mock private EmailService emailService;
     @Mock private Messages messages;
+    @Mock private OrganizationRepository organizationRepository;
+    @Mock private OrganizationService organizationService;
 
     @InjectMocks private TripService service;
 
@@ -274,6 +278,171 @@ class TripServiceTest {
             service.closePastTrips();
 
             verify(tripRepository, never()).saveAll(any());
+        }
+    }
+
+    // ─────────────────────── Rattachement B2B et cercle fermé ───────────────────
+
+    @Nested
+    @DisplayName("Rattachement du trajet a une organisation")
+    class Rattachement {
+
+        private final Organization solvantis = Organization.builder()
+                .id(1L).uuid("org-solvantis").name("Solvantis Belgium")
+                .slug("solvantis").emailDomain("solvantis.be").active(true).build();
+
+        private final Organization festival = Organization.builder()
+                .id(2L).uuid("org-festival").name("Festival")
+                .slug("ardenn-son").emailDomain("ardenn-son.be").active(true).build();
+
+        @Test
+        @DisplayName("sans choix explicite, retient l'organisation d'origine du conducteur")
+        void poseLorganisationParDefaut() {
+            when(organizationService.organisationParDefaut(conducteur))
+                    .thenReturn(Optional.of(solvantis));
+
+            service.publishTrip(CONDUCTEUR, demande(2));
+
+            ArgumentCaptor<Trip> capture = ArgumentCaptor.forClass(Trip.class);
+            verify(tripRepository).save(capture.capture());
+            assertThat(capture.getValue().getOrganization()).isEqualTo(solvantis);
+        }
+
+        @Test
+        @DisplayName("un conducteur sans organisation publie un trajet sans organisation")
+        void conducteurSansCercle() {
+            when(organizationService.organisationParDefaut(conducteur)).thenReturn(Optional.empty());
+
+            service.publishTrip(CONDUCTEUR, demande(2));
+
+            ArgumentCaptor<Trip> capture = ArgumentCaptor.forClass(Trip.class);
+            verify(tripRepository).save(capture.capture());
+            assertThat(capture.getValue().getOrganization()).isNull();
+        }
+
+        @Test
+        @DisplayName("accepte une organisation choisie parmi les siennes")
+        void accepteUnChoixLegitime() {
+            when(organizationRepository.findByUuid("org-festival")).thenReturn(Optional.of(festival));
+            when(organizationService.identifiantsDesOrganisations(conducteur))
+                    .thenReturn(List.of(1L, 2L));
+
+            TripRequest r = demande(2);
+            r.setOrganizationUuid("org-festival");
+            service.publishTrip(CONDUCTEUR, r);
+
+            ArgumentCaptor<Trip> capture = ArgumentCaptor.forClass(Trip.class);
+            verify(tripRepository).save(capture.capture());
+            assertThat(capture.getValue().getOrganization()).isEqualTo(festival);
+        }
+
+        @Test
+        @DisplayName("refuse une organisation dont le conducteur n'est pas membre")
+        void refuseUnCercleEtranger() {
+            /* Sans ce refus, la restriction de visibilite se contournerait par
+               l'ecriture : il suffirait de connaitre l'identifiant public d'une
+               entreprise pour deposer un trajet dans son cercle. */
+            when(organizationRepository.findByUuid("org-solvantis")).thenReturn(Optional.of(solvantis));
+            when(organizationService.identifiantsDesOrganisations(conducteur)).thenReturn(List.of(2L));
+
+            TripRequest r = demande(2);
+            r.setOrganizationUuid("org-solvantis");
+
+            assertThatThrownBy(() -> service.publishTrip(CONDUCTEUR, r))
+                    .isInstanceOf(UnauthorizedException.class);
+            verify(tripRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("refuse une organisation qui n'existe pas")
+        void refuseUnIdentifiantInconnu() {
+            when(organizationRepository.findByUuid("org-fantome")).thenReturn(Optional.empty());
+
+            TripRequest r = demande(2);
+            r.setOrganizationUuid("org-fantome");
+
+            assertThatThrownBy(() -> service.publishTrip(CONDUCTEUR, r))
+                    .isInstanceOf(ResourceNotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("Cercle ferme a la lecture")
+    class Cercle {
+
+        private final Organization solvantis = Organization.builder()
+                .id(1L).uuid("org-solvantis").name("Solvantis Belgium")
+                .slug("solvantis").emailDomain("solvantis.be").active(true).build();
+
+        private Trip trajetDeSolvantis() {
+            Trip t = trajet(TripStatus.PLANNED, LocalDateTime.now().plusDays(1));
+            t.setOrganization(solvantis);
+            return t;
+        }
+
+        @Test
+        @DisplayName("la recherche transmet les organisations de l'appelant")
+        void rechercheFiltreeParLeCercle() {
+            when(organizationService.identifiantsDesOrganisations(autre)).thenReturn(List.of(7L, 9L));
+            when(tripRepository.searchTrips(any(), any(), any(), any(), any(), any(), any(), anyLong(), anyList()))
+                    .thenReturn(List.of());
+
+            service.searchTrips(AUTRE, null, null, null, null);
+
+            ArgumentCaptor<List<Long>> cercle = ArgumentCaptor.captor();
+            verify(tripRepository).searchTrips(any(), any(), any(), any(), any(), any(), any(),
+                    anyLong(), cercle.capture());
+            assertThat(cercle.getValue()).containsExactly(7L, 9L);
+        }
+
+        @Test
+        @DisplayName("sans organisation, la recherche reste bornee au lieu de s'ouvrir")
+        void appelantSansOrganisation() {
+            /* Le piege serait de laisser tomber la clause quand la liste est
+               vide : quelqu'un sans organisation verrait alors tous les trajets
+               de toutes les entreprises, soit l'inverse du but recherche. */
+            when(organizationService.identifiantsDesOrganisations(autre)).thenReturn(List.of());
+            when(tripRepository.searchTrips(any(), any(), any(), any(), any(), any(), any(), anyLong(), anyList()))
+                    .thenReturn(List.of());
+
+            service.searchTrips(AUTRE, null, null, null, null);
+
+            ArgumentCaptor<List<Long>> cercle = ArgumentCaptor.captor();
+            verify(tripRepository).searchTrips(any(), any(), any(), any(), any(), any(), any(),
+                    anyLong(), cercle.capture());
+            assertThat(cercle.getValue()).isNotEmpty().allMatch(id -> id < 0);
+        }
+
+        @Test
+        @DisplayName("la fiche d'un trajet d'un autre cercle repond introuvable")
+        void ficheHorsDuCercle() {
+            when(tripRepository.findByUuid("t-uuid")).thenReturn(Optional.of(trajetDeSolvantis()));
+            when(organizationService.partageLeCercle(autre, solvantis)).thenReturn(false);
+
+            assertThatThrownBy(() -> service.getTripByUuid(AUTRE, "t-uuid"))
+                    .isInstanceOf(ResourceNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("un membre du cercle lit la fiche")
+        void ficheDansLeCercle() {
+            when(tripRepository.findByUuid("t-uuid")).thenReturn(Optional.of(trajetDeSolvantis()));
+            when(organizationService.partageLeCercle(autre, solvantis)).thenReturn(true);
+
+            assertThat(service.getTripByUuid(AUTRE, "t-uuid").getOrganization().getSlug())
+                    .isEqualTo("solvantis");
+        }
+
+        @Test
+        @DisplayName("le conducteur lit toujours son propre trajet")
+        void leConducteurNestJamaisExclu() {
+            /* Quitter une organisation ne doit pas priver quelqu'un de ses
+               propres publications, ni l'empecher de les annuler. */
+            when(tripRepository.findByUuid("t-uuid")).thenReturn(Optional.of(trajetDeSolvantis()));
+            when(organizationService.partageLeCercle(conducteur, solvantis)).thenReturn(false);
+
+            assertThatCode(() -> service.getTripByUuid(CONDUCTEUR, "t-uuid"))
+                    .doesNotThrowAnyException();
         }
     }
 
