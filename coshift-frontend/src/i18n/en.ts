@@ -711,6 +711,29 @@ export const en: Traductions = {
     enregistrer: "Save",
   },
 
+  paiement: {
+    etat: "Payment",
+    du: "Due",
+    regle: "Paid",
+    rembourse: "Refunded",
+    rembourseEnPartie: "Partly refunded",
+    annule: "Not applicable",
+    echoue: "Failed",
+
+    payer: "Pay €{montant}",
+    rembourseDe: "€{montant} returned",
+    motif: "Reason: {motif}",
+
+    simulation:
+      "No money moves: CoShift holds no payment agent status, and the recorded provider is a simulation. The terms and conditions say the same.",
+
+    baremeTitre: "What you will get back",
+    baremeIntegral: "You get the full amount back, €{montant}.",
+    baremePartiel:
+      "Departure is less than 24 hours away: you get {part} % back, €{montant}. The seat can no longer be re-let, and the driver planned the trip around it.",
+    baremeRien: "The ride has departed: nothing is refundable.",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",

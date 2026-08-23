@@ -35,6 +35,7 @@ public class TripService {
     private final EmailService emailService;
     private final OrganizationRepository organizationRepository;
     private final OrganizationService organizationService;
+    private final PaymentService paymentService;
 
     /** Délai minimum entre la publication et le départ, imposé par F16. */
     private static final int MIN_HOURS_BEFORE_DEPARTURE = 2;
@@ -199,6 +200,11 @@ public class TripService {
         impacted.forEach(booking -> {
             booking.setStatus(BookingStatus.CANCELLED);
             booking.setStatusReason(messages.get("trajet.annuleParConducteur"));
+            /* Le trajet disparait par la seule decision du conducteur : chaque
+               passager recupere l'integralite, quel que soit le moment. On ne
+               fait pas payer quelqu'un pour une decision qui n'est pas la
+               sienne. */
+            paymentService.rembourser(booking, true, messages.get("trajet.annuleParConducteur"));
         });
         bookingRepository.saveAll(impacted);
 

@@ -70,6 +70,7 @@ class NotificationsTest {
     @Mock private Messages messages;
     @Mock private OrganizationRepository organizationRepository;
     @Mock private OrganizationService organizationService;
+    @Mock private PaymentService paymentService;
 
     private BookingService bookingService;
     private TripService tripService;
@@ -84,10 +85,10 @@ class NotificationsTest {
     @BeforeEach
     void preparer() {
         bookingService = new BookingService(bookingRepository, messages, tripRepository,
-                userRepository, reviewRepository, emailService, organizationService);
+                userRepository, reviewRepository, emailService, organizationService, paymentService);
         tripService = new TripService(tripRepository, messages, userRepository,
                 vehiculeRepository, bookingRepository, emailService,
-                organizationRepository, organizationService);
+                organizationRepository, organizationService, paymentService);
 
         /* Ces cas portent sur le destinataire et la langue des courriels, pas
            sur la visibilite : tout le monde partage le cercle. */

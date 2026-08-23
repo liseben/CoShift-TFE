@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaStar, FaTicketAlt, FaPhoneAlt, FaCar, FaRegStar } from "react-icons/fa";
-import { FiArrowRight, FiCheckCircle, FiSearch } from "react-icons/fi";
+import { FiArrowRight, FiCheckCircle, FiSearch , FiCreditCard} from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { formatTripDate } from "./bookingStatus";
@@ -14,6 +14,16 @@ import { LANGUES } from "../../i18n";
 import "./BookingsPage.css";
 import { useSeo } from "../../hooks/useSeo";
 
+/** Cle de traduction de l'etat comptable. */
+const ETAT_PAIEMENT: Record<string, string> = {
+  DUE: "paiement.du",
+  PAID: "paiement.regle",
+  REFUNDED: "paiement.rembourse",
+  PARTIALLY_REFUNDED: "paiement.rembourseEnPartie",
+  CANCELLED: "paiement.annule",
+  FAILED: "paiement.echoue",
+};
+
 interface Booking {
   uuid: string;
   seatsBooked: number;
@@ -23,6 +33,17 @@ interface Booking {
   completedAt?: string | null;
   reviewed?: boolean;
   createdAt: string;
+  /** Etat comptable. Absent si la reservation precede le partage de frais. */
+  paiement?: {
+    uuid: string;
+    amount: number;
+    currency: string;
+    status: "DUE" | "PAID" | "REFUNDED" | "PARTIALLY_REFUNDED" | "CANCELLED" | "FAILED";
+    refundedAmount: number;
+    refundReason?: string | null;
+    paidAt?: string | null;
+    provider: string;
+  } | null;
   trip: {
     uuid: string;
     departureCity: string;
@@ -70,6 +91,11 @@ export default function MyBookingsPage() {
   /* Remplace window.confirm : le navigateur ne stylise pas ses fenetres et
      leur contenu echappe aux lecteurs d'ecran de la page. */
   const [toCancel, setToCancel] = useState<Booking | null>(null);
+  /* Ce qui serait rendu si l'annulation etait confirmee maintenant. Demande au
+     serveur : le bareme est une regle metier, la recopier ici ouvrirait la
+     possibilite que les deux versions divergent — et c'est l'ecran qui aurait
+     tort. */
+  const [bareme, setBareme] = useState<{ partRendue: number; montantRendu: number } | null>(null);
 
   const headers = () => ({
     Authorization: `Bearer ${localStorage.getItem("coshift_token") ?? ""}`,
@@ -109,6 +135,39 @@ export default function MyBookingsPage() {
     } finally {
       setBusy(null);
     }
+  };
+
+  const libellePaiement = (statut: string) => t(ETAT_PAIEMENT[statut] ?? "paiement.etat");
+
+  /** Acquitte le montant du. */
+  const regler = async (uuid: string) => {
+    setBusy(uuid);
+    setError(null);
+    try {
+      const res = await axios.post<Booking>(
+        `${API_BASE}/api/bookings/${uuid}/payment`, {}, { headers: headers() },
+      );
+      setBookings((liste) => liste.map((b) => (b.uuid === uuid ? res.data : b)));
+    } catch (e) {
+      setError(
+        (axios.isAxiosError(e) && e.response?.data?.message) || t("commun.erreurGenerique"),
+      );
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  /* Le bareme est annonce AVANT la confirmation. Decouvrir apres coup qu'on ne
+     recupere que la moitie est le genre de surprise qui vaut une reclamation. */
+  const ouvrirAnnulation = (b: Booking) => {
+    setToCancel(b);
+    setBareme(null);
+    axios
+      .get<{ partRendue: number; montantRendu: number }>(
+        `${API_BASE}/api/bookings/${b.uuid}/remboursement`, { headers: headers() },
+      )
+      .then((r) => setBareme(r.data))
+      .catch(() => setBareme(null));
   };
 
   const confirmer = async (uuid: string) => {
@@ -215,6 +274,14 @@ export default function MyBookingsPage() {
         />
       ) : (
         <div className="grid-auto">
+      {/* Le bouton dit « Régler », les conditions générales disent qu'aucun
+          paiement n'est perçu. Les deux sont vrais, et l'écran doit dire
+          pourquoi plutôt que de laisser le lecteur trancher : le prestataire
+          enregistré est une simulation. */}
+      {bookings.some((b) => b.paiement?.provider === "SIMULATION") && (
+        <Alert tone="info">{t("paiement.simulation")}</Alert>
+      )}
+
           {bookings.map((b) => (
             <Card
               key={b.uuid}
@@ -283,7 +350,36 @@ export default function MyBookingsPage() {
                 </a>
               )}
 
+              {/* Etat comptable. Affiche meme quand il n'y a rien a faire : savoir
+                  qu'un montant est regle fait partie de ce qu'on vient verifier. */}
+              {b.paiement && (
+                <p className={`bk-paiement bk-paiement--${b.paiement.status.toLowerCase()}`}>
+                  <FiCreditCard aria-hidden="true" />
+                  <span>{t("paiement.etat")} : {libellePaiement(b.paiement.status)}</span>
+                  {b.paiement.refundedAmount > 0 && (
+                    <span className="bk-paiement-detail">
+                      {t("paiement.rembourseDe", { montant: b.paiement.refundedAmount.toFixed(2) })}
+                    </span>
+                  )}
+                  {b.paiement.refundReason && (
+                    <span className="bk-paiement-detail">
+                      {t("paiement.motif", { motif: b.paiement.refundReason })}
+                    </span>
+                  )}
+                </p>
+              )}
+
               <div className="bk-actions">
+                {b.paiement?.status === "DUE" && b.status !== "CANCELLED" && b.status !== "REJECTED" && (
+                  <Button
+                    size="sm"
+                    icon={<FiCreditCard />}
+                    loading={busy === b.uuid}
+                    onClick={() => regler(b.uuid)}
+                  >
+                    {t("paiement.payer", { montant: b.paiement.amount.toFixed(2) })}
+                  </Button>
+                )}
                 <Button variant="secondary" size="sm" to={`/trips/${b.trip.uuid}`}>
                   {t("reservations.voirLeTrajet")}
                 </Button>
@@ -308,7 +404,7 @@ export default function MyBookingsPage() {
                   </Button>
                 )}
                 {isCancellable(b) && (
-                  <Button variant="ghost" size="sm" onClick={() => setToCancel(b)}>
+                  <Button variant="ghost" size="sm" onClick={() => ouvrirAnnulation(b)}>
                     {t("commun.annuler")}
                   </Button>
                 )}
@@ -333,11 +429,30 @@ export default function MyBookingsPage() {
         }
       >
         {toCancel && (
-          <p>
-            {t("reservations.annulerTexte", {
-              trajet: `${toCancel.trip.departureCity} → ${toCancel.trip.arrivalCity}`,
-            })}
-          </p>
+          <>
+            <p>
+              {t("reservations.annulerTexte", {
+                trajet: `${toCancel.trip.departureCity} → ${toCancel.trip.arrivalCity}`,
+              })}
+            </p>
+
+            {/* Ce qui sera rendu, annonce avant la decision et non apres. */}
+            {bareme && toCancel.paiement?.status === "PAID" && (
+              <div className="bk-bareme">
+                <p className="bk-bareme-titre">{t("paiement.baremeTitre")}</p>
+                <p>
+                  {bareme.partRendue === 100
+                    ? t("paiement.baremeIntegral", { montant: bareme.montantRendu.toFixed(2) })
+                    : bareme.partRendue === 0
+                      ? t("paiement.baremeRien")
+                      : t("paiement.baremePartiel", {
+                          part: bareme.partRendue,
+                          montant: bareme.montantRendu.toFixed(2),
+                        })}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </Modal>
 

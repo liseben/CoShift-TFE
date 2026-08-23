@@ -69,6 +69,7 @@ class TripServiceTest {
     @Mock private Messages messages;
     @Mock private OrganizationRepository organizationRepository;
     @Mock private OrganizationService organizationService;
+    @Mock private PaymentService paymentService;
 
     @InjectMocks private TripService service;
 

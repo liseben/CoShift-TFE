@@ -2,6 +2,8 @@ package com.coshift.api.dto;
 
 import com.coshift.api.entity.Booking;
 import com.coshift.api.entity.BookingStatus;
+import com.coshift.api.entity.Payment;
+import com.coshift.api.entity.PaymentStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -46,8 +48,38 @@ public class BookingResponse {
      */
     private boolean reviewed;
 
+    /**
+     * État comptable de la réservation.
+     *
+     * <p>Nul pour les réservations antérieures à la mise en place du partage de
+     * frais — il n'y en a plus en base, la migration les a toutes dotées, mais
+     * le champ reste nullable : un client ne doit pas supposer qu'un paiement
+     * existe toujours.</p>
+     */
+    private PaiementSummary paiement;
+
     private TripSummary trip;
     private PassengerSummary passenger;
+    @Data @Builder
+    public static class PaiementSummary {
+        private String uuid;
+        private BigDecimal amount;
+        private String currency;
+        private PaymentStatus status;
+        /** Montant réellement rendu, zéro tant qu'aucun remboursement n'a eu lieu. */
+        private BigDecimal refundedAmount;
+        /** Pourquoi ce remboursement, et selon quelle règle du barème. */
+        private String refundReason;
+        private LocalDateTime paidAt;
+        /**
+         * Prestataire ayant traité l'opération.
+         *
+         * <p>Exposé à dessein : tant qu'il vaut {@code SIMULATION}, l'interface
+         * peut le dire au lieu de laisser croire à un encaissement réel.</p>
+         */
+        private String provider;
+    }
+
 
     @Data
     @Builder
@@ -135,7 +167,25 @@ public class BookingResponse {
                 .totalPrice(booking.getTotalPrice())
                 .status(booking.getStatus())
                 .statusReason(booking.getStatusReason())
+                .paiement(paiementDe(booking))
                 .createdAt(booking.getCreatedAt())
                 .completedAt(booking.getCompletedAt());
     }
+
+    /** L'état comptable, ou null si la réservation n'en a pas. */
+    private static PaiementSummary paiementDe(Booking booking) {
+        Payment p = booking.getPayment();
+        if (p == null) return null;
+        return PaiementSummary.builder()
+                .uuid(p.getUuid())
+                .amount(p.getAmount())
+                .currency(p.getCurrency())
+                .status(p.getStatus())
+                .refundedAmount(p.getRefundedAmount())
+                .refundReason(p.getRefundReason())
+                .paidAt(p.getPaidAt())
+                .provider(p.getProvider())
+                .build();
+    }
+
 }

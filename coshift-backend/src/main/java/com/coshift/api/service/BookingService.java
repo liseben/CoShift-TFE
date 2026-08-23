@@ -49,6 +49,7 @@ public class BookingService {
     private final ReviewRepository reviewRepository;
     private final EmailService emailService;
     private final OrganizationService organizationService;
+    private final PaymentService paymentService;
 
     /** Délai minimum entre la réservation et le départ, imposé par F27. */
     private static final int MIN_HOURS_BEFORE_BOOKING = 1;
@@ -110,8 +111,15 @@ public class BookingService {
            regarder pour découvrir qu'on l'avait sollicité. */
         emailService.notifierDemandeRecue(trip.getDriver(), passenger.getFirstname(),
                 resume(trip), booking.getSeatsBooked());
+        Booking enregistree = bookingRepository.save(booking);
 
-        return BookingResponse.forPassenger(bookingRepository.save(booking));
+        /* Le montant devient du des la demande, mais rien n'est preleve : le
+           conducteur peut encore refuser, et faire payer une place qu'on
+           n'aura peut-etre pas obligerait a rembourser des gens qui n'ont
+           jamais voyage. */
+        paymentService.ouvrir(enregistree);
+
+        return BookingResponse.forPassenger(enregistree);
     }
 
     // ────────────────────────── F30 — Mes réservations ───────────────────────────
@@ -215,6 +223,10 @@ public class BookingService {
         booking.setStatus(BookingStatus.REJECTED);
         booking.setStatusReason(blankToNull(reason));
 
+        /* Refus du conducteur : le passager n'a rien decide, il recupere tout.
+           Si rien n'avait ete regle, le du est simplement clos. */
+        paymentService.rembourser(booking, true, messages.get("paiement.motifRefus"));
+
         emailService.notifierReservationRefusee(booking.getPassenger(),
                 resume(booking.getTrip()), booking.getStatusReason());
 
@@ -249,6 +261,12 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStatusReason(blankToNull(reason));
+
+        /* Annulation du passager : le bareme s'applique. Au-dela de vingt-quatre
+           heures il recupere tout, en deca la moitie — le siege ne se reloue
+           plus, et rendre tout ferait de l'annulation de derniere minute une
+           option gratuite. */
+        paymentService.rembourser(booking, false, messages.get("paiement.motifAnnulationPassager"));
 
         emailService.notifierAnnulationParPassager(trip.getDriver(),
                 passenger.getFirstname(), resume(trip));
@@ -377,4 +395,21 @@ public class BookingService {
     private String blankToNull(String s) {
         return (s == null || s.isBlank()) ? null : s.trim();
     }
+
+    /**
+     * Une réservation, vue par son passager.
+     *
+     * <p>Sert à renvoyer l'état à jour après un règlement, sans obliger le
+     * client à recharger toute sa liste pour une ligne qui a changé.</p>
+     */
+    public BookingResponse parUuidPourPassager(String passengerEmail, String bookingUuid) {
+        User passenger = findUser(passengerEmail);
+        Booking booking = bookingRepository.findByUuid(bookingUuid)
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("reservation.introuvable")));
+        if (!booking.getPassenger().getId().equals(passenger.getId())) {
+            throw new UnauthorizedException(messages.get("reservation.pasLaVotre"));
+        }
+        return BookingResponse.forPassenger(booking);
+    }
+
 }

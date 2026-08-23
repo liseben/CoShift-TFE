@@ -71,6 +71,32 @@ public class Booking {
      * qu'après coup — et qui distingue une confirmation immédiate d'une
      * confirmation tardive.</p>
      */
+    /**
+     * Ce qui est dû, réglé et rendu pour cette réservation.
+     *
+     * <p>Côté inverse de la relation : c'est {@link Payment} qui porte la clé
+     * étrangère, parce que c'est le paiement qui n'existe pas sans réservation
+     * et non l'inverse.</p>
+     *
+     * <h2>Pourquoi EAGER, contre l'habitude</h2>
+     *
+     * <p>Un {@code @OneToOne} inverse ne se charge pas paresseusement sans
+     * instrumentation du bytecode : Hibernate doit interroger la base ne
+     * serait-ce que pour savoir s'il existe une ligne, et ne peut donc pas
+     * fabriquer de mandataire. Déclarée LAZY, cette relation lançait cette
+     * requête au milieu du traitement d'une autre et faisait échouer
+     * l'annulation d'une réservation avec un « Illegal pop() with non-matching
+     * JdbcValuesSourceProcessingState » — un message qui ne dit rien de la
+     * cause, et qui n'apparaissait qu'à l'exécution contre une vraie base.</p>
+     *
+     * <p>Le coût est une requête supplémentaire par réservation chargée. Il est
+     * assumé à cette échelle — une liste de réservations tient en quelques
+     * lignes — et se lèverait par une jointure explicite dans les requêtes de
+     * liste le jour où le volume le demanderait.</p>
+     */
+    @OneToOne(mappedBy = "booking", fetch = FetchType.EAGER)
+    private Payment payment;
+
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
