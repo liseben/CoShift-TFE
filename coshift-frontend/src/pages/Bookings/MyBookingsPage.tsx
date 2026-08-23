@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaStar, FaTicketAlt, FaPhoneAlt, FaCar } from "react-icons/fa";
-import { FiArrowRight, FiSearch } from "react-icons/fi";
+import { FiArrowRight, FiCheckCircle, FiSearch } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { formatTripDate } from "./bookingStatus";
@@ -8,6 +8,7 @@ import {
   Alert, Avatar, Button, Card, EmptyState, Modal, Spinner, StatusBadge,
   type Status,
 } from "../../components/ui";
+import { useAuth } from "../../context/AuthContext";
 import { useLang } from "../../context/LangContext";
 import { LANGUES } from "../../i18n";
 import "./BookingsPage.css";
@@ -19,6 +20,7 @@ interface Booking {
   totalPrice: number;
   status: string;
   statusReason?: string;
+  completedAt?: string | null;
   createdAt: string;
   trip: {
     uuid: string;
@@ -48,6 +50,7 @@ const TONE: Record<string, "brand" | "eco" | "pending" | "danger" | undefined> =
 /** F30 — Le passager consulte et gère ses réservations. */
 export default function MyBookingsPage() {
   const { langue, t } = useLang();
+  const { rafraichir: rafraichirProfil } = useAuth();
   /* Le format de date suit la langue : il était figé en fr-FR. */
 
   /* Sans ces metadonnees, l'onglet gardait le titre francais
@@ -107,9 +110,38 @@ export default function MyBookingsPage() {
     }
   };
 
+  const confirmer = async (uuid: string) => {
+    setBusy(uuid);
+    setError(null);
+    try {
+      const res = await axios.patch(
+        `${API_BASE}/api/bookings/${uuid}/complete`, {}, { headers: headers() },
+      );
+      setBookings((prev) => prev.map((b) => (b.uuid === uuid ? { ...b, ...res.data } : b)));
+      /* Le compteur de trajets du profil vient de changer pour les deux
+         participants : sans rechargement, l'en-tête du tableau de bord
+         continuerait d'afficher l'ancienne valeur jusqu'à la prochaine
+         connexion. */
+      rafraichirProfil?.();
+    } catch (err) {
+      setError(
+        (axios.isAxiosError(err) && err.response?.data?.message) ||
+          t("reservations.confirmationEchouee"),
+      );
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const isCancellable = (b: Booking) =>
     (b.status === "PENDING" || b.status === "CONFIRMED") &&
     new Date(b.trip.departureTime) > new Date();
+
+  /* La confirmation n'a de sens que sur une réservation acceptée dont le
+     départ est passé. Le serveur applique la même règle — celle-ci ne fait
+     qu'éviter d'afficher un bouton qui serait refusé. */
+  const isConfirmable = (b: Booking) =>
+    b.status === "CONFIRMED" && new Date(b.trip.departureTime) <= new Date();
 
   return (
     <div className="container page stack-8">
@@ -157,6 +189,15 @@ export default function MyBookingsPage() {
                 <p className="bk-reason">{t("reservations.motif")} {b.statusReason}</p>
               )}
 
+              {/* Confirmer est irreversible : la date rappelle que c'est fait. */}
+              {b.completedAt && (
+                <p className="bk-reason">
+                  {t("reservations.confirmeLe", {
+                    date: new Date(b.completedAt).toLocaleDateString(balise),
+                  })}
+                </p>
+              )}
+
               <div className="bk-body">
                 <Avatar
                   src={b.trip.driverPictureUrl}
@@ -199,6 +240,16 @@ export default function MyBookingsPage() {
                 <Button variant="secondary" size="sm" to={`/trips/${b.trip.uuid}`}>
                   {t("reservations.voirLeTrajet")}
                 </Button>
+                {isConfirmable(b) && (
+                  <Button
+                    size="sm"
+                    icon={<FiCheckCircle />}
+                    loading={busy === b.uuid}
+                    onClick={() => confirmer(b.uuid)}
+                  >
+                    {t("reservations.confirmerTrajet")}
+                  </Button>
+                )}
                 {isCancellable(b) && (
                   <Button variant="ghost" size="sm" onClick={() => setToCancel(b)}>
                     {t("commun.annuler")}

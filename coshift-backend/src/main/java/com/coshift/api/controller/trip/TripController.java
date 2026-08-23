@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/trips")
@@ -142,25 +141,4 @@ public class TripController {
         return ResponseEntity.ok(tripService.cancelTrip(auth.getName(), uuid));
     }
 
-    // F21 — Marquer comme terminé
-    @Operation(
-            summary = "Clôturer un trajet — non implémenté",
-            deprecated = true,
-            description = """
-                    **Ce point d'entrée ne modifie rien.** Il renvoie 200 avec un message
-                    d'information et reste en place pour ne pas casser d'éventuels appels
-                    existants.
-
-                    La clôture *technique* est déjà assurée sans lui : une tâche planifiée
-                    bascule toutes les quinze minutes en `COMPLETED` les trajets dont
-                    l'heure de départ est passée. Ce qui manque encore est la confirmation
-                    de prestation par le passager, indissociable du paiement (F28).""")
-    @ApiResponse(responseCode = "200", description = "Message d'information ; aucune donnée n'est modifiée.")
-    @PatchMapping("/{uuid}/complete")
-    public ResponseEntity<Map<String, String>> completeTrip(
-            @PathVariable String uuid,
-            Authentication auth) {
-        // TODO : implémenter avec logique de paiement Stripe
-        return ResponseEntity.ok(Map.of("message", "Fonctionnalité disponible avec Stripe (F28)."));
-    }
 }

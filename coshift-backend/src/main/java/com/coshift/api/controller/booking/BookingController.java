@@ -168,4 +168,37 @@ public class BookingController {
         String reason = (request != null) ? request.getReason() : null;
         return ResponseEntity.ok(bookingService.cancel(auth.getName(), uuid, reason));
     }
+
+    // F21 — Confirmer que le trajet a eu lieu
+    @Operation(
+            summary = "Confirmer que le trajet a eu lieu",
+            description = """
+                    Réservé au **passager**, et volontairement : le conducteur a un intérêt
+                    à déclarer la course effectuée — elle alimente son compteur de trajets
+                    et, demain, sa rémunération. Le passager n'en a pas ; il confirme ce
+                    qu'il a constaté. C'est ce qui rend l'information fiable.
+
+                    La réservation doit être **acceptée** et le départ doit être **passé** :
+                    une demande restée en attente n'a transporté personne, et une course à
+                    venir ne peut pas être confirmée d'avance.
+
+                    **Effet :** la réservation passe en `COMPLETED`, la date de confirmation
+                    est enregistrée, et le compteur de trajets des **deux** participants est
+                    incrémenté — un covoiturage effectué compte pour celui qui conduit comme
+                    pour celui qui monte.
+
+                    L'opération n'est pas rejouable : une seconde confirmation renvoie 409.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Prestation confirmée."),
+            @ApiResponse(responseCode = "403", description = "Cette réservation n'est pas la vôtre.", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Réservation introuvable.", content = @Content()),
+            @ApiResponse(responseCode = "409", description = "Réservation non acceptée, déjà confirmée, ou trajet pas encore parti.", content = @Content())
+    })
+    @PatchMapping("/{uuid}/complete")
+    public ResponseEntity<BookingResponse> complete(
+            @Parameter(description = "Identifiant public de la réservation.")
+            @PathVariable String uuid,
+            Authentication auth) {
+        return ResponseEntity.ok(bookingService.complete(auth.getName(), uuid));
+    }
 }

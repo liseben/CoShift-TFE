@@ -61,6 +61,19 @@ public class Booking {
     @Column(name = "status_reason", length = 500)
     private String statusReason;
 
+    /**
+     * Date à laquelle le passager a confirmé que le trajet avait eu lieu (F21).
+     *
+     * <p>{@code null} tant que la prestation n'est pas confirmée. Le statut
+     * {@link BookingStatus#COMPLETED} ne suffirait pas à porter cette
+     * information : il dit que la course a eu lieu, pas quand elle a été
+     * reconnue. C'est cette date qui ouvre la fenêtre de notation — on ne note
+     * qu'après coup — et qui distingue une confirmation immédiate d'une
+     * confirmation tardive.</p>
+     */
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     // --- AUDIT ---
 
     @CreationTimestamp
