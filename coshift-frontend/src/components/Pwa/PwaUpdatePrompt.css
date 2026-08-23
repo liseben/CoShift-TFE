@@ -1,0 +1,51 @@
+/* Bandeau de mise à jour.
+   Posé au-dessus du contenu, en bas : une bannière en tête pousserait toute
+   la page vers le bas au moment où elle apparaît, c'est-à-dire pendant qu'on
+   lit. En bas, elle s'ajoute sans rien déplacer. */
+
+.pwa-maj {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Au-dessus de la zone tactile réservée par le système sur mobile. */
+  bottom: calc(var(--sp-5) + env(safe-area-inset-bottom, 0px));
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3) var(--sp-5);
+
+  max-width: min(560px, calc(100vw - 2 * var(--sp-4)));
+  padding: var(--sp-3) var(--sp-5);
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  box-shadow: 0 10px 30px rgb(15 31 51 / 18%);
+}
+
+.pwa-maj__texte {
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  line-height: var(--lh-snug);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pwa-maj__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: none;
+}
+
+@media (max-width: 480px) {
+  .pwa-maj {
+    border-radius: var(--r-lg);
+    left: var(--sp-4);
+    right: var(--sp-4);
+    transform: none;
+    max-width: none;
+  }
+}

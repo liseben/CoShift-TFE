@@ -5,6 +5,8 @@ import Logo from "../components/Logo/Logo";
 import ThemeToggle from "../components/ThemeToggle/ThemeToggle";
 import SiteFooter from "../components/SiteFooter/SiteFooter";
 import ConsentBanner from "../components/Consent/ConsentBanner";
+import InstallButton from "../components/Pwa/InstallButton";
+import PwaUpdatePrompt from "../components/Pwa/PwaUpdatePrompt";
 import { Avatar } from "../components/ui";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LangContext";
@@ -130,12 +132,9 @@ export default function MainLayout() {
 
           <div className="header-right action-buttons">
             <ThemeToggle />
-            <button
-              className="btn-download-app"
-              onClick={() => alert(t("nav.telechargerBientot"))}
-            >
-              {t("nav.telecharger")}
-            </button>
+            {/* Le bouton disparait la ou l'installation n'est pas possible,
+                et une fois l'application installee. Voir InstallButton. */}
+            <InstallButton onDone={closeMobileMenu} />
 
             <div className="lang-wrapper" ref={langMenuRef}>
               <button
@@ -304,6 +303,11 @@ export default function MainLayout() {
       {/* Le bandeau ne s'affiche que tant qu'aucune réponse n'a été donnée.
           Placé ici, il couvre toutes les pages du site sans exception. */}
       <ConsentBanner />
+
+      {/* Annonce d'une nouvelle version. Même position que le bandeau de
+          consentement : ces deux-là ne s'affichent jamais ensemble, le premier
+          ne survivant pas à la première réponse. */}
+      <PwaUpdatePrompt />
     </div>
   );
 }

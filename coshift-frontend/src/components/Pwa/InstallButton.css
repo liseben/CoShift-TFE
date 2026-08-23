@@ -1,0 +1,59 @@
+/* Le bouton lui-même reprend `.btn-download-app`, défini dans MainLayout.css :
+   il occupe la même place que l'ancien et n'a aucune raison d'en changer.
+   Seule l'icône est nouvelle. */
+
+.btn-download-app svg {
+  /* Alignée sur le texte plutôt que sur la ligne de base, sinon elle flotte
+     d'un pixel au-dessus du libellé. */
+  vertical-align: -0.15em;
+  margin-right: var(--sp-2);
+}
+
+/* ── Marche à suivre sur iOS ── */
+.pwa-ios__intro {
+  color: var(--text-soft);
+  line-height: var(--lh-base);
+}
+
+.pwa-ios__etapes {
+  list-style: decimal;
+  margin: var(--sp-5) 0;
+  padding-left: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  line-height: var(--lh-snug);
+}
+
+.pwa-ios__etapes li {
+  padding-left: var(--sp-2);
+}
+
+/* L'icône reprend celle que la personne doit chercher à l'écran. Décorative :
+   le texte de l'étape la nomme déjà. */
+.pwa-ios__icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  margin-right: var(--sp-2);
+  vertical-align: -0.45em;
+  border-radius: var(--r-sm);
+  background: var(--brand-wash);
+  color: var(--brand);
+}
+
+/* La troisième étape n'a pas d'icône à montrer : on garde le gabarit sans le
+   fond, pour que les trois libellés restent alignés. */
+.pwa-ios__icone:empty {
+  background: none;
+}
+
+.pwa-ios__note {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: var(--lh-base);
+  border-left: 2px solid var(--border-strong);
+  padding-left: var(--sp-4);
+}

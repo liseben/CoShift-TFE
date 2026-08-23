@@ -596,15 +596,30 @@ export const fr = {
     lien: "Voir les chiffres de mon organisation",
   },
 
+  /* Installation sur l'ecran d'accueil et mise a jour de l'application. */
+  pwa: {
+    installer: "Installer l'app",
+
+    majDisponible: "Une nouvelle version de CoShift est disponible.",
+    majRecharger: "Recharger",
+    majPlusTard: "Plus tard",
+
+    iosTitre: "Installer CoShift sur votre iPhone",
+    iosIntro:
+      "Safari n'ouvre pas d'assistant d'installation : le geste existe, mais il se fait à la main. Trois étapes.",
+    iosEtape1: "Touchez le bouton Partager, en bas de l'écran.",
+    iosEtape2: "Faites défiler et choisissez « Sur l'écran d'accueil ».",
+    iosEtape3: "Confirmez avec « Ajouter ». CoShift rejoint vos applications.",
+    iosNote:
+      "Depuis un autre navigateur que Safari, iOS ne permet pas cette installation.",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",
     actus: "Actus Mobilité",
     apropos: "À propos",
     blog: "Le Blog",
-    telecharger: "Téléchargez l'App",
-    telechargerBientot:
-      "L'installation de l'application mobile sera proposée ici.",
     monProfil: "Mon profil",
     connexion: "Connexion",
     ouvrirMenu: "Ouvrir le menu",

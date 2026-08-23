@@ -75,6 +75,22 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
 - **Article 17** — suppression du compte. L'opération annule d'abord les trajets et réservations à venir, pour que personne ne se présente à un rendez-vous qui n'aura pas lieu, puis anonymise les champs identifiants.
 - **Article 7** — consentement aux services tiers, horodaté, versionné, révocable en un clic depuis le pied de page. Aucun fond cartographique ni script Google n'est chargé avant une réponse explicite.
 
+### Installation sur l'écran d'accueil
+
+- L'application s'installe depuis le bouton de l'en-tête, sur Chrome, Edge et
+  Android. Sur iOS, où le navigateur n'offre aucune invite, le bouton explique
+  le geste manuel au lieu de faire semblant. Là où ni l'un ni l'autre n'est
+  possible, il ne s'affiche pas : un bouton qui ne fait rien apprend qu'on ne
+  peut pas se fier à l'interface.
+- Une fois installée, l'application **s'ouvre sans réseau** : la coquille —
+  code, styles, polices, images — est mise en cache. Elle ne **fonctionne** pas
+  sans réseau pour autant : chercher un trajet ou réserver exige le serveur.
+  Aucune réponse de l'API n'est conservée, délibérément — une liste de trajets
+  servie depuis un cache montrerait des places déjà prises.
+- Une nouvelle version est **annoncée**, jamais installée d'office. Remplacer
+  l'application à la navigation suivante interromprait un formulaire à moitié
+  rempli.
+
 ### Trajets
 
 - Recherche par villes, date et nombre de places. Seuls remontent les trajets à venir, disposant de places, et dont on n'est pas le conducteur.
@@ -274,16 +290,24 @@ coshift-frontend/
 
 ## Feuille de route
 
-Fonctionnalités prévues, non réalisées dans cette version alpha :
+Livré depuis la première rédaction de cette liste :
+
+- [x] Couverture de tests automatisés et intégration continue
+- [x] Espace Entreprises et Blog
+- [x] Rattachement des trajets aux organisations, cercle de visibilité fermé et
+      tableau de bord d'organisation
+- [x] Application installable (PWA)
+
+Prévu, non réalisé dans cette version alpha :
 
 - [ ] Messagerie entre conducteur et passager
 - [ ] Paiement en ligne et partage de frais
 - [ ] Espace d'administration : modération, signalements, statistiques
-- [ ] Rattachement effectif des trajets aux organisations, et tableau de bord employeur
 - [ ] Néerlandais
-- [ ] Couverture de tests automatisés et intégration continue
-- [ ] Application installable (PWA) et mode hors ligne
-- [ ] Espace Entreprises et Blog
+- [ ] Distance des trajets, sans laquelle ni les kilomètres partagés ni les
+      émissions évitées ne sont calculables
+- [ ] Mode hors ligne réel : aujourd'hui l'application **s'ouvre** sans réseau,
+      elle ne **fonctionne** pas sans lui
 
 ---
 
