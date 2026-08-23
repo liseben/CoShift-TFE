@@ -10,8 +10,36 @@ Travail de fin d'études — développement d'application web, 2025-2026.
 
 ---
 
+## Essayer l'application
+
+Trois commandes, aucune clé d'API à obtenir au préalable.
+
+```bash
+# 1. Base vide — Flyway construit le schéma et charge le jeu de démonstration
+mysql -u root -e "CREATE DATABASE coshift_db CHARACTER SET utf8mb4;"
+
+# 2. API — le modèle .env fonctionne tel quel si MySQL tourne en root sans mot de passe
+cd coshift-backend && cp .env.example .env && ./mvnw spring-boot:run
+
+# 3. Interface, dans un second terminal
+cd coshift-frontend && cp .env.example .env && npm install && npm run dev
+```
+
+Ouvrir `http://localhost:5173` et se connecter :
+
+| Adresse | Mot de passe | Ce que ce compte permet de voir |
+|---|---|---|
+| `julie.lecomte@salon-mobilite.be` | `1234` | 8 trajets publiés, 1 véhicule, 2 réservations |
+| `charlotte.guerin@u-basse-meuse.be` | `1234` | 3 véhicules, 7 trajets |
+| `margaux.gautier@val-vert.be` | `1234` | 5 trajets et 5 réservations — les deux rôles à la fois |
+
+Détail des variables d'environnement et des cas particuliers : [Installation](#installation).
+
+---
+
 ## Sommaire
 
+- [Essayer l'application](#essayer-lapplication)
 - [Périmètre](#périmètre)
 - [Pile technique](#pile-technique)
 - [Installation](#installation)
@@ -106,14 +134,16 @@ cp .env.example .env
 
 Renseigner dans `.env` :
 
-| Variable | Rôle |
-|---|---|
-| `DB_USERNAME`, `DB_PASSWORD` | Compte MySQL local |
-| `JWT_SECRET_KEY` | Clé de signature, Base64, 256 bits — `openssl rand -base64 32` |
-| `JWT_EXPIRATION` | Validité du jeton en millisecondes (`86400000` = 24 h) |
-| `MAIL_USERNAME`, `MAIL_APP_PASSWORD` | SMTP. Sur Gmail, un *mot de passe d'application*, pas celui du compte |
-| `GNEWS_API_KEY`, `NEWSDATA_API_KEY` | Flux d'actualités — formules gratuites suffisantes |
-| `SERVER_PORT` | Port d'écoute, `8080` par défaut |
+| Variable | Obligatoire | Rôle |
+|---|---|---|
+| `DB_USERNAME`, `DB_PASSWORD` | **oui** | Compte MySQL local. Sous WAMP, `root` sans mot de passe |
+| `JWT_SECRET_KEY` | **oui** | Clé de signature, Base64, 256 bits. **Une clé de démonstration est déjà fournie dans le modèle** — laissée vide, l'application démarre mais échoue à la première connexion |
+| `JWT_EXPIRATION` | **oui** | Validité du jeton en millisecondes. Pré-rempli à `86400000` (24 h) |
+| `MAIL_USERNAME`, `MAIL_APP_PASSWORD` | non | SMTP. Sur Gmail, un *mot de passe d'application*, pas celui du compte. Sans eux, tout fonctionne sauf l'envoi du code d'activation : utilisez alors les comptes de démonstration, déjà vérifiés |
+| `GNEWS_API_KEY`, `NEWSDATA_API_KEY` | non | Flux d'actualités. Sans eux, la rubrique Actus reste vide |
+| `SERVER_PORT` | non | Port d'écoute, `8080` par défaut |
+
+Les variables non obligatoires doivent rester **présentes dans le fichier, même vides** : Spring échoue au démarrage sur un placeholder qu'il ne peut pas résoudre. Copier `.env.example` tel quel suffit.
 
 ```bash
 ./mvnw spring-boot:run
