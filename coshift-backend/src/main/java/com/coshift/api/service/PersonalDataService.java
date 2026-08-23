@@ -194,14 +194,29 @@ public class PersonalDataService {
                        concernent, le nom du demandeur ne m'appartient pas. */
                     m.put("demandesRecues", bookingRepository
                             .findByTripIdOrderByCreatedAtDesc(t.getId()).stream()
-                            .map(b -> Map.<String, Object>of(
-                                    "places", b.getSeatsBooked(),
-                                    "statut", b.getStatus().name(),
-                                    "demandeeLe", texte(b.getCreatedAt())))
+                            .map(this::demandeRecue)
                             .toList());
                     return m;
                 })
                 .toList();
+    }
+
+    /**
+     * Une demande reçue sur mon trajet, dépouillée de son auteur.
+     *
+     * <p>{@code LinkedHashMap} et non {@code Map.of} : la fabrique immuable
+     * refuse les valeurs nulles, et {@code bookings.created_at} est déclarée
+     * nullable au schéma. Une seule réservation sans date de création faisait
+     * donc échouer l'export entier — sur la fonctionnalité même qui matérialise
+     * l'article 15. Les autres extracteurs de cette classe utilisaient déjà une
+     * carte tolérante ; celui-ci était le seul à s'en écarter.</p>
+     */
+    private Map<String, Object> demandeRecue(Booking b) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("places", b.getSeatsBooked());
+        m.put("statut", b.getStatus() == null ? null : b.getStatus().name());
+        m.put("demandeeLe", texte(b.getCreatedAt()));
+        return m;
     }
 
     private List<Map<String, Object>> reservationsDemandees(User u) {

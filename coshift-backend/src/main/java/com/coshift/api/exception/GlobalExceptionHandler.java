@@ -15,6 +15,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,8 +43,15 @@ public class GlobalExceptionHandler {
     /** Échec de la validation {@code @Valid} sur un DTO : on remonte les messages de champ. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, WebRequest request) {
+        /* Le filtre sur les messages absents n'est pas une précaution de style.
+           Collectors.joining traduit un null en la chaîne « null », qui n'est
+           pas vide : le repli ci-dessous ne s'appliquait donc jamais, et un
+           champ sans message rendait littéralement « null » à l'utilisateur —
+           ou pire, « Le mot de passe est trop court. null » dès qu'un seul
+           champ sur plusieurs était concerné. */
         String details = ex.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> fieldError.getDefaultMessage())
+                .map(FieldError::getDefaultMessage)
+                .filter(message -> message != null && !message.isBlank())
                 .distinct()
                 .collect(Collectors.joining(" "));
 
