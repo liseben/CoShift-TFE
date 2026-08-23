@@ -245,6 +245,13 @@ export default function DashboardPage() {
             <Button variant="ghost" size="sm" to="/entreprises/tableau-de-bord">
               {tr("organisation.lien")}
             </Button>
+            {/* Le lien n'apparait qu'aux roles qui ouvrent quelque chose.
+                Le montrer a tous produirait un bouton menant a un refus. */}
+            {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && (
+              <Button variant="ghost" size="sm" to="/administration">
+                {tr("admin.lien")}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
