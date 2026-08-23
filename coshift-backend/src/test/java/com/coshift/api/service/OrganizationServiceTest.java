@@ -3,6 +3,7 @@ package com.coshift.api.service;
 import com.coshift.api.entity.Organization;
 import com.coshift.api.entity.User;
 import com.coshift.api.repository.OrganizationRepository;
+import com.coshift.api.repository.OrganizationStatsRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,6 +37,8 @@ import static org.mockito.Mockito.when;
 class OrganizationServiceTest {
 
     @Mock private OrganizationRepository organizationRepository;
+    @Mock private OrganizationStatsRepository statsRepository;
+    @Mock private Messages messages;
 
     @InjectMocks private OrganizationService service;
 
@@ -199,6 +203,96 @@ class OrganizationServiceTest {
 
             assertThat(service.identifiantsDesOrganisations(isole)).isEmpty();
             assertThat(service.partageLeCercle(isole, solvantis)).isFalse();
+        }
+    }
+    @Nested
+    @DisplayName("Tableau de bord")
+    class TableauDeBord {
+
+        private Organization solvantis;
+
+        @org.junit.jupiter.api.BeforeEach
+        void chiffres() {
+            solvantis = organisation(1L, "solvantis", "solvantis.be");
+            when(messages.get(anyString())).thenReturn("motif");
+            when(statsRepository.volumeParMois(1L)).thenReturn(List.of());
+        }
+
+        @Test
+        @DisplayName("le taux de remplissage rapporte les places occupees aux places offertes")
+        void tauxSurLesPlacesEtNonSurLesTrajets() {
+            /* Le denominateur est le total des places offertes, occupees plus
+               libres. Rapporter au nombre de trajets ferait passer une voiture
+               de cinq places a moitie vide pour une de deux places pleine. */
+            when(statsRepository.compterPlacesPartagees(1L)).thenReturn(7L);
+            when(statsRepository.compterPlacesRestantes(1L)).thenReturn(14L);
+
+            var tableau = service.tableauDeBord(personne("julie@solvantis.be", solvantis));
+
+            assertThat(tableau).hasSize(1);
+            assertThat(tableau.get(0).volumes().tauxRemplissage())
+                    .isEqualByComparingTo(new java.math.BigDecimal("33.3"));
+        }
+
+        @Test
+        @DisplayName("une organisation sans place offerte a un taux nul, pas une erreur")
+        void aucunePlaceOfferte() {
+            when(statsRepository.compterPlacesPartagees(1L)).thenReturn(0L);
+            when(statsRepository.compterPlacesRestantes(1L)).thenReturn(0L);
+
+            var tableau = service.tableauDeBord(personne("julie@solvantis.be", solvantis));
+
+            assertThat(tableau.get(0).volumes().tauxRemplissage())
+                    .isEqualByComparingTo(java.math.BigDecimal.ZERO);
+        }
+
+        @Test
+        @DisplayName("annonce ce qui n'est pas mesure au lieu de l'estimer")
+        void annonceLesAbsences() {
+            /* Une distance approchee serait le chiffre le plus facile a produire
+               de tout cet ecran, et le seul que personne ne songerait a
+               verifier. L'absence est annoncee, pas comblee. */
+            var tableau = service.tableauDeBord(personne("julie@solvantis.be", solvantis));
+
+            assertThat(tableau.get(0).nonMesure().distanceParcourue()).isTrue();
+            assertThat(tableau.get(0).nonMesure().emissionsEvitees()).isTrue();
+            assertThat(tableau.get(0).nonMesure().motif()).isNotBlank();
+        }
+
+        @Test
+        @DisplayName("l'organisation d'origine vient en tete, les autres par ordre alphabetique")
+        void origineEnTete() {
+            /* L'ordre n'est pas cosmetique : le formulaire de publication
+               preselectionne la premiere entree. Un ordre purement alphabetique
+               y mettait « Batiplus » alors que le serveur aurait retenu
+               « Val Vert » — l'ecran annoncait autre chose que ce qu'il
+               faisait. */
+            Organization batiplus = organisation(2L, "batiplus", "batiplus.be");
+            batiplus.setName("Batiplus Construct");
+            Organization valVert = organisation(3L, "val-vert", "val-vert.be");
+            valVert.setName("Clinique du Val Vert");
+            when(statsRepository.volumeParMois(2L)).thenReturn(List.of());
+            when(statsRepository.volumeParMois(3L)).thenReturn(List.of());
+
+            var tableau = service.tableauDeBord(personne("sarah@val-vert.be", batiplus, valVert));
+
+            assertThat(tableau).extracting(t -> t.slug()).containsExactly("val-vert", "batiplus");
+        }
+
+        @Test
+        @DisplayName("une organisation desactivee ne figure pas au tableau")
+        void ecarteLesOrganisationsDesactivees() {
+            solvantis.setActive(false);
+
+            assertThat(service.tableauDeBord(personne("julie@solvantis.be", solvantis))).isEmpty();
+        }
+
+        @Test
+        @DisplayName("aucune organisation donne une liste vide, pas une erreur")
+        void membreSansOrganisation() {
+            /* Le cas d'une adresse dont le domaine n'est revendique par
+               personne. Ce n'est pas une anomalie. */
+            assertThat(service.tableauDeBord(personne("quelquun@gmail.com"))).isEmpty();
         }
     }
 }

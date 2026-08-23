@@ -1,12 +1,17 @@
 package com.coshift.api.service;
 
+import com.coshift.api.dto.OrganizationDashboardResponse;
 import com.coshift.api.entity.Organization;
 import com.coshift.api.entity.User;
 import com.coshift.api.repository.OrganizationRepository;
+import com.coshift.api.repository.OrganizationStatsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +51,8 @@ import java.util.Set;
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
+    private final OrganizationStatsRepository statsRepository;
+    private final Messages messages;
 
     /**
      * Domaine d'une adresse de courriel, en minuscules.
@@ -142,5 +149,91 @@ public class OrganizationService {
            donc personne à qui le réserver. */
         if (organisationDuTrajet == null) return true;
         return identifiantsDesOrganisations(user).contains(organisationDuTrajet.getId());
+    }
+    // ───────────────────────── Tableau de bord d'organisation ───────────────────
+
+    /**
+     * Chiffres de mobilité des organisations dont la personne est membre.
+     *
+     * <p>Réservé aux membres, et c'est ce qui autorise l'absence de seuil
+     * d'anonymat : les trajets comptés ici sont ceux que le lecteur voit déjà un
+     * par un dans la recherche. Masquer un agrégat dont le détail est à portée
+     * de clic serait une précaution de façade.</p>
+     *
+     * <p><strong>L'organisation d'origine vient en premier</strong>, les autres
+     * ensuite par ordre alphabétique. Cet ordre n'est pas cosmétique : le
+     * formulaire de publication s'en sert pour présélectionner le cercle du
+     * trajet. Une liste purement alphabétique y mettait en tête une
+     * organisation que le serveur n'aurait pas retenue, si bien que l'écran
+     * annonçait autre chose que ce qu'il faisait.</p>
+     *
+     * <p>Une organisation désactivée n'y figure pas : son contrat a pris fin,
+     * ses chiffres ne sont plus les siens.</p>
+     */
+    public List<OrganizationDashboardResponse> tableauDeBord(User membre) {
+        if (membre.getOrganizations() == null) return List.of();
+
+        Long origine = organisationParDefaut(membre).map(Organization::getId).orElse(null);
+
+        return membre.getOrganizations().stream()
+                .filter(o -> Boolean.TRUE.equals(o.getActive()))
+                .sorted(Comparator
+                        .comparing((Organization o) -> !o.getId().equals(origine))
+                        .thenComparing(Organization::getName, String.CASE_INSENSITIVE_ORDER))
+                .map(this::chiffresDe)
+                .toList();
+    }
+
+    private OrganizationDashboardResponse chiffresDe(Organization o) {
+        long partagees = statsRepository.compterPlacesPartagees(o.getId());
+        long restantes = statsRepository.compterPlacesRestantes(o.getId());
+
+        return OrganizationDashboardResponse.builder()
+                .uuid(o.getUuid())
+                .name(o.getName())
+                .slug(o.getSlug())
+                .logoUrl(o.getLogoUrl())
+                .volumes(OrganizationDashboardResponse.Volumes.builder()
+                        .trajetsPublies(statsRepository.compterTrajets(o.getId()))
+                        .trajetsAnnules(statsRepository.compterTrajetsAnnules(o.getId()))
+                        .trajetsRealises(statsRepository.compterTrajetsRealises(o.getId()))
+                        .placesPartagees(partagees)
+                        .placesRestantes(restantes)
+                        .tauxRemplissage(tauxRemplissage(partagees, restantes))
+                        .build())
+                .participation(OrganizationDashboardResponse.Participation.builder()
+                        .membres(statsRepository.compterMembres(o.getId()))
+                        .conducteurs(statsRepository.compterConducteurs(o.getId()))
+                        .passagers(statsRepository.compterPassagers(o.getId()))
+                        .build())
+                .parMois(statsRepository.volumeParMois(o.getId()).stream()
+                        .map(ligne -> OrganizationDashboardResponse.Mois.builder()
+                                .mois(String.valueOf(ligne[0]))
+                                .trajets(((Number) ligne[1]).longValue())
+                                .placesPartagees(((Number) ligne[2]).longValue())
+                                .build())
+                        .toList())
+                .nonMesure(OrganizationDashboardResponse.NonMesure.builder()
+                        .distanceParcourue(true)
+                        .emissionsEvitees(true)
+                        .motif(messages.get("organisation.nonMesure"))
+                        .build())
+                .build();
+    }
+
+    /**
+     * Part des places proposées qui ont trouvé preneur.
+     *
+     * <p>Le dénominateur est le total des places offertes — occupées plus
+     * libres — et non le nombre de trajets : une voiture de cinq places à moitié
+     * vide et une de deux places pleine ne se valent pas.</p>
+     *
+     * <p>Aucune place offerte donne zéro, pas une division par zéro ni un tiret.
+     * Une organisation sans trajet a bien un taux de remplissage nul.</p>
+     */
+    private BigDecimal tauxRemplissage(long partagees, long restantes) {
+        long offertes = partagees + restantes;
+        if (offertes == 0) return BigDecimal.ZERO.setScale(1);
+        return BigDecimal.valueOf(partagees * 100.0 / offertes).setScale(1, RoundingMode.HALF_UP);
     }
 }
