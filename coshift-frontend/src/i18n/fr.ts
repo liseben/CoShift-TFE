@@ -763,6 +763,165 @@ export const fr = {
     dejaInscrit: "Déjà inscrit ?",
     compteExiste: "Un compte existe peut-être déjà avec cette adresse.",
   },
+
+  /* ── Page Entreprises ─────────────────────────────────────────────────── */
+  entreprises: {
+    titre: "Entreprises et organisations",
+    description:
+      "CoShift organise le covoiturage domicile-travail au sein d'une entreprise, d'un campus ou d'un événement : un cercle fermé, des trajets réguliers, des collègues qui se connaissent déjà.",
+    eyebrow: "Pour les organisations",
+    heroTitre: "Le trajet que personne ne partage",
+    heroAccroche:
+      "Les plateformes grand public excellent sur les longues distances entre inconnus. Le trajet quotidien, court et répété, est celui qui pèse le plus dans les émissions liées à la mobilité — et celui qu'elles couvrent le moins bien.",
+    heroBouton: "Ouvrir un compte",
+    heroSecondaire: "Comprendre la démarche",
+
+    constatTitre: "Ce que représente le trajet domicile-travail",
+    constatIntro:
+      "Ce ne sont pas les grands départs qui saturent les routes un mardi matin, mais des milliers de voitures qui font le même chemin avec un siège occupé sur cinq.",
+    chiffre1Valeur: "1,2",
+    chiffre1Libelle: "personne par voiture en moyenne sur un trajet domicile-travail",
+    chiffre2Valeur: "5×/sem.",
+    chiffre2Libelle: "un trajet répété, aux mêmes horaires, vers la même destination",
+    chiffre3Valeur: "−75 %",
+    chiffre3Libelle: "d'émissions par personne quand quatre collègues partagent une voiture",
+    constatSource:
+      "Ordres de grandeur communément admis pour la mobilité domicile-travail en Belgique. Ils servent à situer le problème, non à mesurer un résultat : CoShift publie ses propres chiffres, mesurés, dans son jeu de données ouvertes.",
+
+    differenceTitre: "Pourquoi un cercle fermé change tout",
+    differenceP1:
+      "Monter en voiture avec un inconnu demande un mécanisme de confiance : profils, avis, historiques, vérifications. C'est ce que construisent les plateformes ouvertes, et c'est coûteux — pour elles comme pour la personne qui hésite.",
+    differenceP2:
+      "Dans une organisation, cette confiance existe déjà. On partage un employeur, un bâtiment, des horaires, souvent des collègues communs. Il ne reste plus qu'à se rencontrer au bon moment, ce qui est un problème d'information, pas de réputation.",
+    differenceFort:
+      "CoShift ne cherche pas à recréer la confiance. Il exploite celle qui est déjà là.",
+
+    beneficesTitre: "Ce que l'organisation y gagne",
+    parkingTitre: "Des places de parking rendues",
+    parkingTexte:
+      "Une place de stationnement coûte, s'entretient et manque toujours. Deux collègues qui partagent une voiture en libèrent une, tous les jours.",
+    empreinteTitre: "Une empreinte mesurable",
+    empreinteTexte:
+      "Le trajet domicile-travail figure dans le bilan carbone d'une organisation. Les kilomètres partagés se comptent, et ce comptage n'est pas une estimation.",
+    cohesionTitre: "Des rencontres qui n'auraient pas eu lieu",
+    cohesionTexte:
+      "Vingt minutes de voiture avec quelqu'un d'un autre service font davantage pour la cohésion qu'un séminaire. C'est un effet secondaire, et il est réel.",
+    mesureTitre: "Des chiffres, pas des intentions",
+    mesureTexte:
+      "Trajets publiés, places effectivement partagées, villes desservies : tout est compté et consultable. Une politique de mobilité sans mesure reste une déclaration.",
+
+    etapesTitre: "Comment cela se met en place",
+    etapesIntro:
+      "Aucune installation, aucun matériel, aucune intégration à votre système d'information.",
+    etape1Titre: "Vos équipes ouvrent un compte",
+    etape1Texte:
+      "Inscription avec l'adresse professionnelle, vérifiée par un code envoyé par courriel. Aucun compte non confirmé n'accède à l'application.",
+    etape2Titre: "Les trajets se publient",
+    etape2Texte:
+      "Un conducteur déclare son itinéraire, ses horaires et le nombre de places réellement disponibles dans son véhicule. Les collègues cherchent, demandent, il accepte ou refuse.",
+    etape3Titre: "Les kilomètres se comptent",
+    etape3Texte:
+      "Chaque trajet confirmé par son passager alimente les compteurs. Vous disposez de volumes réels, pas de déclarations d'intention.",
+
+    confidentialiteTitre: "Ce que l'employeur ne voit pas",
+    confidentialiteIntro:
+      "Une plateforme de mobilité interne peut vite devenir un outil de surveillance des horaires. Celle-ci est construite pour que ce ne soit pas possible.",
+    confidentialitec1:
+      "Aucun tableau de bord employeur ne montre qui se déplace avec qui, ni à quelle heure.",
+    confidentialitec2:
+      "Les adresses précises de départ et d'arrivée ne quittent jamais le cercle des deux personnes concernées.",
+    confidentialitec3:
+      "Le numéro de téléphone n'est révélé qu'une fois la réservation acceptée, et à cette seule personne.",
+    confidentialitec4:
+      "Chaque membre peut exporter ou faire effacer ses données depuis son compte, sans passer par vous ni par nous.",
+    confidentialiteNote:
+      "Ces règles ne sont pas des engagements de principe : elles sont appliquées par le code et vérifiées par des tests automatisés.",
+
+    ouvertesTitre: "Nos chiffres sont publics",
+    ouvertesP1:
+      "CoShift publie un jeu de données ouvertes sous Licence Ouverte 2.0 : volumes de trajets, places partagées, villes desservies, taux de remplissage. Il est agrégé, jamais nominatif, et une ville n'y apparaît qu'au-delà d'un seuil en deçà duquel elle décrirait un déplacement individuel.",
+    ouvertesP2:
+      "Nous le publions parce qu'une politique de mobilité se juge sur des chiffres vérifiables, et qu'une plateforme qui garde les siens demande qu'on la croie sur parole.",
+
+    ctaTitre: "Essayer avec une équipe",
+    ctaTexte:
+      "Le plus simple est de commencer petit : un service, un site, une poignée de trajets réguliers. Les chiffres diront le reste.",
+    ctaBouton: "Ouvrir un compte",
+    ctaContact: "Nous écrire",
+    ctaNote: "Projet de fin d'études — la plateforme est en version alpha.",
+  },
+
+  /* ── Blog ─────────────────────────────────────────────────────────────── */
+  blog: {
+    titre: "Le blog",
+    description:
+      "Les choix de conception de CoShift, expliqués : ce que nous faisons des données, pourquoi la notation fonctionne ainsi, et ce que nous publions.",
+    heroTitre: "Le blog",
+    heroAccroche:
+      "Ce que nous construisons, et pourquoi nous l'avons construit ainsi.",
+    distinction:
+      "À ne pas confondre avec la rubrique Actus, qui rassemble une revue de presse extérieure sur la mobilité. Ici, ce sont nos propres textes.",
+    lire: "Lire",
+    retour: "Tous les billets",
+    aLire: "À lire aussi",
+    minutes: "{n} min de lecture",
+    rubrique: {
+      produit: "Produit",
+      confidentialite: "Confidentialité",
+      ouverture: "Ouverture",
+      conception: "Conception",
+    },
+
+    "confirmer-un-trajet": {
+      titre: "Pourquoi c'est au passager de confirmer le trajet",
+      chapeau:
+        "Une petite décision de conception qui dit beaucoup sur la façon dont on fabrique une information fiable.",
+      p1: "Quand un covoiturage a eu lieu, quelqu'un doit le déclarer. Ce geste compte : il incrémente le nombre de trajets des deux participants, il ouvre le droit de laisser un avis, et il alimentera demain le partage des frais. La question de savoir qui appuie sur le bouton n'est donc pas un détail d'interface.",
+      p2: "Le réflexe serait de confier la confirmation au conducteur. C'est lui qui organise, lui qui conduit, lui qui a la vue d'ensemble. Sauf que c'est précisément le problème : il a un intérêt à déclarer la course effectuée. Elle alimente son compteur, elle nourrit sa réputation, et le jour où l'argent circulera, elle le paiera.",
+      p3: "Le passager, lui, n'a rien à y gagner. Confirmer ne lui rapporte pas de trajet supplémentaire, ne le fait pas mieux noter, ne lui rembourse rien. Il constate, et c'est tout. C'est exactement ce qui rend sa confirmation crédible.",
+      p4: "La règle générale tient en une phrase : quand une déclaration doit être fiable, confiez-la à la partie qui n'en tire aucun bénéfice. Ce n'est pas une question de confiance dans les personnes, c'est une question de conception. Un système qui repose sur la bonne volonté de celui qui y gagne finit toujours par récompenser ceux qui en abusent.",
+      p5: "Le serveur ajoute deux garde-fous. La réservation doit avoir été acceptée — une demande restée en attente n'a transporté personne. Et le départ doit être passé, sans quoi il suffirait de réserver pour gonfler son compteur. L'opération n'est pas rejouable : une seconde confirmation est refusée, et le compteur ne bouge pas.",
+      p6: "Le même raisonnement se retrouve ailleurs dans le projet. Le freinage des tentatives de connexion compte par couple adresse IP et compte visé, précisément pour qu'un tiers ne puisse pas verrouiller le compte de quelqu'un d'autre en échouant volontairement. Dans les deux cas, on ne se protège pas de la maladresse mais de l'intérêt.",
+    },
+
+    "vos-donnees-en-clair": {
+      titre: "Ce que nous faisons de vos données, en clair",
+      chapeau:
+        "Trois droits que le règlement européen ouvre, et ce qu'il a fallu écrire pour qu'ils existent vraiment.",
+      p1: "Une politique de confidentialité peut annoncer n'importe quoi. Elle ne coûte rien à rédiger, et rien dans le produit n'oblige à ce qu'elle soit vraie. Nous avons voulu que chaque phrase de la nôtre corresponde à du code qu'on peut lire.",
+      p2: "Le droit d'accès et le droit à la portabilité — articles 15 et 20 — se traduisent par un bouton qui produit un fichier JSON contenant tout ce que nous détenons sur vous. Le format n'est pas anodin : le règlement exige quelque chose de « structuré, couramment utilisé et lisible par machine », trois qualités qu'un PDF n'a pas.",
+      p3: "L'export contient vos données, pas celles des autres. Un trajet que vous avez réservé chez quelqu'un y figure avec son itinéraire et son horaire, mais sans le téléphone ni l'adresse du conducteur. Ce sont ses données à lui, et votre droit à la portabilité ne porte pas dessus. Un bloc du fichier énumère d'ailleurs ce qui en est volontairement absent, et pourquoi.",
+      p4: "Le droit à l'effacement — article 17 — a demandé une décision moins évidente. Supprimer purement votre ligne détruirait les trajets auxquels d'autres personnes ont participé : effacer un conducteur priverait ses passagers de leur propre historique. Faire droit à votre demande en portant atteinte aux données d'un tiers n'est pas une option.",
+      p5: "L'effacement procède donc par anonymisation sur place. Nom, adresse, téléphone, photographie, plaque d'immatriculation, empreinte du mot de passe : tout est écrasé, immédiatement, sans copie de sauvegarde. Ce qui subsiste — un trajet Namur-Bruxelles rattaché à un participant sans nom — ne se rapporte plus à une personne identifiable.",
+      p6: "Avant d'anonymiser, l'opération annule vos trajets à venir et prévient leurs passagers. Un trajet futur dont le conducteur a disparu laisserait quelqu'un attendre à un point de rendez-vous. Supprimer un compte doit prévenir, pas seulement se taire.",
+      p7: "Enfin, la limitation de la durée de conservation — article 5.1.e — tourne toutes les nuits. Une inscription jamais confirmée est supprimée au bout de trente jours : une adresse dont personne n'a prouvé qu'elle lui appartenait n'est pas un compte. Les trajets de plus de deux ans perdent leurs adresses précises et leurs descriptions. Restent les villes et les dates, qui ne désignent personne.",
+    },
+
+    "donnees-ouvertes": {
+      titre: "Nos données sont ouvertes, et voici pourquoi",
+      chapeau:
+        "Publier ses chiffres quand on pourrait les garder, et le seuil qui sépare une statistique d'un déplacement individuel.",
+      p1: "CoShift publie un jeu de données ouvertes, sous Licence Ouverte 2.0, accessible sans compte ni clé : volumes de trajets, places partagées, villes desservies, taux de remplissage, répartition par mois. En JSON pour les machines, en CSV pour les tableurs — parce que c'est par le tableur qu'une donnée ouverte est réellement réutilisée par quelqu'un qui n'écrit pas de code.",
+      p2: "Nous le faisons d'abord par cohérence. Nous demandons aux organisations de mesurer leur mobilité plutôt que de la déclarer ; garder nos propres chiffres reviendrait à demander qu'on nous croie sur parole.",
+      p3: "Publier des chiffres de mobilité pose une difficulté que les données personnelles ne posent pas : un agrégat suffisamment fin redevient nominatif. Une liaison entre deux villes empruntée deux fois dans l'année ne décrit pas un flux, elle décrit le déplacement de deux personnes qu'on retrouve sans peine.",
+      p4: "D'où un seuil. Une ville n'apparaît dans le jeu qu'au-delà de cinq trajets. En dessous, elle est retirée — et le nombre de villes ainsi écartées est publié, pour qu'un réutilisateur sache que le jeu n'est pas exhaustif. Les couples départ-arrivée, eux, ne sont pas publiés du tout : au volume actuel, aucun n'atteint le seuil.",
+      p5: "Le jeu exclut par construction l'identité des conducteurs et des passagers, les adresses précises, les horaires de départ, le nom des organisations et les montants payés individuellement. Cette liste figure dans la réponse elle-même : ce qui est absent est annoncé, plutôt que laissé à deviner.",
+      p6: "Les trajets annulés sont comptés séparément des trajets publiés. Les mélanger gonflerait les volumes ; les taire relèverait de la malhonnêteté statistique. Publier ses chiffres n'a d'intérêt que si l'on publie aussi ceux qui arrangent moins.",
+    },
+
+    "domicile-travail": {
+      titre: "Le trajet que personne ne partage",
+      chapeau:
+        "Pourquoi le covoiturage quotidien résiste là où le covoiturage longue distance a réussi.",
+      p1: "Le covoiturage longue distance fonctionne. Un trajet de trois cents kilomètres coûte assez cher pour qu'on accepte un détour, on le planifie des jours à l'avance, et les plateformes grand public l'ont parfaitement résolu.",
+      p2: "Le trajet domicile-travail est l'exact opposé. Il est court, donc l'économie individuelle est faible. Il est quotidien, donc s'organiser à chaque fois est hors de question. Et il est rigide : arriver vingt minutes en retard n'est pas une option quand on est attendu.",
+      p3: "C'est pourtant celui qui compte. Ce ne sont pas les grands départs qui saturent les routes un mardi matin, mais des milliers de voitures qui font le même chemin, aux mêmes heures, avec un siège occupé sur cinq.",
+      p4: "Les plateformes ouvertes butent ici sur un obstacle qui n'est pas technique. Elles doivent fabriquer de la confiance entre inconnus : profils, avis, vérifications, assurances. Cet appareil se justifie pour un trajet exceptionnel. Pour dix minutes de voiture avec quelqu'un qu'on croisera de toute façon à la machine à café, il est disproportionné.",
+      p5: "Dans une organisation, cette confiance existe déjà. On partage un employeur, un bâtiment, des horaires, souvent des connaissances communes. Le problème restant n'est pas de savoir à qui se fier, mais de savoir qui part au même moment vers le même endroit. C'est un problème d'information, et un problème d'information se résout avec un logiciel.",
+      p6: "C'est le pari de CoShift : ne pas recréer ce qui existe déjà, et se concentrer sur ce qui manque vraiment. Le cercle fermé n'est pas une limitation du produit, c'est sa condition de fonctionnement.",
+    },
+  },
+
 };
 /* Pas de `as const` : il figerait chaque valeur sur sa chaîne littérale, et
    `Traductions` exigerait alors des autres catalogues qu'ils répètent le texte

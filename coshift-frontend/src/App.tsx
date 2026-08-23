@@ -17,18 +17,9 @@ import MentionsLegalesPage from "./pages/Legal/MentionsLegalesPage";
 import ConfidentialitePage from "./pages/Legal/ConfidentialitePage";
 import CguPage from "./pages/Legal/CguPage";
 import CookiesPage from "./pages/Legal/CookiesPage";
-
-// Pages fictives temporaires pour éviter les erreurs
-const EntreprisesPage = () => (
-  <div style={{ padding: "5rem", textAlign: "center" }}>
-    <h1>Espace Entreprises</h1>
-  </div>
-);
-const BlogPage = () => (
-  <div style={{ padding: "5rem", textAlign: "center" }}>
-    <h1>Le Blog Interne</h1>
-  </div>
-);
+import EntreprisesPage from "./pages/Entreprises/EntreprisesPage";
+import BlogPage from "./pages/Blog/BlogPage";
+import BlogPostPage from "./pages/Blog/BlogPostPage";
 
 function App() {
   return (
@@ -43,6 +34,8 @@ function App() {
           <Route path="actus/:id" element={<ArticlePage />} />
           <Route path="a-propos" element={<AboutPage />} />
           <Route path="blog" element={<BlogPage />} />
+          {/* Doit rester APRES la route fixe "blog". */}
+          <Route path="blog/:slug" element={<BlogPostPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="verify-email" element={<VerificationPage />} />
