@@ -277,4 +277,6 @@ Fonctionnalités prévues, non réalisées dans cette version alpha :
 
 ## Licence
 
-À définir.
+[MIT](LICENSE).
+
+Le choix est cohérent avec le jeu de données que l'application publie déjà sous [Licence Ouverte 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/) : ouvrir les données tout en réservant le code aurait été contradictoire. Un dépôt public sans fichier de licence reste, par défaut, sous droit d'auteur intégral — personne ne peut légalement le réutiliser, y compris pour l'étudier.
