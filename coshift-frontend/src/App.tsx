@@ -20,6 +20,7 @@ import CookiesPage from "./pages/Legal/CookiesPage";
 import EntreprisesPage from "./pages/Entreprises/EntreprisesPage";
 import BlogPage from "./pages/Blog/BlogPage";
 import BlogPostPage from "./pages/Blog/BlogPostPage";
+import NotFoundPage from "./pages/NotFound/NotFoundPage";
 
 function App() {
   return (
@@ -56,6 +57,13 @@ function App() {
 
           {/* Planche des composants : reference visuelle et support du rapport. */}
           <Route path="styleguide" element={<StyleguidePage />} />
+
+          {/* Dernière route, et à l'intérieur du layout : une adresse inconnue
+              doit rendre l'en-tête et le pied de page, sans quoi le visiteur se
+              retrouve sur un écran nu, sans navigation pour en sortir. Sans
+              cette route, React Router ne trouve rien à rendre dans l'Outlet et
+              affiche une page vide entre les deux. */}
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

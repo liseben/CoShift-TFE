@@ -539,6 +539,20 @@ export const fr = {
       "Planche de référence des composants et des couleurs de CoShift.",
   },
 
+  /* Adresse inconnue. La section est courte parce qu'un écran d'erreur qui
+     s'explique longuement inquiète plus qu'il ne rassure. */
+  introuvable: {
+    titre: "Page introuvable",
+    description: "Cette adresse ne correspond à aucune page de CoShift.",
+    heroTitre: "Cette page n'existe pas",
+    accroche:
+      "L'adresse est peut-être mal orthographiée, ou la page a changé d'endroit depuis que le lien a été écrit. Rien n'est perdu : voici par où reprendre.",
+    adresse: "Adresse demandée :",
+    accueil: "Retour à l'accueil",
+    precedent: "Page précédente",
+    pistes: "Ou continuer par ici",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",

@@ -533,6 +533,18 @@ export const en: Traductions = {
       "Reference board for CoShift's components and colours.",
   },
 
+  introuvable: {
+    titre: "Page not found",
+    description: "This address does not match any page on CoShift.",
+    heroTitre: "This page does not exist",
+    accroche:
+      "The address may be misspelled, or the page may have moved since the link was written. Nothing is lost — here is where to pick up.",
+    adresse: "Requested address:",
+    accueil: "Back to home",
+    precedent: "Previous page",
+    pistes: "Or carry on here",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",
