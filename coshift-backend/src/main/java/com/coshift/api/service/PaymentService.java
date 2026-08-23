@@ -93,15 +93,28 @@ public class PaymentService {
     }
 
     /**
-     * Règle le montant dû.
+     * Ouvre le règlement auprès du prestataire.
      *
-     * <p>Le passager seul peut payer sa place. Cela paraît évident et ne l'est
-     * pas : sans ce contrôle, n'importe quel compte pourrait solder la
-     * réservation d'un autre à partir de son seul identifiant public — et,
-     * accessoirement, apprendre ce qu'elle coûte.</p>
+     * <h2>Deux issues, selon le prestataire</h2>
+     *
+     * <p>La simulation déclare le paiement acquis sur-le-champ : l'état passe à
+     * {@code PAID} et il n'y a rien à confirmer. Stripe rend un secret à usage
+     * unique que le navigateur présentera avec les coordonnées bancaires — qui
+     * ne transitent jamais par CoShift. Le paiement reste alors {@code DUE}
+     * jusqu'à confirmation ; il n'est pas déclaré acquis parce qu'une intention
+     * a été créée.</p>
+     *
+     * <p>Le passager seul peut ouvrir le règlement de sa place. Cela paraît
+     * évident et ne l'est pas : sans ce contrôle, n'importe quel compte
+     * pourrait solder la réservation d'un autre à partir de son seul
+     * identifiant public — et, accessoirement, apprendre ce qu'elle coûte.</p>
+     *
+     * <p>Appelé deux fois, il rend une nouvelle intention. C'est voulu : un
+     * secret client est à usage unique, et quelqu'un dont la carte a été
+     * refusée doit pouvoir réessayer.</p>
      */
     @Transactional
-    public Payment payer(User appelant, String bookingUuid) {
+    public PaymentGateway.Intention preparerReglement(User appelant, String bookingUuid) {
         Payment paiement = trouver(bookingUuid);
 
         if (!paiement.getBooking().getPassenger().getId().equals(appelant.getId())) {
@@ -111,12 +124,81 @@ public class PaymentService {
             throw new ConflictException(messages.get("paiement.plusDu"));
         }
 
-        String reference = gateway.encaisser(paiement);
+        PaymentGateway.Intention intention = gateway.preparer(paiement);
+
+        paiement.setProvider(gateway.nom());
+        paiement.setProviderReference(intention.reference());
+        if (intention.regleImmediatement()) {
+            paiement.setStatus(PaymentStatus.PAID);
+            paiement.setPaidAt(LocalDateTime.now());
+        }
+        repository.save(paiement);
+
+        return intention;
+    }
+
+    /**
+     * Vérifie auprès du prestataire où en est le règlement, et met l'état à jour.
+     *
+     * <h2>Pourquoi ne pas croire le navigateur</h2>
+     *
+     * <p>Après avoir confirmé, la page annonce « c'est payé ». Cette page est
+     * entre les mains de la personne qui paie : la croire reviendrait à laisser
+     * qui le souhaite marquer sa réservation réglée avec l'outil de
+     * développement de son navigateur. Le serveur interroge donc le
+     * prestataire, seul à savoir.</p>
+     *
+     * <p>Ce chemin double celui des notifications, qui reste l'autorité en
+     * production. Il existe parce qu'un poste de développement n'a pas
+     * d'adresse publique où les recevoir, et parce qu'une notification peut se
+     * perdre.</p>
+     */
+    @Transactional
+    public Payment verifier(User appelant, String bookingUuid) {
+        Payment paiement = trouver(bookingUuid);
+
+        if (!paiement.getBooking().getPassenger().getId().equals(appelant.getId())) {
+            throw new UnauthorizedException(messages.get("paiement.pasLaVotre"));
+        }
+        if (paiement.getStatus() != PaymentStatus.DUE || paiement.getProviderReference() == null) {
+            return paiement;
+        }
+
+        return switch (gateway.etat(paiement.getProviderReference())) {
+            case REGLE -> marquerRegle(paiement);
+            case ECHOUE -> {
+                paiement.setStatus(PaymentStatus.FAILED);
+                yield repository.save(paiement);
+            }
+            case EN_ATTENTE -> paiement;
+        };
+    }
+
+    /**
+     * Confirme un règlement depuis une notification du prestataire.
+     *
+     * <p>Trouve le paiement par la référence de l'opération, et non par un
+     * identifiant fourni dans le corps de la notification : c'est la référence
+     * qui a été émise par le prestataire lui-même, donc la seule que
+     * l'application puisse rapprocher de ce qu'elle a enregistré.</p>
+     *
+     * <p>Sans effet si le paiement est déjà réglé. Les prestataires réémettent
+     * leurs notifications en cas de doute, et une opération qui ne supporte pas
+     * d'être rejouée finit par produire deux règlements pour une place.</p>
+     */
+    @Transactional
+    public void confirmerDepuisPrestataire(String reference) {
+        repository.findByProviderReference(reference).ifPresentOrElse(paiement -> {
+            if (paiement.getStatus() == PaymentStatus.DUE) {
+                marquerRegle(paiement);
+                log.info("Paiement {} confirmé par une notification du prestataire", reference);
+            }
+        }, () -> log.warn("Notification reçue pour une opération inconnue : {}", reference));
+    }
+
+    private Payment marquerRegle(Payment paiement) {
         paiement.setStatus(PaymentStatus.PAID);
         paiement.setPaidAt(LocalDateTime.now());
-        paiement.setProvider(gateway.nom());
-        paiement.setProviderReference(reference);
-
         return repository.save(paiement);
     }
 
@@ -198,7 +280,11 @@ public class PaymentService {
         paiement.setRefundedAmount(aRendre);
         paiement.setRefundedAt(LocalDateTime.now());
         paiement.setRefundReason(motif);
-        paiement.setProviderReference(reference);
+        /* Dans sa propre colonne : ecraser `providerReference` perdrait
+           l'identifiant de l'operation d'origine, sur laquelle un vrai
+           prestataire adosse ses remboursements — et qu'une notification
+           arrivant en retard cherchera encore. */
+        paiement.setRefundReference(reference);
         paiement.setStatus(part == 100 ? PaymentStatus.REFUNDED : PaymentStatus.PARTIALLY_REFUNDED);
 
         log.info("Remboursement de {} % ({} {}) sur la réservation {} — {}",

@@ -75,6 +75,17 @@ public class Payment {
     @Column(name = "provider_reference")
     private String providerReference;
 
+    /**
+     * Référence de l'opération de remboursement chez le prestataire.
+     *
+     * <p>Distincte de {@link #providerReference} : un relevé comptable doit
+     * pouvoir montrer les deux mouvements, ce qui a été encaissé et ce qui a
+     * été rendu. Une seule colonne n'en montrait qu'un, et toujours le
+     * dernier.</p>
+     */
+    @Column(name = "refund_reference")
+    private String refundReference;
+
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 

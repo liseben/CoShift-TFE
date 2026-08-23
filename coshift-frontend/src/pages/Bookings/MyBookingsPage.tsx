@@ -13,6 +13,7 @@ import { useLang } from "../../context/LangContext";
 import { LANGUES } from "../../i18n";
 import "./BookingsPage.css";
 import { useSeo } from "../../hooks/useSeo";
+import FormulairePaiement from "../../components/Paiement/FormulairePaiement";
 
 /** Cle de traduction de l'etat comptable. */
 const ETAT_PAIEMENT: Record<string, string> = {
@@ -91,6 +92,8 @@ export default function MyBookingsPage() {
   /* Remplace window.confirm : le navigateur ne stylise pas ses fenetres et
      leur contenu echappe aux lecteurs d'ecran de la page. */
   const [toCancel, setToCancel] = useState<Booking | null>(null);
+  /* Reservation en cours de reglement par carte, avec le secret a usage unique. */
+  const [aPayer, setAPayer] = useState<{ uuid: string; secret: string; montant: number } | null>(null);
   /* Ce qui serait rendu si l'annulation etait confirmee maintenant. Demande au
      serveur : le bareme est une regle metier, la recopier ici ouvrirait la
      possibilite que les deux versions divergent — et c'est l'ecran qui aurait
@@ -139,15 +142,53 @@ export default function MyBookingsPage() {
 
   const libellePaiement = (statut: string) => t(ETAT_PAIEMENT[statut] ?? "paiement.etat");
 
-  /** Acquitte le montant du. */
+  /**
+   * Ouvre le reglement aupres du prestataire.
+   *
+   * <p>Deux issues, et l'ecran n'a pas a savoir laquelle avant de demander :
+   * la simulation declare le montant acquis sur-le-champ, Stripe rend un secret
+   * a usage unique et il faut alors afficher le formulaire de carte.</p>
+   */
   const regler = async (uuid: string) => {
     setBusy(uuid);
     setError(null);
     try {
+      const res = await axios.post<{
+        prestataire: string;
+        regleImmediatement: boolean;
+        secretClient: string | null;
+        reservation: Booking;
+      }>(`${API_BASE}/api/bookings/${uuid}/payment`, {}, { headers: headers() });
+
+      if (res.data.regleImmediatement || !res.data.secretClient) {
+        setBookings((liste) => liste.map((b) => (b.uuid === uuid ? res.data.reservation : b)));
+      } else {
+        setAPayer({ uuid, secret: res.data.secretClient, montant: res.data.reservation.paiement?.amount ?? 0 });
+      }
+    } catch (e) {
+      setError(
+        (axios.isAxiosError(e) && e.response?.data?.message) || t("commun.erreurGenerique"),
+      );
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  /**
+   * Le navigateur a confirme : on demande au SERVEUR de verifier.
+   *
+   * <p>C'est le point qui compte. La page qui vient d'afficher « c'est paye »
+   * est entre les mains de la personne qui paie ; seul le prestataire sait, et
+   * seul le serveur peut le lui demander.</p>
+   */
+  const verifierReglement = async (uuid: string) => {
+    setBusy(uuid);
+    try {
       const res = await axios.post<Booking>(
-        `${API_BASE}/api/bookings/${uuid}/payment`, {}, { headers: headers() },
+        `${API_BASE}/api/bookings/${uuid}/payment/verification`, {}, { headers: headers() },
       );
       setBookings((liste) => liste.map((b) => (b.uuid === uuid ? res.data : b)));
+      setAPayer(null);
     } catch (e) {
       setError(
         (axios.isAxiosError(e) && e.response?.data?.message) || t("commun.erreurGenerique"),
@@ -413,6 +454,22 @@ export default function MyBookingsPage() {
           ))}
         </div>
       )}
+
+      {/* Formulaire de carte. Le champ appartient a Stripe : le numero de carte
+          n'entre jamais dans le code de CoShift ni dans son serveur. */}
+      <Modal
+        open={aPayer !== null}
+        onClose={() => setAPayer(null)}
+        size="sm"
+        title={t("paiement.titreCarte", { montant: (aPayer?.montant ?? 0).toFixed(2) })}
+      >
+        {aPayer && (
+          <FormulairePaiement
+            secretClient={aPayer.secret}
+            onRegle={() => void verifierReglement(aPayer.uuid)}
+          />
+        )}
+      </Modal>
 
       <Modal
         open={toCancel !== null}

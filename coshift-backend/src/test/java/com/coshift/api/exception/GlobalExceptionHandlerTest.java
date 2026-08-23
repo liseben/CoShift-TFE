@@ -55,6 +55,7 @@ import static org.mockito.Mockito.when;
 class GlobalExceptionHandlerTest {
 
     @Mock private SecurityAuditService audit;
+    @Mock private com.coshift.api.service.Messages messages;
     @Mock private WebRequest webRequest;
     @Mock private HttpServletRequest httpRequest;
 
@@ -62,7 +63,7 @@ class GlobalExceptionHandlerTest {
 
     @BeforeEach
     void preparer() {
-        handler = new GlobalExceptionHandler(audit);
+        handler = new GlobalExceptionHandler(audit, messages);
         when(webRequest.getDescription(false)).thenReturn("uri=/api/trips/abc");
         when(httpRequest.getRemoteAddr()).thenReturn("203.0.113.7");
         when(httpRequest.getMethod()).thenReturn("GET");

@@ -68,6 +68,14 @@ public class SecurityConfiguration {
                    passe par @PreAuthorize sur le controleur. La regle est bornee
                    aux deux chemins de lecture, et non a /api/blog/** en GET, pour
                    que la liste d'administration reste fermee. */
+                /* Stripe appelle ce chemin sans pouvoir s'authentifier : il ne
+                   detient aucun compte CoShift. Ce n'est pas un trou — la
+                   requete est verifiee par sa SIGNATURE, calculee avec un secret
+                   partage que personne d'autre ne possede, et le controleur
+                   refuse tout ce qui ne la porte pas. Une authentification par
+                   jeton serait ici impossible ET moins sure. */
+                .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
+
                 .requestMatchers(HttpMethod.GET, "/api/blog").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/blog/*").permitAll()
 

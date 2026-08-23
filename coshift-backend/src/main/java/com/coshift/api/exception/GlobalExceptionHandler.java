@@ -38,6 +38,8 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 public class GlobalExceptionHandler {
 
     private final SecurityAuditService audit;
+    /** Pour renvoyer un message dans la langue de l'appelant plutot que celui d'un tiers. */
+    private final com.coshift.api.service.Messages messages;
 
     // ─────────────────────────── 400 — Requête invalide ───────────────────────────
 
@@ -157,6 +159,21 @@ public class GlobalExceptionHandler {
     }
 
     // ───────────────────────────── 500 — Dernier recours ──────────────────────────
+
+    /**
+     * Panne du prestataire de paiement.
+     *
+     * <p>502 et non 500 : la panne n'est pas dans CoShift mais chez un service
+     * tiers, et la distinction compte pour qui lit les journaux. Le message de
+     * Stripe reste au journal — il est écrit pour un développeur et peut
+     * contenir des détails de configuration ; la personne qui paie reçoit une
+     * phrase du catalogue, dans sa langue.</p>
+     */
+    @ExceptionHandler(com.coshift.api.service.StripeGateway.PaymentGatewayException.class)
+    public ResponseEntity<ErrorResponse> handleGateway(RuntimeException ex, WebRequest request) {
+        return build(HttpStatus.BAD_GATEWAY, "Payment Gateway Error",
+                messages.get("paiement.prestataireIndisponible"), request);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex, WebRequest request) {

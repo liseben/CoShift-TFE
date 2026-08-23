@@ -207,6 +207,26 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+
+		<!--
+		  Stripe, pour le partage de frais.
+
+		  Le mode test ne demande ni agrement ni societe : les cles `sk_test_` et
+		  `pk_test_` s'obtiennent en quelques minutes et aucun euro ne circule. La
+		  reserve reglementaire qui avait fait choisir une simulation portait sur
+		  l'encaissement reel, pas sur une demonstration.
+
+		  La dependance est presente en permanence, mais le prestataire n'est
+		  active que si une cle secrete est configuree : sans elle, l'application
+		  retombe sur la simulation et demarre normalement. C'est ce qui permet a
+		  quelqu'un qui clone le depot de la faire tourner sans compte Stripe.
+		-->
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>33.3.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
