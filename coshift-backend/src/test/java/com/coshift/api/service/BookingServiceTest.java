@@ -68,6 +68,7 @@ class BookingServiceTest {
     @Mock private EmailService emailService;
     @Mock private Messages messages;
     @Mock private OrganizationService organizationService;
+    @Mock private PaymentService paymentService;
 
     @InjectMocks private BookingService service;
 

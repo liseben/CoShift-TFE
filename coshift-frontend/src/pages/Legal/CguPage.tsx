@@ -500,6 +500,15 @@ export default function CguPage() {
           passager.
         </p>
         <p>
+          L'application tient la <strong>comptabilité</strong> de cette
+          participation — ce qui est dû, ce qui est déclaré réglé, ce qui est
+          rendu en cas d'annulation — et applique un barème identique pour tous.
+          Elle ne procède à <strong>aucun encaissement</strong> : cette activité
+          suppose un statut d'agent de paiement dont CoShift ne dispose pas.
+          Lorsque l'écran indique un montant réglé, il enregistre une déclaration
+          des parties, non un mouvement de fonds.
+        </p>
+        <p>
           Le jour où un paiement en ligne sera proposé, les obligations relatives
           aux contrats à distance s'appliqueront intégralement&nbsp;: information
           précontractuelle, confirmation sur support durable et{" "}

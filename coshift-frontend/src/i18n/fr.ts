@@ -726,6 +726,31 @@ export const fr = {
     enregistrer: "Enregistrer",
   },
 
+  /* Partage de frais. Le mot « paiement » est employe, mais l'ecran dit aussi
+     ce qui ne circule pas : voir `simulation`. */
+  paiement: {
+    etat: "Paiement",
+    du: "À régler",
+    regle: "Réglé",
+    rembourse: "Remboursé",
+    rembourseEnPartie: "Remboursé en partie",
+    annule: "Sans objet",
+    echoue: "Échec",
+
+    payer: "Régler {montant} €",
+    rembourseDe: "{montant} € rendus",
+    motif: "Motif : {motif}",
+
+    simulation:
+      "Aucun euro ne circule : CoShift ne dispose pas du statut d'agent de paiement, et le prestataire enregistré est une simulation. C'est ce que disent aussi les conditions générales.",
+
+    baremeTitre: "Ce qui vous sera rendu",
+    baremeIntegral: "Vous récupérez la totalité, soit {montant} €.",
+    baremePartiel:
+      "Le départ est dans moins de 24 heures : vous récupérez {part} %, soit {montant} €. Le siège ne se reloue plus, et le conducteur a organisé son trajet autour de cette place.",
+    baremeRien: "Le trajet est parti : rien n'est remboursable.",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",

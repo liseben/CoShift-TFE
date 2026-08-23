@@ -6,6 +6,10 @@ import com.coshift.api.dto.BookingResponse;
 import com.coshift.api.dto.ReviewRequest;
 import com.coshift.api.dto.ReviewResponse;
 import com.coshift.api.service.BookingService;
+import com.coshift.api.exception.ResourceNotFoundException;
+import com.coshift.api.service.Messages;
+import com.coshift.api.repository.UserRepository;
+import com.coshift.api.service.PaymentService;
 import com.coshift.api.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +38,9 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final PaymentService paymentService;
+    private final UserRepository userRepository;
+    private final Messages messages;
     private final ReviewService reviewService;
 
     // F27 — Réserver une ou plusieurs places
@@ -258,4 +265,71 @@ public class BookingController {
     public ResponseEntity<List<ReviewResponse>> reviewsRecus(Authentication auth) {
         return ResponseEntity.ok(reviewService.avisRecus(auth.getName()));
     }
+
+    // ────────────────────────── F28 — Partage de frais ───────────────────────
+
+    @Operation(
+            summary = "Régler sa réservation",
+            description = """
+                    Acquitte le montant dû pour la place réservée.
+
+                    **Ce que fait cet appel, et ce qu'il ne fait pas.** Il tient la
+                    comptabilité de la réservation : ce qui est dû devient réglé. Il ne
+                    déplace pas d'argent — encaisser pour le compte d'un tiers relève de la
+                    directive européenne sur les services de paiement et du statut d'agent de
+                    paiement, que CoShift n'a pas. Le champ `provider` de la réponse dit quel
+                    prestataire a traité l'opération ; tant qu'il vaut `SIMULATION`, aucun
+                    euro n'a circulé, et les conditions générales continuent de dire vrai.
+
+                    Seul le passager de la réservation peut la régler. Sans ce contrôle,
+                    n'importe quel compte pourrait solder celle d'un autre à partir de son
+                    seul identifiant public — et apprendre au passage ce qu'elle coûte.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Montant réglé."),
+            @ApiResponse(responseCode = "403", description = "Ce n'est pas votre réservation.", content = @Content()),
+            @ApiResponse(responseCode = "404", description = "Aucun paiement pour cette réservation.", content = @Content()),
+            @ApiResponse(responseCode = "409", description = "Ce montant n'est plus dû.", content = @Content())
+    })
+    @PostMapping("/{uuid}/payment")
+    public ResponseEntity<BookingResponse> payer(
+            @Parameter(description = "Identifiant public de la réservation.") @PathVariable String uuid,
+            Authentication auth) {
+        var passager = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
+        paymentService.payer(passager, uuid);
+        return ResponseEntity.ok(bookingService.parUuidPourPassager(auth.getName(), uuid));
+    }
+
+    @Operation(
+            summary = "Ce qui serait remboursé en cas d'annulation",
+            description = """
+                    Renvoie la part qui serait rendue, en pourcentage, si la réservation était
+                    annulée maintenant par son passager.
+
+                    **Pourquoi un point d'entrée pour cela.** L'interface l'appelle pour
+                    annoncer le montant *avant* que la personne confirme. Découvrir après coup
+                    qu'on ne récupère que la moitié est le genre de surprise qui vaut une
+                    réclamation — et le barème n'a d'intérêt que s'il est connu au moment de
+                    décider.
+
+                    Le barème tient en une idée : on ne fait pas payer quelqu'un pour une
+                    décision qui n'est pas la sienne. Plus de 24 h avant le départ, tout est
+                    rendu. En deçà, la moitié : le siège ne se reloue plus, et rendre tout
+                    ferait de l'annulation de dernière minute une option gratuite. Après le
+                    départ, rien.""")
+    @ApiResponse(responseCode = "200", description = "Part remboursable, en pourcentage.")
+    @GetMapping("/{uuid}/remboursement")
+    public ResponseEntity<java.util.Map<String, Object>> remboursement(
+            @Parameter(description = "Identifiant public de la réservation.") @PathVariable String uuid,
+            Authentication auth) {
+        var paiement = paymentService.trouver(uuid);
+        int part = paymentService.partRendue(paiement.getBooking().getTrip().getDepartureTime(), false);
+        return ResponseEntity.ok(java.util.Map.of(
+                "partRendue", part,
+                "montantRendu", paiement.getAmount()
+                        .multiply(java.math.BigDecimal.valueOf(part))
+                        .divide(java.math.BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP),
+                "devise", paiement.getCurrency()));
+    }
+
 }

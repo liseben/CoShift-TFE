@@ -75,6 +75,37 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
 - **Article 17** — suppression du compte. L'opération annule d'abord les trajets et réservations à venir, pour que personne ne se présente à un rendez-vous qui n'aura pas lieu, puis anonymise les champs identifiants.
 - **Article 7** — consentement aux services tiers, horodaté, versionné, révocable en un clic depuis le pied de page. Aucun fond cartographique ni script Google n'est chargé avant une réponse explicite.
 
+### Partage de frais
+
+- Le montant devient **dû dès la demande**, mais rien n'est prélevé : le
+  conducteur peut encore refuser, et faire payer une place qu'on n'aura
+  peut-être pas obligerait à rembourser des gens qui n'ont jamais voyagé.
+- **Barème d'annulation**, tenant en une idée : *on ne fait pas payer quelqu'un
+  pour une décision qui n'est pas la sienne.*
+
+  | Situation | Rendu au passager |
+  |---|---|
+  | Le conducteur annule le trajet, ou refuse la demande | 100 % |
+  | Le passager annule plus de 24 h avant le départ | 100 % |
+  | Le passager annule moins de 24 h avant | 50 % |
+  | Le passager annule après le départ | 0 % |
+
+  Le seuil est *une* décision défendable, pas la seule. Ce qui compte est qu'il
+  soit écrit, appliqué au même endroit pour tout le monde, et **annoncé avant**
+  que la personne confirme — découvrir après coup qu'on ne récupère que la
+  moitié est le genre de surprise qui vaut une réclamation.
+
+- **Aucun euro ne circule, et l'application le dit.** Encaisser pour le compte
+  d'un tiers relève de la directive européenne sur les services de paiement et
+  du statut d'agent de paiement, que CoShift n'a pas. Le mouvement de fonds est
+  isolé derrière une interface ; la seule implémentation disponible s'appelle
+  `SIMULATION`, son nom est enregistré avec chaque opération et affiché à
+  l'écran. Les conditions générales continuent donc de dire vrai.
+
+  Tout le reste — montants, états, barème, remboursements partiels — est du
+  code métier qui se teste sans compte chez un prestataire. C'est précisément
+  ce qui a motivé la séparation.
+
 ### Administration
 
 - Deux rôles, deux portées. Un **`SUPER_ADMIN`** répond de la plateforme et voit
@@ -324,11 +355,15 @@ Livré depuis la première rédaction de cette liste :
 - [x] Application installable (PWA)
 - [x] Espace d'administration : supervision et suspension de comptes
 - [x] Blog rédigeable depuis l'administration, sans redéploiement
+- [x] Partage de frais : montants, états, barème d'annulation et remboursements
 
 Prévu, non réalisé dans cette version alpha :
 
 - [ ] Messagerie entre conducteur et passager
-- [ ] Paiement en ligne et partage de frais
+- [ ] **Encaissement réel.** Le domaine est en place et testé ; il manque un
+      prestataire agréé, un point d'entrée pour ses notifications — un paiement
+      n'est confirmé que par elles, jamais par la réponse immédiate — et le
+      statut réglementaire qui va avec
 - [ ] Signalement d'une annonce ou d'un membre, et file de modération
 - [ ] Néerlandais
 - [ ] Distance des trajets, sans laquelle ni les kilomètres partagés ni les

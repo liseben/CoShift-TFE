@@ -104,3 +104,45 @@
   padding-top: var(--sp-4);
   border-top: 1px solid var(--border);
 }
+
+
+/* ── Etat comptable d'une reservation ── */
+.bk-paiement {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+/* La couleur double le libelle, elle ne le remplace pas : « À régler » est
+   ecrit a cote. */
+.bk-paiement--due   { color: var(--pending); }
+.bk-paiement--paid  { color: var(--eco); }
+.bk-paiement--refunded,
+.bk-paiement--partially_refunded { color: var(--brand); }
+.bk-paiement--failed { color: var(--danger); }
+
+.bk-paiement-detail {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+/* ── Bareme annonce avant l'annulation ── */
+.bk-bareme {
+  margin-top: var(--sp-5);
+  padding: var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--surface-sunk);
+  line-height: var(--lh-base);
+}
+
+.bk-bareme-titre {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+}
