@@ -1,73 +1,38 @@
-# React + TypeScript + Vite
+# CoShift — interface
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Client React de la plateforme CoShift. Il ne fonctionne pas seul : il consomme l'API du module `coshift-backend`.
 
-Currently, two official plugins are available:
+**La procédure d'installation complète se trouve dans le [README à la racine](../README.md).**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Commandes
 
-## React Compiler
+| Commande | Effet |
+|---|---|
+| `npm run dev` | Serveur de développement sur `http://localhost:5173` |
+| `npm run build` | Vérification des types puis construction dans `dist/` |
+| `npm run preview` | Sert le résultat de `build` |
+| `npm run lint` | Analyse statique |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Configuration
 
-## Expanding the ESLint configuration
+Copier `.env.example` en `.env`, puis renseigner :
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `VITE_API_URL` — URL du backend, doit suivre son `SERVER_PORT`
+- `VITE_MAPBOX_TOKEN` — jeton public Mapbox pour le fond cartographique
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Vite n'expose au navigateur que les variables préfixées `VITE_`. Elles finissent en clair dans le paquet livré : n'y placez jamais de secret.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Organisation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+  components/   Composants réutilisables, dont la bibliothèque d'interface (ui/)
+  context/      Authentification, langue, thème, consentement
+  hooks/        Crochets partagés
+  i18n/         Catalogues français et anglais
+  layouts/      Coquille de page
+  pages/        Un dossier par écran
+  styles/       Jetons de conception, base, composants
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+La planche de composants est servie sur `/styleguide` : elle sert de référence visuelle et de support au rapport.
