@@ -54,12 +54,7 @@ export default function NotFoundPage() {
 
   return (
     <div className="container page stack-8 introuvable">
-      {/* Un `div`, pas un `header` : Chrome expose tout `header` en repère
-          « banner », même imbriqué dans `main`. La page en aurait alors deux, et
-          un lecteur d'écran qui saute de repère en repère atterrirait sur celui
-          qui n'est pas l'en-tête du site. Le reste du projet emploie encore
-          `header` dans cette position — c'est le même défaut, à traiter à part. */}
-      <div className="introuvable__tete">
+      <header className="introuvable__tete">
         <p className="introuvable__code" aria-hidden="true">
           404
         </p>
@@ -70,7 +65,7 @@ export default function NotFoundPage() {
           <span className="introuvable__adresse-libelle">{t("introuvable.adresse")}</span>
           <code>{affichee}</code>
         </p>
-      </div>
+      </header>
 
       <div className="introuvable__actions">
         {/* Un lien pour l'accueil, un bouton pour reculer : le premier a une
