@@ -354,6 +354,131 @@ class BookingServiceTest {
         }
     }
 
+    // ─────────────────── F21 — Confirmation de prestation ───────────────────────
+
+    @Nested
+    @DisplayName("Confirmer que le trajet a eu lieu")
+    class Confirmer {
+
+        @BeforeEach
+        void trajetPasse() {
+            trajet.setDepartureTime(LocalDateTime.now().minusHours(2));
+        }
+
+        @Test
+        @DisplayName("fait passer la réservation en COMPLETED et horodate")
+        void confirmeLaPrestation() {
+            reservation(BookingStatus.CONFIRMED, 1);
+
+            var reponse = service.complete(COURRIEL_PASSAGER, "resa-uuid");
+
+            assertThat(reponse.getStatus()).isEqualTo(BookingStatus.COMPLETED);
+            assertThat(reponse.getCompletedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("compte le trajet pour les deux participants")
+        void compteLesDeuxParticipants() {
+            // Un covoiturage effectué est un trajet partagé : il compte pour
+            // celui qui conduit comme pour celui qui monte. Ne créditer que le
+            // conducteur ferait du passager un éternel débutant.
+            reservation(BookingStatus.CONFIRMED, 1);
+            int avantPassager = passager.getTripsCount();
+            int avantConducteur = conducteur.getTripsCount();
+
+            service.complete(COURRIEL_PASSAGER, "resa-uuid");
+
+            assertThat(passager.getTripsCount()).isEqualTo(avantPassager + 1);
+            assertThat(conducteur.getTripsCount()).isEqualTo(avantConducteur + 1);
+            verify(userRepository).save(passager);
+            verify(userRepository).save(conducteur);
+        }
+
+        @Test
+        @DisplayName("refuse la confirmation par le conducteur")
+        void refuseLeConducteur() {
+            // La confirmation est confiée à la partie qui n'y gagne rien :
+            // c'est ce qui en fait une information fiable.
+            reservation(BookingStatus.CONFIRMED, 1);
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_CONDUCTEUR, "resa-uuid"))
+                    .isInstanceOf(UnauthorizedException.class);
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("refuse une demande restée en attente")
+        void refuseUneDemandeEnAttente() {
+            reservation(BookingStatus.PENDING, 1);
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_PASSAGER, "resa-uuid"))
+                    .isInstanceOf(ConflictException.class);
+        }
+
+        @Test
+        @DisplayName("refuse une réservation annulée")
+        void refuseUneReservationAnnulee() {
+            reservation(BookingStatus.CANCELLED, 1);
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_PASSAGER, "resa-uuid"))
+                    .isInstanceOf(ConflictException.class);
+        }
+
+        @Test
+        @DisplayName("refuse une réservation refusée")
+        void refuseUneReservationRefusee() {
+            reservation(BookingStatus.REJECTED, 1);
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_PASSAGER, "resa-uuid"))
+                    .isInstanceOf(ConflictException.class);
+        }
+
+        @Test
+        @DisplayName("refuse une seconde confirmation")
+        void refuseUneSecondeConfirmation() {
+            reservation(BookingStatus.COMPLETED, 1);
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_PASSAGER, "resa-uuid"))
+                    .isInstanceOf(ConflictException.class);
+
+            // Le compteur ne doit pas bouger : sinon confirmer en boucle
+            // fabriquerait des trajets à volonté.
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("refuse de confirmer un trajet qui n'a pas encore eu lieu")
+        void refuseUnTrajetAVenir() {
+            trajet.setDepartureTime(LocalDateTime.now().plusDays(1));
+            reservation(BookingStatus.CONFIRMED, 1);
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_PASSAGER, "resa-uuid"))
+                    .isInstanceOf(ConflictException.class);
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("refuse une réservation inconnue")
+        void refuseUneReservationInconnue() {
+            when(bookingRepository.findByUuid("inexistante")).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.complete(COURRIEL_PASSAGER, "inexistante"))
+                    .isInstanceOf(ResourceNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("efface le motif hérité d'un changement de statut précédent")
+        void effaceLeMotif() {
+            reservation(BookingStatus.CONFIRMED, 1);
+
+            var reponse = service.complete(COURRIEL_PASSAGER, "resa-uuid");
+
+            assertThat(reponse.getStatusReason()).isNull();
+        }
+    }
+
     // ────────────────────────────────── Fabriques ───────────────────────────────
 
     private BookingRequest demande(int places) {

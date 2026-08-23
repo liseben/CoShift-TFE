@@ -29,6 +29,16 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
+  /**
+   * Relit le profil depuis le serveur, jeton inchangé.
+   *
+   * Le profil transporte des valeurs que d'autres écrans font bouger — le
+   * nombre de trajets effectués change dès qu'une prestation est confirmée.
+   * Sans ce rappel, l'en-tête du tableau de bord garderait l'ancienne valeur
+   * jusqu'à la prochaine connexion, et donnerait l'impression que l'action
+   * n'a rien fait.
+   */
+  rafraichir: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,8 +82,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  const rafraichir = () => {
+    const token = localStorage.getItem("coshift_token");
+    // Sans jeton, il n'y a rien à relire : la session est déjà close.
+    if (token) fetchUser(token);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, rafraichir }}>
       {children}
     </AuthContext.Provider>
   );

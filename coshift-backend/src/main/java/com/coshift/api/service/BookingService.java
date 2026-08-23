@@ -204,6 +204,76 @@ public class BookingService {
         return BookingResponse.forPassenger(bookingRepository.save(booking));
     }
 
+    // ──────────────────── F21 — Confirmation de prestation ───────────────────────
+
+    /**
+     * Le passager reconnaît que le trajet a bien eu lieu.
+     *
+     * <h2>Pourquoi le passager, et pas le conducteur</h2>
+     *
+     * <p>Le conducteur a un intérêt à déclarer la course effectuée — elle
+     * alimente son compteur de trajets et, demain, sa rémunération. Le passager
+     * n'en a pas : il confirme ce qu'il a constaté. Confier la confirmation à
+     * la partie qui n'y gagne rien est la seule façon d'en faire une
+     * information fiable.</p>
+     *
+     * <h2>Ce que la confirmation débloque</h2>
+     *
+     * <p>Le statut {@link BookingStatus#COMPLETED} était déclaré depuis le
+     * premier jour, interrogé par les requêtes de données ouvertes, et attribué
+     * par personne : les statistiques publiques comptaient donc une catégorie
+     * toujours vide. Le compteur {@code tripsCount} des deux participants
+     * restait lui aussi à zéro, ce qui affichait « 0 trajet » à un conducteur
+     * chevronné.</p>
+     *
+     * <p>Les deux participants sont incrémentés : un covoiturage effectué est
+     * un trajet partagé, il compte pour celui qui conduit comme pour celui qui
+     * monte. Compter le seul conducteur ferait du passager un éternel débutant.</p>
+     */
+    @Transactional
+    public BookingResponse complete(String passengerEmail, String bookingUuid) {
+        User passenger = findUser(passengerEmail);
+        Booking booking = bookingRepository.findByUuid(bookingUuid)
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("reservation.introuvable")));
+
+        if (!booking.getPassenger().getId().equals(passenger.getId())) {
+            throw new UnauthorizedException(messages.get("reservation.pasLaVotre"));
+        }
+
+        // Seule une réservation acceptée a pu donner lieu à une course. Une
+        // demande restée en attente, refusée ou annulée n'a transporté personne.
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new ConflictException(booking.getStatus() == BookingStatus.COMPLETED
+                    ? messages.get("reservation.dejaConfirmee")
+                    : messages.get("reservation.pasConfirmable"));
+        }
+
+        Trip trip = booking.getTrip();
+        // On ne confirme pas une course qui n'a pas encore eu lieu : sans ce
+        // contrôle, un passager gonflerait son compteur dès la réservation.
+        if (trip.getDepartureTime() == null || trip.getDepartureTime().isAfter(LocalDateTime.now())) {
+            throw new ConflictException(messages.get("reservation.trajetPasEncorePasse"));
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        booking.setCompletedAt(LocalDateTime.now());
+        booking.setStatusReason(null);
+
+        crediterUnTrajet(passenger);
+        crediterUnTrajet(trip.getDriver());
+
+        log.info("Prestation confirmée pour la réservation {} : le trajet {} est compté pour ses deux participants",
+                bookingUuid, trip.getUuid());
+
+        return BookingResponse.forPassenger(bookingRepository.save(booking));
+    }
+
+    /** Ajoute un trajet au compteur d'un participant et le persiste. */
+    private void crediterUnTrajet(User participant) {
+        participant.setTripsCount(participant.getTripsCount() + 1);
+        userRepository.save(participant);
+    }
+
     // ────────────────────────────────── Interne ──────────────────────────────────
 
     /**

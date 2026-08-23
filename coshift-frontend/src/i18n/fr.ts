@@ -341,6 +341,10 @@ export const fr = {
     voirLeTrajet: "Voir le trajet",
     annuler: "Annuler",
     annulationEchouee: "L'annulation a échoué.",
+    /* F21 — confirmation de prestation par le passager. */
+    confirmerTrajet: "J'ai fait ce trajet",
+    confirmationEchouee: "La confirmation a échoué.",
+    confirmeLe: "Trajet confirmé le {date}.",
     annulerTitre: "Annuler cette réservation ?",
     confirmerAnnulation: "Confirmer l'annulation",
     annulerTexte:

@@ -338,6 +338,10 @@ export const en: Traductions = {
     voirLeTrajet: "View ride",
     annuler: "Cancel",
     annulationEchouee: "The cancellation failed.",
+    /* F21 — confirmation de prestation par le passager. */
+    confirmerTrajet: "I took this trip",
+    confirmationEchouee: "The confirmation failed.",
+    confirmeLe: "Trip confirmed on {date}.",
     annulerTitre: "Cancel this booking?",
     confirmerAnnulation: "Confirm cancellation",
     annulerTexte:

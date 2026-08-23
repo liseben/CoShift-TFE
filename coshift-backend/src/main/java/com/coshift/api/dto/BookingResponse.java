@@ -31,6 +31,13 @@ public class BookingResponse {
     private String statusReason;
     private LocalDateTime createdAt;
 
+    /**
+     * Date à laquelle le passager a confirmé que le trajet avait eu lieu (F21),
+     * ou {@code null} tant qu'il ne l'a pas fait. Le client s'en sert pour
+     * n'afficher le bouton de confirmation que là où il a un sens.
+     */
+    private LocalDateTime completedAt;
+
     private TripSummary trip;
     private PassengerSummary passenger;
 
@@ -120,6 +127,7 @@ public class BookingResponse {
                 .totalPrice(booking.getTotalPrice())
                 .status(booking.getStatus())
                 .statusReason(booking.getStatusReason())
-                .createdAt(booking.getCreatedAt());
+                .createdAt(booking.getCreatedAt())
+                .completedAt(booking.getCompletedAt());
     }
 }
