@@ -95,16 +95,32 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
   que la personne confirme — découvrir après coup qu'on ne récupère que la
   moitié est le genre de surprise qui vaut une réclamation.
 
-- **Aucun euro ne circule, et l'application le dit.** Encaisser pour le compte
-  d'un tiers relève de la directive européenne sur les services de paiement et
-  du statut d'agent de paiement, que CoShift n'a pas. Le mouvement de fonds est
-  isolé derrière une interface ; la seule implémentation disponible s'appelle
-  `SIMULATION`, son nom est enregistré avec chaque opération et affiché à
-  l'écran. Les conditions générales continuent donc de dire vrai.
+- **Stripe, en mode test.** Le mode test ne demande ni société ni agrément :
+  les clés `sk_test_` et `pk_test_` s'obtiennent en quelques minutes et aucun
+  euro ne circule. Le paiement passe par une intention créée côté serveur, un
+  formulaire de carte servi par Stripe, et une confirmation qui vient d'une
+  **notification signée** — jamais du navigateur.
+
+  **Les coordonnées bancaires ne transitent jamais par CoShift.** Le champ de
+  saisie appartient à Stripe et vit dans un cadre isolé : ni le numéro, ni la
+  date, ni le cryptogramme n'atteignent l'application, ne sont journalisés, ni
+  ne pourraient fuiter d'une base compromise.
+
+  **Le navigateur n'est pas cru sur parole.** Après confirmation, la page
+  annonce « c'est payé » ; cette page est entre les mains de la personne qui
+  paie. Le serveur interroge donc Stripe lui-même — ou attend sa notification,
+  dont la signature est vérifiée sur les octets bruts de la requête.
+
+- **Sans clé configurée, l'application retombe sur une simulation** et démarre
+  normalement. C'est ce qui permet de cloner le dépôt et de lancer le projet
+  sans compte Stripe, et ce qui fait passer l'intégration continue. Le
+  prestataire retenu est écrit au journal au démarrage, enregistré avec chaque
+  opération et affiché à l'écran : tant qu'il vaut `SIMULATION`, l'interface
+  annonce qu'aucun euro ne circule.
 
   Tout le reste — montants, états, barème, remboursements partiels — est du
-  code métier qui se teste sans compte chez un prestataire. C'est précisément
-  ce qui a motivé la séparation.
+  code métier qui se teste sans compte chez un prestataire. C'est ce qui a
+  motivé la séparation entre les règles et le mouvement de fonds.
 
 ### Administration
 
@@ -260,6 +276,47 @@ curl http://localhost:8080/actuator/health     # doit renvoyer "status":"UP"
 
 ---
 
+## Activer Stripe (facultatif)
+
+Le projet démarre sans compte Stripe : les paiements passent alors par une
+simulation, et l'écran le dit. Pour éprouver un vrai paiement par carte :
+
+1. Créer un compte sur [dashboard.stripe.com](https://dashboard.stripe.com) et
+   relever les clés **de test** sur la page *Developers → API keys*.
+2. Renseigner `coshift-backend/.env` :
+
+   ```
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_PUBLISHABLE_KEY=pk_test_...
+   ```
+
+3. Renseigner `coshift-frontend/.env` :
+
+   ```
+   VITE_STRIPE_PUBLIC_KEY=pk_test_...
+   ```
+
+4. Redémarrer les deux serveurs. Le journal du backend indique quel prestataire
+   a été retenu — c'est la première chose à vérifier si un paiement se comporte
+   autrement qu'attendu.
+
+Carte d'essai : **4242 4242 4242 4242**, une date future et un cryptogramme
+quelconque. Aucun débit réel n'a lieu. Les autres numéros d'essai — carte
+refusée, authentification requise — sont
+[documentés par Stripe](https://docs.stripe.com/testing).
+
+**Les notifications** (`POST /api/payments/webhook`) sont l'autorité en
+production. Un poste de développement n'ayant pas d'adresse publique, le
+serveur interroge Stripe lui-même après confirmation ; pour éprouver le chemin
+des notifications en local, `stripe listen --forward-to
+localhost:8081/api/payments/webhook` et le secret `whsec_...` dans
+`STRIPE_WEBHOOK_SECRET`.
+
+> **Ne jamais renseigner de clé `sk_live_`.** Le journal la signale, mais rien
+> ne l'interdit techniquement : elle ferait circuler de l'argent réel.
+
+---
+
 ## Comptes de démonstration
 
 Les migrations chargent un jeu de données de développement : 12 organisations, 122 comptes, 114 véhicules, 208 trajets et 262 réservations. Les organisations sont fictives ; les villes, marques et modèles sont réels, pour que distances et capacités restent crédibles.
@@ -356,14 +413,15 @@ Livré depuis la première rédaction de cette liste :
 - [x] Espace d'administration : supervision et suspension de comptes
 - [x] Blog rédigeable depuis l'administration, sans redéploiement
 - [x] Partage de frais : montants, états, barème d'annulation et remboursements
+- [x] Paiement par carte via Stripe, en mode test
 
 Prévu, non réalisé dans cette version alpha :
 
 - [ ] Messagerie entre conducteur et passager
-- [ ] **Encaissement réel.** Le domaine est en place et testé ; il manque un
-      prestataire agréé, un point d'entrée pour ses notifications — un paiement
-      n'est confirmé que par elles, jamais par la réponse immédiate — et le
-      statut réglementaire qui va avec
+- [ ] **Encaissement réel.** L'intégration Stripe fonctionne en mode test ;
+      passer en production suppose un statut réglementaire (DSP2, agent de
+      paiement), une adresse publique pour recevoir les notifications, et le
+      reversement au conducteur, qui n'est pas modélisé
 - [ ] Signalement d'une annonce ou d'un membre, et file de modération
 - [ ] Néerlandais
 - [ ] Distance des trajets, sans laquelle ni les kilomètres partagés ni les

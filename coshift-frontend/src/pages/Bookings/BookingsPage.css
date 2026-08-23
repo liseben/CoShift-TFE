@@ -146,3 +146,15 @@
   color: var(--text-muted);
   margin-bottom: var(--sp-2);
 }
+
+
+/* Rappel de la carte d'essai, dans la modale de paiement. Ecrit a l'ecran
+   plutot que dans la documentation : c'est au moment de saisir un numero qu'on
+   a besoin de savoir lequel. */
+.paiement__essai {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: var(--lh-base);
+  border-left: 2px solid var(--border-strong);
+  padding-left: var(--sp-4);
+}

@@ -88,7 +88,8 @@ class PaymentServiceTest {
 
         when(messages.get(anyString())).thenReturn("message");
         when(gateway.nom()).thenReturn("SIMULATION");
-        when(gateway.encaisser(any())).thenReturn("sim_123");
+        when(gateway.preparer(any()))
+                .thenReturn(new PaymentGateway.Intention("sim_123", null, true));
         when(gateway.rembourser(any(), any())).thenReturn("simr_123");
         when(repository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
         when(repository.findByBookingId(100L)).thenReturn(Optional.of(paiement));
@@ -143,7 +144,7 @@ class PaymentServiceTest {
     }
 
     @Nested
-    @DisplayName("Reglement")
+    @DisplayName("Ouverture du reglement")
     class Reglement {
 
         @Test
@@ -152,30 +153,121 @@ class PaymentServiceTest {
             /* Sans ce controle, n'importe quel compte solderait la reservation
                d'un autre a partir de son seul identifiant public — et
                apprendrait au passage ce qu'elle coute. */
-            assertThatThrownBy(() -> service.payer(autre, "r-1"))
+            assertThatThrownBy(() -> service.preparerReglement(autre, "r-1"))
                     .isInstanceOf(UnauthorizedException.class);
 
-            verify(gateway, never()).encaisser(any());
+            verify(gateway, never()).preparer(any());
         }
 
         @Test
-        @DisplayName("regle le montant et conserve la reference du prestataire")
-        void regleEtConserveLaReference() {
-            var regle = service.payer(passager, "r-1");
+        @DisplayName("un prestataire qui regle sur-le-champ marque le paiement acquis")
+        void prestataireImmediat() {
+            /* C'est le cas de la simulation : elle ne demande aucune
+               confirmation, et le service n'a pas a savoir lequel des deux
+               prestataires repond. */
+            service.preparerReglement(passager, "r-1");
 
-            assertThat(regle.getStatus()).isEqualTo(PaymentStatus.PAID);
-            assertThat(regle.getPaidAt()).isNotNull();
-            assertThat(regle.getProviderReference()).isEqualTo("sim_123");
-            assertThat(regle.getProvider()).isEqualTo("SIMULATION");
+            assertThat(paiement.getStatus()).isEqualTo(PaymentStatus.PAID);
+            assertThat(paiement.getPaidAt()).isNotNull();
+            assertThat(paiement.getProviderReference()).isEqualTo("sim_123");
         }
 
         @Test
-        @DisplayName("refuse de payer deux fois")
+        @DisplayName("un prestataire a confirmation laisse le montant du")
+        void prestataireADifferer() {
+            /* Le point qui compte de toute l'integration : une intention creee
+               n'est pas un paiement recu. Marquer PAID ici laisserait n'importe
+               qui ouvrir un reglement et l'abandonner pour voyager
+               gratuitement. */
+            when(gateway.preparer(any()))
+                    .thenReturn(new PaymentGateway.Intention("pi_123", "pi_123_secret", false));
+
+            var intention = service.preparerReglement(passager, "r-1");
+
+            assertThat(intention.secretClient()).isEqualTo("pi_123_secret");
+            assertThat(paiement.getStatus()).isEqualTo(PaymentStatus.DUE);
+            assertThat(paiement.getPaidAt()).isNull();
+            // La reference est conservee : c'est par elle que la notification retrouvera l'operation.
+            assertThat(paiement.getProviderReference()).isEqualTo("pi_123");
+        }
+
+        @Test
+        @DisplayName("refuse d'ouvrir un reglement deja regle")
         void pasDeSecondReglement() {
             paiement.setStatus(PaymentStatus.PAID);
 
-            assertThatThrownBy(() -> service.payer(passager, "r-1"))
+            assertThatThrownBy(() -> service.preparerReglement(passager, "r-1"))
                     .isInstanceOf(ConflictException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("Confirmation du reglement")
+    class Confirmation {
+
+        @BeforeEach
+        void enAttenteDeConfirmation() {
+            paiement.setProviderReference("pi_123");
+            when(repository.findByProviderReference("pi_123")).thenReturn(Optional.of(paiement));
+        }
+
+        @Test
+        @DisplayName("le serveur interroge le prestataire plutot que de croire le navigateur")
+        void verificationCoteServeur() {
+            /* La page qui suit le reglement est entre les mains de la personne
+               qui paie. Le seul a savoir est le prestataire. */
+            when(gateway.etat("pi_123")).thenReturn(PaymentGateway.EtatDistant.REGLE);
+
+            var apres = service.verifier(passager, "r-1");
+
+            assertThat(apres.getStatus()).isEqualTo(PaymentStatus.PAID);
+            assertThat(apres.getPaidAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("un paiement encore en attente reste du")
+        void encoreEnAttente() {
+            when(gateway.etat("pi_123")).thenReturn(PaymentGateway.EtatDistant.EN_ATTENTE);
+
+            assertThat(service.verifier(passager, "r-1").getStatus()).isEqualTo(PaymentStatus.DUE);
+        }
+
+        @Test
+        @DisplayName("un echec est enregistre comme tel")
+        void echec() {
+            when(gateway.etat("pi_123")).thenReturn(PaymentGateway.EtatDistant.ECHOUE);
+
+            assertThat(service.verifier(passager, "r-1").getStatus()).isEqualTo(PaymentStatus.FAILED);
+        }
+
+        @Test
+        @DisplayName("une notification confirme le paiement")
+        void notification() {
+            service.confirmerDepuisPrestataire("pi_123");
+
+            assertThat(paiement.getStatus()).isEqualTo(PaymentStatus.PAID);
+        }
+
+        @Test
+        @DisplayName("une notification rejouee ne regle pas deux fois")
+        void notificationRejouee() {
+            /* Les prestataires reemettent leurs notifications en cas de doute.
+               Une operation qui ne supporte pas d'etre rejouee finit par
+               produire deux reglements pour une place. */
+            service.confirmerDepuisPrestataire("pi_123");
+            var premiereDate = paiement.getPaidAt();
+
+            service.confirmerDepuisPrestataire("pi_123");
+
+            assertThat(paiement.getPaidAt()).isEqualTo(premiereDate);
+        }
+
+        @Test
+        @DisplayName("une notification pour une operation inconnue ne fait pas lever")
+        void notificationInconnue() {
+            when(repository.findByProviderReference("pi_inconnu")).thenReturn(Optional.empty());
+
+            service.confirmerDepuisPrestataire("pi_inconnu");
         }
     }
 
@@ -203,6 +295,8 @@ class PaymentServiceTest {
 
             assertThat(apres.getStatus()).isEqualTo(PaymentStatus.REFUNDED);
             assertThat(apres.getRefundedAmount()).isEqualByComparingTo("9.00");
+            // Dans sa propre colonne : la reference du paiement n'est pas ecrasee.
+            assertThat(apres.getRefundReference()).isEqualTo("simr_123");
             assertThat(apres.getRefundReason()).isEqualTo("trajet annule");
             assertThat(apres.montantAcquis()).isEqualByComparingTo("0.00");
         }

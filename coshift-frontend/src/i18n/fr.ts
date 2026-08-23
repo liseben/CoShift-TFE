@@ -744,6 +744,14 @@ export const fr = {
     simulation:
       "Aucun euro ne circule : CoShift ne dispose pas du statut d'agent de paiement, et le prestataire enregistré est une simulation. C'est ce que disent aussi les conditions générales.",
 
+    confirmerCarte: "Confirmer le paiement",
+    carteEssai:
+      "Mode test : utilisez la carte 4242 4242 4242 4242, une date future et un cryptogramme quelconque. Aucun débit réel n'aura lieu.",
+    stripeAbsent:
+      "Le formulaire de carte ne peut pas s'afficher : aucune clé publique Stripe n'est configurée.",
+    titreCarte: "Régler {montant} €",
+    verification: "Vérification du paiement…",
+
     baremeTitre: "Ce qui vous sera rendu",
     baremeIntegral: "Vous récupérez la totalité, soit {montant} €.",
     baremePartiel:

@@ -269,34 +269,76 @@ public class BookingController {
     // ────────────────────────── F28 — Partage de frais ───────────────────────
 
     @Operation(
-            summary = "Régler sa réservation",
+            summary = "Ouvrir le règlement de sa réservation",
             description = """
-                    Acquitte le montant dû pour la place réservée.
+                    Annonce le paiement au prestataire et renvoie de quoi le confirmer.
 
-                    **Ce que fait cet appel, et ce qu'il ne fait pas.** Il tient la
-                    comptabilité de la réservation : ce qui est dû devient réglé. Il ne
-                    déplace pas d'argent — encaisser pour le compte d'un tiers relève de la
-                    directive européenne sur les services de paiement et du statut d'agent de
-                    paiement, que CoShift n'a pas. Le champ `provider` de la réponse dit quel
-                    prestataire a traité l'opération ; tant qu'il vaut `SIMULATION`, aucun
-                    euro n'a circulé, et les conditions générales continuent de dire vrai.
+                    **Deux issues selon le prestataire configuré.** Sans clé Stripe, la
+                    simulation déclare le montant acquis sur-le-champ : `regleImmediatement`
+                    vaut vrai, `secretClient` est nul, et il n'y a rien de plus à faire. Avec
+                    Stripe, `secretClient` porte un jeton à usage unique que le navigateur
+                    présente aux serveurs de Stripe **avec les coordonnées bancaires — qui ne
+                    transitent jamais par CoShift**. Le paiement reste alors dû : une
+                    intention créée n'est pas un paiement reçu.
 
-                    Seul le passager de la réservation peut la régler. Sans ce contrôle,
-                    n'importe quel compte pourrait solder celle d'un autre à partir de son
-                    seul identifiant public — et apprendre au passage ce qu'elle coûte.""")
+                    Le champ `prestataire` dit lequel des deux répond, pour que l'écran
+                    puisse annoncer qu'aucun euro ne circule quand c'est le cas.
+
+                    Appelé deux fois, il rend une nouvelle intention : un secret client est à
+                    usage unique, et quelqu'un dont la carte a été refusée doit pouvoir
+                    réessayer.
+
+                    Seul le passager de la réservation peut ouvrir son règlement. Sans ce
+                    contrôle, n'importe quel compte pourrait solder celle d'un autre à partir
+                    de son seul identifiant public — et apprendre au passage ce qu'elle
+                    coûte.""")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Montant réglé."),
+            @ApiResponse(responseCode = "200", description = "Intention de paiement ouverte."),
             @ApiResponse(responseCode = "403", description = "Ce n'est pas votre réservation.", content = @Content()),
             @ApiResponse(responseCode = "404", description = "Aucun paiement pour cette réservation.", content = @Content()),
-            @ApiResponse(responseCode = "409", description = "Ce montant n'est plus dû.", content = @Content())
+            @ApiResponse(responseCode = "409", description = "Ce montant n'est plus dû.", content = @Content()),
+            @ApiResponse(responseCode = "502", description = "Le prestataire de paiement n'a pas répondu.", content = @Content())
     })
     @PostMapping("/{uuid}/payment")
-    public ResponseEntity<BookingResponse> payer(
+    public ResponseEntity<java.util.Map<String, Object>> ouvrirReglement(
             @Parameter(description = "Identifiant public de la réservation.") @PathVariable String uuid,
             Authentication auth) {
         var passager = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
-        paymentService.payer(passager, uuid);
+        var intention = paymentService.preparerReglement(passager, uuid);
+
+        var reponse = new java.util.HashMap<String, Object>();
+        reponse.put("prestataire", intention.regleImmediatement() ? "SIMULATION" : "STRIPE");
+        reponse.put("regleImmediatement", intention.regleImmediatement());
+        /* Le secret n'est ni conserve ni journalise : c'est un laissez-passer a
+           usage unique, transmis puis oublie. */
+        reponse.put("secretClient", intention.secretClient());
+        reponse.put("reservation", bookingService.parUuidPourPassager(auth.getName(), uuid));
+        return ResponseEntity.ok(reponse);
+    }
+
+    @Operation(
+            summary = "Vérifier où en est le règlement",
+            description = """
+                    Interroge le prestataire et met l'état à jour.
+
+                    **Pourquoi le navigateur n'est pas cru sur parole.** Après avoir confirmé,
+                    la page annonce « c'est payé ». Cette page est entre les mains de la
+                    personne qui paie : la croire reviendrait à laisser qui le souhaite
+                    marquer sa réservation réglée depuis l'outil de développement de son
+                    navigateur. Le serveur interroge donc Stripe, seul à savoir.
+
+                    Ce chemin double celui des notifications signées, qui reste l'autorité en
+                    production. Il existe parce qu'un poste de développement n'a pas d'adresse
+                    publique où les recevoir, et parce qu'une notification peut se perdre.""")
+    @ApiResponse(responseCode = "200", description = "État à jour de la réservation.")
+    @PostMapping("/{uuid}/payment/verification")
+    public ResponseEntity<BookingResponse> verifierReglement(
+            @Parameter(description = "Identifiant public de la réservation.") @PathVariable String uuid,
+            Authentication auth) {
+        var passager = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
+        paymentService.verifier(passager, uuid);
         return ResponseEntity.ok(bookingService.parUuidPourPassager(auth.getName(), uuid));
     }
 

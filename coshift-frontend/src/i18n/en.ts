@@ -727,6 +727,14 @@ export const en: Traductions = {
     simulation:
       "No money moves: CoShift holds no payment agent status, and the recorded provider is a simulation. The terms and conditions say the same.",
 
+    confirmerCarte: "Confirm payment",
+    carteEssai:
+      "Test mode: use card 4242 4242 4242 4242, any future date and any security code. No real charge will be made.",
+    stripeAbsent:
+      "The card form cannot be shown: no Stripe publishable key is configured.",
+    titreCarte: "Pay €{montant}",
+    verification: "Checking the payment…",
+
     baremeTitre: "What you will get back",
     baremeIntegral: "You get the full amount back, €{montant}.",
     baremePartiel:

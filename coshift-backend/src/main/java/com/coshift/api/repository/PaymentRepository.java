@@ -10,4 +10,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByBookingId(Long bookingId);
 
     Optional<Payment> findByBookingUuid(String bookingUuid);
+
+    /** Rapproche une notification du prestataire de l'operation enregistree ici. */
+    Optional<Payment> findByProviderReference(String providerReference);
 }
