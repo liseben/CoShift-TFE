@@ -351,6 +351,48 @@ class AuthenticationServiceTest {
         }
 
         @Test
+        @DisplayName("compte suspendu, bon mot de passe : le refus est explicite et rien n est freine")
+        void compteSuspenduAvecBonMotDePasse() {
+            /* Spring Security leve LockedException AVANT de regarder le mot de
+               passe : ses controles d etat precedent la verification des
+               identifiants. Le service verifie donc lui-meme le mot de passe
+               pour decider quoi repondre. Ici il est bon : la personne est bien
+               la titulaire du compte, elle apprend la suspension, et sa
+               tentative n est pas comptee comme un echec. */
+            membre.setSuspendedAt(java.time.LocalDateTime.now().minusDays(1));
+            when(authenticationManager.authenticate(any()))
+                    .thenThrow(new org.springframework.security.authentication.LockedException("verrouille"));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+
+            assertThatThrownBy(() -> service.authenticate(connexion(COURRIEL), IP))
+                    .isInstanceOf(org.springframework.security.authentication.LockedException.class);
+
+            verify(loginAttemptService, never()).recordFailure(anyString());
+            verify(audit).consigner(eq(SecurityAuditService.Evenement.CONNEXION_COMPTE_SUSPENDU),
+                    anyString(), anyString());
+        }
+
+        @Test
+        @DisplayName("compte suspendu, mauvais mot de passe : refus generique, sans reveler la mesure")
+        void compteSuspenduAvecMauvaisMotDePasse() {
+            /* C est le cas qui protege la personne suspendue : sans cette
+               distinction, n importe qui apprendrait en tapant une adresse
+               qu elle designe un compte suspendu, et pourrait ainsi sonder les
+               mesures de moderation prises sur des tiers. */
+            membre.setSuspendedAt(java.time.LocalDateTime.now().minusDays(1));
+            when(authenticationManager.authenticate(any()))
+                    .thenThrow(new org.springframework.security.authentication.LockedException("verrouille"));
+            when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+            assertThatThrownBy(() -> service.authenticate(connexion(COURRIEL), IP))
+                    .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class);
+
+            verify(loginAttemptService).recordFailure(anyString());
+            verify(audit, never()).consigner(eq(SecurityAuditService.Evenement.CONNEXION_COMPTE_SUSPENDU),
+                    anyString(), anyString());
+        }
+
+        @Test
         @DisplayName("comptabilise une adresse inconnue comme un échec")
         void comptabiliseUneAdresseInconnue() {
             // Sans cela, essayer des adresses au hasard resterait entièrement

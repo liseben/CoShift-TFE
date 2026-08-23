@@ -51,9 +51,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
+                /* isAccountNonLocked() reflète la suspension. Sans lui, suspendre un
+                   compte ne coupait rien : le jeton déjà émis restait valable jusqu'à
+                   son expiration, et la personne continuait d'utiliser l'application
+                   comme si de rien n'était. Une mesure de modération qui ne prend
+                   effet qu'à la prochaine connexion n'est pas une mesure.
+
+                   Le contrôle a lieu à chaque requête, sur l'état lu en base : c'est
+                   ce qui rend la suspension immédiate malgré des jetons sans
+                   révocation. */
                 // isEnabled() reflète emailVerified : un jeton émis avant l'activation
                 // (ou avant une désactivation de compte) ne doit plus donner accès.
-                if (jwtService.isTokenValid(jwt, userDetails) && userDetails.isEnabled()) {
+                if (jwtService.isTokenValid(jwt, userDetails)
+                        && userDetails.isEnabled()
+                        && userDetails.isAccountNonLocked()) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

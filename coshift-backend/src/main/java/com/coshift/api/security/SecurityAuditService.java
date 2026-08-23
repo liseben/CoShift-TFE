@@ -71,7 +71,19 @@ public class SecurityAuditService {
          */
         COMPTE_EFFACE,
         /** Compte purgé par la tâche de rétention, sans demande — RGPD, article 5.1.e. */
-        COMPTE_PURGE
+        COMPTE_PURGE,
+        /**
+         * Compte suspendu par la modération.
+         *
+         * <p>Le détail porte qui a pris la décision. Une mesure de modération se
+         * conteste : savoir qui l'a prise, et quand, fait partie de ce qu'on doit
+         * pouvoir produire.</p>
+         */
+        COMPTE_SUSPENDU,
+        /** Suspension levée. Consignée aussi : une décision annulée reste une décision. */
+        COMPTE_REACTIVE,
+        /** Connexion refusée sur un compte suspendu, mot de passe pourtant correct. */
+        CONNEXION_COMPTE_SUSPENDU
     }
 
     /**

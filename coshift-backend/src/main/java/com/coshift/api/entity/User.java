@@ -116,6 +116,32 @@ public class User implements UserDetails {
     private LocalDateTime deletedAt;
 
     /** Date de l'acceptation des conditions générales — preuve de l'accord. */
+    /**
+     * Instant de suspension du compte par la modération, ou {@code null}.
+     *
+     * <p>Une date et non un drapeau : elle répond à « depuis quand », ce qu'un
+     * booléen ne sait pas dire. Une mesure de modération se conteste, et savoir
+     * quand elle a été prise fait partie de ce qu'on doit pouvoir répondre à la
+     * personne concernée.</p>
+     *
+     * <p>À ne pas confondre avec {@link #deletedAt} : suspendre n'efface ni
+     * n'anonymise rien. Les trajets passés continuent d'exister, parce qu'ils
+     * engagent aussi les autres participants.</p>
+     */
+    @Column(name = "suspended_at")
+    private LocalDateTime suspendedAt;
+
+    /**
+     * Motif de la suspension.
+     *
+     * <p>Nullable en base — une contrainte {@code NOT NULL} empêcherait de
+     * réactiver proprement — mais le service le refuse vide. Suspendre sans
+     * écrire pourquoi produit une décision que plus personne ne peut expliquer
+     * trois mois plus tard, ni à la personne, ni à un juge.</p>
+     */
+    @Column(name = "suspension_reason", length = 255)
+    private String suspensionReason;
+
     @Column(name = "cgu_accepted_at")
     private LocalDateTime cguAcceptedAt;
 
@@ -171,8 +197,16 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() { return deletedAt == null; }
+    /**
+     * Un compte suspendu ne se connecte plus.
+     *
+     * <p>C'est le crochet prévu par Spring Security pour exactement cela :
+     * refuser l'authentification sans toucher au mot de passe. Le compte reste
+     * intact et la mesure se lève en écrivant {@code null} dans la colonne —
+     * ce qu'une réinitialisation de mot de passe ne permettrait pas.</p>
+     */
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() { return suspendedAt == null; }
     @Override
     public boolean isCredentialsNonExpired() { return true; }
 
