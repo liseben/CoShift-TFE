@@ -71,6 +71,26 @@
 			<optional>true</optional>
 		</dependency>
 		
+		<!--
+			Tests unitaires purs, sans contexte Spring. @SpringBootTest met
+			soixante-dix secondes à démarrer : une suite bâtie dessus serait
+			inutilisable, et personne ne lance une suite qu'on n'a pas le temps
+			d'attendre. Les règles métier sont donc éprouvées en isolant le
+			service et en simulant ses dépôts, ce qui ramène la suite entière
+			sous la seconde.
+		-->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
@@ -214,6 +234,48 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+
+			<!--
+				Mesure de couverture. Sans chiffre, « le projet est teste » est une
+				affirmation ; avec, c'est un constat verifiable par quiconque lance
+				la commande.
+
+				Le rapport est produit par `mvn test` et s'ouvre dans
+				target/site/jacoco/index.html.
+
+				Ce qui est exclu du calcul ne peut pas etre teste utilement : les
+				entites et les DTO ne sont que des accesseurs generes par Lombok, et
+				les mesurer gonflerait artificiellement le pourcentage — dans un sens
+				comme dans l'autre selon qu'ils sont traverses ou non. La couverture
+				annoncee porte donc sur le code qui decide.
+			-->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.15</version>
+				<configuration>
+					<excludes>
+						<exclude>com/coshift/api/entity/**</exclude>
+						<exclude>com/coshift/api/dto/**</exclude>
+						<exclude>com/coshift/api/CoshiftBackendApplication.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
