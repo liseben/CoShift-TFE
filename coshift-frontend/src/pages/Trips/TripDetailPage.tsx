@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback, type ReactElement } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FaStar, FaUsers, FaCar, FaBolt, FaLeaf, FaGasPump,
-  FaSuitcase, FaDog, FaMusic, FaComments,
-} from "react-icons/fa";
+  FaSuitcase, FaDog, FaMusic, FaComments, FaBuilding } from "react-icons/fa";
 import { FiArrowLeft, FiClock, FiMapPin, FiXCircle } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
@@ -48,6 +47,8 @@ interface Trip {
     tripsCount: number;
   };
   vehicule: { brand: string; model: string; seats: number; energy: string; photoUrl?: string };
+  /** Organisation a laquelle le trajet est ouvert. Absente s'il n'en a pas. */
+  organization?: { uuid: string; name: string; slug: string; logoUrl?: string } | null;
 }
 
 /** F26 — Détail d'un trajet, et point d'entrée de la réservation (F27). */
@@ -219,6 +220,17 @@ export default function TripDetailPage() {
             <p className="td__date">
               <FiClock aria-hidden="true" /> {jour}
             </p>
+
+            {/* Le rattachement figure sur la fiche et non sur les cartes de
+                resultats : dans une recherche, toutes les cartes portent la
+                meme organisation, l'information n'y apprend rien. Ici, elle
+                repond a la question « pourquoi est-ce que je vois ce trajet ». */}
+            {trip.organization && (
+              <p className="td__cercle">
+                <FaBuilding aria-hidden="true" />
+                {t("organisation.porteLe", { nom: trip.organization.name })}
+              </p>
+            )}
 
             {/* Itinéraire en liste ordonnée : l'ordre des étapes porte du sens. */}
             <ol className="td__route">

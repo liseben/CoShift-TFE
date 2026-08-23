@@ -152,3 +152,18 @@
   .ct__footer { flex-direction: column-reverse; }
   .ct__footer > * { width: 100%; }
 }
+
+
+/* Cercle du trajet : une phrase, pas un formulaire, quand il n'y a rien a
+   choisir. Le conducteur doit lire a qui il publie sans avoir a le deduire. */
+.ct__cercle {
+  color: var(--text-soft);
+  line-height: var(--lh-base);
+}
+
+.ct__cercle--aucune {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  border-left: 2px solid var(--border-strong);
+  padding-left: var(--sp-4);
+}
