@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -41,6 +42,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +68,7 @@ class AuthenticationServiceTest {
     @Mock private LoginAttemptService loginAttemptService;
     @Mock private SecurityAuditService audit;
     @Mock private Messages messages;
+    @Mock private OrganizationService organizationService;
 
     @InjectMocks private AuthenticationService service;
 
@@ -116,6 +119,39 @@ class AuthenticationServiceTest {
             verify(repository).save(capture.capture());
             assertThat(capture.getValue().isEmailVerified()).isFalse();
             assertThat(capture.getValue().getRole()).isEqualTo(Role.USER);
+        }
+
+        @Test
+        @DisplayName("rattache le nouveau compte au cercle de son domaine")
+        void rattacheAuCercle() {
+            /* La page d'accueil annonce depuis toujours que l'adresse
+               professionnelle rattache a l'organisation. Rien ne le faisait :
+               seul le SQL de demonstration posait des membres, et tout compte
+               cree par l'application restait hors de tout cercle — donc invisible
+               a ses collegues et sans acces a leurs trajets. */
+            when(repository.findByEmail("neuf@coshift.be")).thenReturn(Optional.empty());
+
+            service.register(inscription("neuf@coshift.be"));
+
+            ArgumentCaptor<User> capture = ArgumentCaptor.forClass(User.class);
+            verify(organizationService).rattacher(capture.capture());
+            assertThat(capture.getValue().getEmail()).isEqualTo("neuf@coshift.be");
+        }
+
+        @Test
+        @DisplayName("rattache avant d'enregistrer, pour que tout parte dans la meme ecriture")
+        void rattacheAvantEnregistrement() {
+            /* Enregistrer puis rattacher ouvrirait une fenetre pendant laquelle
+               un compte existe sans son cercle : un incident entre les deux
+               ecritures laisserait quelqu'un inscrit et isole, sans que rien ne
+               le signale. */
+            when(repository.findByEmail("neuf@coshift.be")).thenReturn(Optional.empty());
+
+            service.register(inscription("neuf@coshift.be"));
+
+            InOrder ordre = inOrder(organizationService, repository);
+            ordre.verify(organizationService).rattacher(any(User.class));
+            ordre.verify(repository).save(any(User.class));
         }
 
         @Test

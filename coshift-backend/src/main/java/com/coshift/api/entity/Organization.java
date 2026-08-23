@@ -39,6 +39,26 @@ public class Organization {
     @NotBlank(message = "{validation.organisation.slug}")
     private String slug; 
 
+    /**
+     * Domaine de l'adresse professionnelle des membres, par exemple
+     * {@code solvantis.be}.
+     *
+     * <p>C'est la clé du rattachement : quelqu'un qui s'inscrit depuis
+     * {@code prenom.nom@solvantis.be} rejoint Solvantis sans que personne
+     * n'ait à l'inviter. C'est aussi ce que promet la page d'accueil.</p>
+     *
+     * <p>Distinct du slug, qui est un fragment d'URL. Les faire coïncider
+     * marcherait sur le jeu de démonstration, écrit ainsi, et cesserait de
+     * marcher au premier client dont le domaine ne ressemble pas à son nom.</p>
+     *
+     * <p>Unique, parce que deux organisations qui revendiqueraient la même
+     * adresse rendraient le rattachement ambigu — et le cercle de visibilité
+     * fuirait de l'une vers l'autre. Nullable : une organisation peut exister
+     * avant que son domaine soit connu.</p>
+     */
+    @Column(name = "email_domain", unique = true)
+    private String emailDomain;
+
     private String logoUrl;
 
     @Builder.Default
