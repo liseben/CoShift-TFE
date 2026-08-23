@@ -585,14 +585,28 @@ export const en: Traductions = {
     lien: "See my organisation's figures",
   },
 
+  pwa: {
+    installer: "Install the app",
+
+    majDisponible: "A new version of CoShift is available.",
+    majRecharger: "Reload",
+    majPlusTard: "Later",
+
+    iosTitre: "Install CoShift on your iPhone",
+    iosIntro:
+      "Safari offers no install prompt: the action exists, but you do it by hand. Three steps.",
+    iosEtape1: "Tap the Share button at the bottom of the screen.",
+    iosEtape2: "Scroll down and choose “Add to Home Screen”.",
+    iosEtape3: "Confirm with “Add”. CoShift joins your apps.",
+    iosNote: "From any browser other than Safari, iOS does not allow this installation.",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",
     actus: "Mobility news",
     apropos: "About",
     blog: "Blog",
-    telecharger: "Get the app",
-    telechargerBientot: "Mobile app installation will be offered here.",
     monProfil: "My profile",
     connexion: "Sign in",
     ouvrirMenu: "Open menu",

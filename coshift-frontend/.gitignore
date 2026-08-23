@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+# Service worker genere quand devOptions est active dans vite.config.ts
+dev-dist
 *.local
 
 # Editor directories and files

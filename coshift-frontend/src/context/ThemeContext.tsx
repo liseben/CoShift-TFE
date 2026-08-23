@@ -34,6 +34,13 @@ function systemTheme(): Theme {
  * on réagit à ses changements — quelqu'un dont le téléphone bascule en
  * sombre le soir n'a pas à venir le redire ici.
  */
+/* Fonds de page des deux thèmes, repris de tokens.css. Deux valeurs écrites
+   ici plutôt que lues dans les jetons : `getComputedStyle` sur `<html>` ne
+   renverrait rien tant que la feuille n'est pas chargée, et la barre système
+   ne supporte pas d'être mise à jour une frame trop tard. */
+const BARRE_CLAIRE = "#F7F9FC";
+const BARRE_SOMBRE = "#0F1620";
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(
     () => (document.documentElement.dataset.theme as Theme) ?? "light",
@@ -42,6 +49,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+
+    /* Couleur de la barre système, en mode installé sur l'écran d'accueil.
+       index.html en pose deux, choisies par requête média : elles suivent la
+       préférence du système, ce qui suffit avant le premier rendu mais devient
+       faux dès que quelqu'un choisit explicitement l'autre thème. On écrit
+       donc une balise sans requête média, qui l'emporte sur les deux autres.
+
+       Sans cela, une personne qui passe CoShift en sombre sur un téléphone
+       réglé en clair garde une barre blanche au-dessus d'une application
+       noire. */
+    let balise = document.head.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]:not([media])',
+    );
+    if (!balise) {
+      balise = document.createElement("meta");
+      balise.name = "theme-color";
+      document.head.appendChild(balise);
+    }
+    balise.content = theme === "dark" ? BARRE_SOMBRE : BARRE_CLAIRE;
   }, [theme]);
 
   useEffect(() => {

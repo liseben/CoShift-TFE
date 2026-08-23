@@ -3,14 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- iOS ignore le manifeste pour l'icone de l'ecran d'accueil et ne lit
+         que celle-ci. Sans elle, il fabrique une vignette de la page. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- `viewport-fit=cover` etend la page sous l'encoche et la barre du bas
+         en mode installe ; les marges de securite sont reprises en CSS par
+         env(safe-area-inset-*). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>CoShift — Covoiturage d'entreprise</title>
     <meta
       name="description"
       content="CoShift organise le covoiturage au sein des entreprises, universités et événements : publiez vos trajets, réservez ceux de vos collègues, suivez vos réservations."
     />
-    <meta name="theme-color" content="#F7F9FC" />
+    <!-- Couleur de la barre systeme en mode installe. Deux valeurs, pour que
+         la barre suive la preference du systeme des le premier rendu ; le
+         contexte de theme la reecrit ensuite selon le choix explicite. -->
+    <meta name="theme-color" content="#F7F9FC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F1620" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CoShift" />
