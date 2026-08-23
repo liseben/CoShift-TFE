@@ -20,6 +20,7 @@ import CookiesPage from "./pages/Legal/CookiesPage";
 import EntreprisesPage from "./pages/Entreprises/EntreprisesPage";
 import OrganisationDashboardPage from "./pages/Entreprises/OrganisationDashboardPage";
 import AdminPage from "./pages/Admin/AdminPage";
+import AdminBlogPage from "./pages/Admin/AdminBlogPage";
 import BlogPage from "./pages/Blog/BlogPage";
 import BlogPostPage from "./pages/Blog/BlogPostPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
@@ -49,6 +50,7 @@ function App() {
           {/* La console d'administration. Le serveur refuse chaque appel a qui
               n'a pas le role : la garde de la page n'evite qu'un ecran vide. */}
           <Route path="administration" element={<AdminPage />} />
+          <Route path="administration/blog" element={<AdminBlogPage />} />
           <Route path="trips/search" element={<SearchTripsPage />} />
           <Route path="trips/create" element={<CreateTripPage />} />
           {/* Doit rester APRÈS les routes fixes, sinon "search" et "create"

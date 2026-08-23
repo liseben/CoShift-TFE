@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { FiArrowLeft, FiClock } from "react-icons/fi";
-import { BILLETS, billetParSlug } from "../../config/blog";
+import { chargerBillet, chargerBillets, cleRubrique, type Billet } from "../../config/blogApi";
+import { Spinner } from "../../components/ui";
 import { useLang } from "../../context/LangContext";
 import { LANGUES } from "../../i18n";
 import { useSeo } from "../../hooks/useSeo";
@@ -12,26 +14,64 @@ export default function BlogPostPage() {
   const { langue, t } = useLang();
   const balise = LANGUES[langue].balise;
 
-  const billet = billetParSlug(slug);
+  /* Un seul état, qui porte le fragment auquel il correspond.
 
-  /* Un fragment inconnu renvoie à la liste plutôt que d'afficher une page vide.
-     `replace` évite de piéger le bouton Précédent sur une adresse morte. */
-  const seo = billet
-    ? {
-        titre: t(`blog.${billet.slug}.titre`),
-        description: t(`blog.${billet.slug}.chapeau`),
-        chemin: `/blog/${billet.slug}`,
-        type: "article" as const,
-      }
-    : { titre: t("blog.titre"), description: t("blog.description"), chemin: "/blog" };
+     Deux états séparés — « le billet » et « en chargement » — obligeraient à
+     rappeler `setChargement(true)` dans le corps de l'effet à chaque
+     changement d'adresse, ce qui déclenche une cascade de rendus et que
+     l'analyse statique refuse à juste titre. En rangeant le fragment avec le
+     résultat, l'attente se déduit : tant que le résultat ne correspond pas au
+     fragment demandé, c'est qu'on l'attend encore. */
+  const [resultat, setResultat] = useState<{ slug: string; billet: Billet | null }>({
+    slug: "",
+    billet: null,
+  });
+  const [autres, setAutres] = useState<Billet[]>([]);
 
-  // Le crochet doit être appelé à chaque rendu, y compris quand le billet est
-  // introuvable : on le renseigne au-dessus plutôt que de sortir avant.
-  useSeo(seo);
+  useEffect(() => {
+    if (!slug) return;
+    let vivant = true;
+    chargerBillet(slug)
+      .then((b) => {
+        if (!vivant) return;
+        setResultat({ slug, billet: b });
+        return chargerBillets().then((tous) => {
+          if (vivant) setAutres(tous.filter((x) => x.slug !== b.slug).slice(0, 2));
+        });
+      })
+      /* Un fragment inconnu, ou un brouillon, renvoie à la liste plutôt que
+         d'afficher une page vide. Le serveur répond 404 dans les deux cas :
+         pour le public, un billet non publié n'existe pas. */
+      .catch(() => {
+        if (vivant) setResultat({ slug, billet: null });
+      });
+    /* Deux billets ouverts coup sur coup : la première réponse ne doit pas
+       écraser la seconde si elle arrive en retard. */
+    return () => {
+      vivant = false;
+    };
+  }, [slug, langue]);
 
-  if (!billet) return <Navigate to="/blog" replace />;
+  const billet = resultat.slug === slug ? resultat.billet : null;
+  const introuvable = resultat.slug === slug && resultat.billet === null;
+  const chargement = resultat.slug !== slug;
 
-  const autres = BILLETS.filter((b) => b.slug !== billet.slug).slice(0, 2);
+  // Le crochet doit être appelé à chaque rendu, y compris avant que le billet
+  // soit chargé : on le renseigne au-dessus plutôt que de sortir avant.
+  useSeo(
+    billet
+      ? {
+          titre: billet.title ?? t("blog.titre"),
+          description: billet.lead ?? t("blog.description"),
+          chemin: `/blog/${billet.slug}`,
+          type: "article" as const,
+        }
+      : { titre: t("blog.titre"), description: t("blog.description"), chemin: "/blog" },
+  );
+
+  /* `replace` évite de piéger le bouton Précédent sur une adresse morte. */
+  if (introuvable) return <Navigate to="/blog" replace />;
+  if (chargement || !billet) return <Spinner center label={t("commun.chargementEnCours")} />;
 
   return (
     <div className="container container--prose page stack-8">
@@ -43,32 +83,40 @@ export default function BlogPostPage() {
       <article className="blog__billet">
         <header className="blog__billet-tete">
           <div className="blog__meta">
-            <span className={`blog__rubrique blog__rubrique--${billet.rubrique}`}>
-              {t(`blog.rubrique.${billet.rubrique}`)}
+            <span className={`blog__rubrique blog__rubrique--${cleRubrique(billet.category)}`}>
+              {t(`blog.rubrique.${cleRubrique(billet.category)}`)}
             </span>
-            <time dateTime={billet.date}>
-              {new Date(billet.date).toLocaleDateString(balise, {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </time>
+            {billet.publishedAt && (
+              <time dateTime={billet.publishedAt}>
+                {new Date(billet.publishedAt).toLocaleDateString(balise, {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </time>
+            )}
             <span className="blog__lecture">
               <FiClock aria-hidden="true" />
-              {t("blog.minutes", { n: billet.lecture })}
+              {t("blog.minutes", { n: billet.readingMinutes })}
             </span>
+            {billet.auteur && <span className="blog__auteur">{billet.auteur}</span>}
           </div>
 
-          <h1 className="blog__billet-titre">{t(`blog.${billet.slug}.titre`)}</h1>
-          <p className="blog__billet-chapeau">{t(`blog.${billet.slug}.chapeau`)}</p>
+          <h1 className="blog__billet-titre">{billet.title}</h1>
+          <p className="blog__billet-chapeau">{billet.lead}</p>
+
+          {/* Le billet n'existe pas dans la langue choisie : on le dit, plutôt
+              que de laisser croire à une traduction. */}
+          {billet.locale && billet.locale !== langue && (
+            <p className="blog__langue" lang={billet.locale}>
+              {t("blog.langueAutre")}
+            </p>
+          )}
         </header>
 
         <div className="blog__billet-corps">
-          {/* Le nombre de paragraphes vient de l'index : ajouter un paragraphe
-              au catalogue français sans l'ajouter à l'anglais devient une
-              erreur de compilation. */}
-          {Array.from({ length: billet.paragraphes }, (_, i) => (
-            <p key={i}>{t(`blog.${billet.slug}.p${i + 1}`)}</p>
+          {billet.paragraphes.map((p, i) => (
+            <p key={i}>{p}</p>
           ))}
         </div>
       </article>
@@ -78,8 +126,8 @@ export default function BlogPostPage() {
           <h2 className="blog__suite-titre">{t("blog.aLire")}</h2>
           <ul className="blog__suite-liste">
             {autres.map((b) => (
-              <li key={b.slug}>
-                <Link to={`/blog/${b.slug}`}>{t(`blog.${b.slug}.titre`)}</Link>
+              <li key={b.uuid}>
+                <Link to={`/blog/${b.slug}`}>{b.title}</Link>
               </li>
             ))}
           </ul>

@@ -169,3 +169,55 @@
   .ad__table th,
   .ad__table td { padding-right: var(--sp-3); }
 }
+
+
+/* ── Redaction des billets ── */
+.ad__liens a {
+  font-size: var(--fs-sm);
+  color: var(--brand);
+}
+
+/* Deux actions par ligne de tableau : elles s'empilent plutot que de forcer
+   le tableau a defiler. */
+.ad__actions-cellule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* Une case a cocher avec son explication dessous : la regle doit se lire au
+   moment de decider, pas apres. */
+.ad__case {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  cursor: pointer;
+  line-height: var(--lh-snug);
+}
+
+.ad__case input { margin-top: 0.25em; }
+
+.ad__case-aide {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Chaque traduction est un groupe de champs : la bordure dit ou l une finit
+   et ou l autre commence, ce qu un simple espacement ne dirait pas. */
+.ad__traduction {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.ad__traduction legend {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-soft);
+  padding: 0 var(--sp-2);
+}

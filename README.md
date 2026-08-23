@@ -323,6 +323,7 @@ Livré depuis la première rédaction de cette liste :
       tableau de bord d'organisation
 - [x] Application installable (PWA)
 - [x] Espace d'administration : supervision et suspension de comptes
+- [x] Blog rédigeable depuis l'administration, sans redéploiement
 
 Prévu, non réalisé dans cette version alpha :
 

@@ -667,6 +667,50 @@ export const en: Traductions = {
     lien: "Administration",
   },
 
+  blogAdmin: {
+    titre: "Blog",
+    description: "Write and publish CoShift's posts.",
+    heroTitre: "Blog posts",
+    heroAccroche:
+      "The texts published on the site. A post may exist in one language only: a readable text beats a text held back until it is translated.",
+    lien: "Blog",
+
+    nouveau: "Write a post",
+    modifier: "Edit",
+    supprimer: "Delete",
+    confirmerSuppression: "Permanently delete “{titre}”? To take it off the site without destroying it, switch it back to draft.",
+    aucun: "No posts yet.",
+
+    colonneTitre: "Post",
+    colonneRubrique: "Category",
+    colonneEtat: "Status",
+    colonneLangues: "Languages",
+    colonneDate: "Published",
+    colonneAction: "Action",
+    etatPublie: "Published",
+    etatBrouillon: "Draft",
+
+    formTitreCreation: "Write a post",
+    formTitreModification: "Edit the post",
+    slug: "Post address",
+    slugAide: "Lowercase, digits and hyphens. Appears in the URL. Frozen once published: shared links would stop working.",
+    rubrique: "Category",
+    lecture: "Reading time (minutes)",
+    publier: "Publish now",
+    publierAide: "Unchecked, the post stays a draft, invisible to the public.",
+
+    langue: "Language",
+    titreBillet: "Title",
+    chapeau: "Lead",
+    chapeauAide: "The sentence shown under the title in the list.",
+    corps: "Body",
+    corpsAide: "One paragraph per block, separated by a blank line. Plain text: HTML is not interpreted.",
+    ajouterLangue: "Add a translation",
+    retirerLangue: "Remove this translation",
+    auMoinsUneLangue: "A post must exist in at least one language.",
+    enregistrer: "Save",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",
@@ -983,60 +1027,14 @@ export const en: Traductions = {
     retour: "All posts",
     aLire: "Also worth reading",
     minutes: "{n} min read",
+    langueAutre:
+      "This post does not exist yet in the language you chose: it is shown in the language it was written in.",
+
     rubrique: {
       produit: "Product",
       confidentialite: "Privacy",
       ouverture: "Openness",
       conception: "Design",
-    },
-
-    "confirmer-un-trajet": {
-      titre: "Why it is the passenger who confirms the trip",
-      chapeau:
-        "A small design decision that says a great deal about how reliable information is manufactured.",
-      p1: "When a carpool has taken place, someone has to declare it. That act matters: it increments both participants' trip counts, it opens the right to leave a review, and tomorrow it will drive cost sharing. Who presses the button is therefore not an interface detail.",
-      p2: "The instinct would be to leave confirmation to the driver. They organise, they drive, they have the overview. Except that is exactly the problem: they have an interest in declaring the trip completed. It feeds their counter, it builds their reputation, and the day money changes hands, it pays them.",
-      p3: "The passenger has nothing to gain. Confirming earns them no extra trip, no better rating, no refund. They simply observe. That is precisely what makes their confirmation credible.",
-      p4: "The general rule fits in one sentence: when a declaration must be reliable, entrust it to the party that gains nothing from it. This is not about trusting people, it is about design. A system that relies on the goodwill of whoever benefits ends up rewarding those who abuse it.",
-      p5: "The server adds two safeguards. The booking must have been accepted — a pending request carried nobody. And departure must be in the past, otherwise booking alone would inflate one's counter. The operation cannot be replayed: a second confirmation is refused, and the counter does not move.",
-      p6: "The same reasoning appears elsewhere in the project. Login attempt throttling counts per IP address and targeted account pair, precisely so that a third party cannot lock someone else's account by failing on purpose. In both cases, we are guarding not against clumsiness but against interest.",
-    },
-
-    "vos-donnees-en-clair": {
-      titre: "What we do with your data, plainly",
-      chapeau:
-        "Three rights the European regulation grants, and what had to be written for them to actually exist.",
-      p1: "A privacy policy can claim anything. It costs nothing to write, and nothing in the product forces it to be true. We wanted every sentence of ours to match code you can read.",
-      p2: "The right of access and the right to portability — articles 15 and 20 — become a button that produces a JSON file containing everything we hold about you. The format is not incidental: the regulation requires something structured, commonly used and machine-readable, three qualities a PDF does not have.",
-      p3: "The export contains your data, not other people's. A trip you booked with someone appears with its route and time, but without the driver's phone number or address. Those are their data, and your right to portability does not extend to them. One block of the file lists what is deliberately absent, and why.",
-      p4: "The right to erasure — article 17 — required a less obvious decision. Simply deleting your row would destroy trips other people took part in: erasing a driver would strip their passengers of their own history. Granting your request by harming a third party's data is not an option.",
-      p5: "Erasure therefore proceeds by anonymisation in place. Name, address, phone number, photograph, licence plate, password hash: all overwritten, immediately, with no backup copy. What remains — a Namur-Brussels trip attached to a nameless participant — no longer relates to an identifiable person.",
-      p6: "Before anonymising, the operation cancels your upcoming trips and notifies their passengers. A future trip whose driver has vanished would leave someone waiting at a meeting point. Deleting an account must warn, not merely go quiet.",
-      p7: "Finally, storage limitation — article 5.1.e — runs every night. A sign-up never confirmed is deleted after thirty days: an address nobody proved they own is not an account. Trips older than two years lose their precise addresses and descriptions. Cities and dates remain, and they identify nobody.",
-    },
-
-    "donnees-ouvertes": {
-      titre: "Our data is open, and here is why",
-      chapeau:
-        "Publishing your figures when you could keep them, and the threshold that separates a statistic from an individual journey.",
-      p1: "CoShift publishes an open data set, under Open Licence 2.0, accessible without an account or a key: trip volumes, shared seats, cities served, occupancy rate, monthly breakdown. In JSON for machines, in CSV for spreadsheets — because a spreadsheet is how open data is actually reused by someone who does not write code.",
-      p2: "We do it first for consistency. We ask organisations to measure their mobility rather than declare it; keeping our own figures would amount to asking to be taken at our word.",
-      p3: "Publishing mobility figures raises a difficulty personal data does not: a sufficiently fine aggregate becomes nominative again. A route between two cities travelled twice in a year does not describe a flow, it describes the journey of two people who are easily identified.",
-      p4: "Hence a threshold. A city appears in the set only above five trips. Below that it is removed — and the number of cities dropped is published, so a reuser knows the set is not exhaustive. Departure-arrival pairs are not published at all: at current volumes, none reaches the threshold.",
-      p5: "The set excludes by construction the identity of drivers and passengers, precise addresses, departure times, organisation names and individual amounts paid. That list appears in the response itself: what is missing is announced rather than left to guess.",
-      p6: "Cancelled trips are counted separately from published ones. Merging them would inflate the volumes; hiding them would be statistical dishonesty. Publishing your figures is only worth anything if you also publish the less flattering ones.",
-    },
-
-    "domicile-travail": {
-      titre: "The trip nobody shares",
-      chapeau:
-        "Why daily carpooling resists where long-distance carpooling succeeded.",
-      p1: "Long-distance carpooling works. A three-hundred-kilometre trip costs enough to justify a detour, it is planned days ahead, and consumer platforms have solved it thoroughly.",
-      p2: "The commute is the exact opposite. It is short, so the individual saving is small. It is daily, so organising it each time is out of the question. And it is rigid: arriving twenty minutes late is not an option when someone expects you.",
-      p3: "Yet it is the one that counts. It is not the holiday getaways that clog the roads on a Tuesday morning, but thousands of cars driving the same route, at the same hours, with one seat out of five taken.",
-      p4: "Open platforms hit an obstacle here that is not technical. They must manufacture trust between strangers: profiles, reviews, verifications, insurance. That apparatus is justified for an exceptional journey. For ten minutes in a car with someone you will run into at the coffee machine anyway, it is disproportionate.",
-      p5: "Inside an organisation, that trust already exists. You share an employer, a building, working hours, often mutual acquaintances. The remaining problem is not knowing whom to trust, but knowing who leaves at the same time for the same place. That is an information problem, and information problems are solved with software.",
-      p6: "That is CoShift's bet: not to rebuild what already exists, and to focus on what is genuinely missing. The closed circle is not a limitation of the product, it is the condition of its working.",
     },
   },
 
