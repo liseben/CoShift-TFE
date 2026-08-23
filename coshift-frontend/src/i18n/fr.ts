@@ -553,6 +553,49 @@ export const fr = {
     pistes: "Ou continuer par ici",
   },
 
+  /* Rattachement a une organisation : le cercle ferme, cote interface.
+     Regroupe la publication (a qui le trajet est ouvert) et le tableau de bord
+     que ses membres consultent. */
+  organisation: {
+    cercleTitre: "À qui ce trajet est ouvert",
+    cercleUnique: "Ce trajet sera visible des membres de {nom}.",
+    cercleChoisir: "Organisation",
+    cercleAide: "Vous appartenez à plusieurs organisations. Seuls les membres de celle que vous choisissez verront ce trajet.",
+    cercleAucune: "Votre adresse ne relève d'aucune organisation inscrite. Votre trajet sera visible des membres qui ne sont, eux non plus, rattachés à aucune organisation.",
+    porteLe: "Ouvert à {nom}",
+
+    titre: "Mon organisation",
+    description: "Les chiffres de covoiturage de votre organisation.",
+    heroTitre: "Votre organisation en chiffres",
+    heroAccroche:
+      "Ce que le covoiturage a produit dans votre cercle. Les mêmes définitions que le jeu de données ouvert, appliquées à vos seuls trajets.",
+    videTitre: "Vous n'appartenez à aucune organisation",
+    videTexte:
+      "Ce tableau de bord se remplit dès qu'une organisation revendique le domaine de votre adresse professionnelle.",
+
+    volumes: "Trajets",
+    trajetsPublies: "Trajets publiés",
+    trajetsRealises: "Trajets réalisés",
+    trajetsAnnules: "Trajets annulés",
+    placesPartagees: "Places partagées",
+    placesRestantes: "Places restées libres",
+    tauxRemplissage: "Taux de remplissage",
+
+    participation: "Participation",
+    membres: "Membres rattachés",
+    conducteurs: "Ont proposé un trajet",
+    passagers: "Ont occupé une place",
+
+    parMois: "Par mois de départ",
+    moisVide: "Aucun trajet à ce jour.",
+    colonneMois: "Mois",
+    colonneTrajets: "Trajets",
+    colonnePlaces: "Places partagées",
+
+    nonMesureTitre: "Ce que ces chiffres ne disent pas",
+    lien: "Voir les chiffres de mon organisation",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",

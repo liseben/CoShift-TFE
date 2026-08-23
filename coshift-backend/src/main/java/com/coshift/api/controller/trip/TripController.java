@@ -65,16 +65,22 @@ public class TripController {
                     Itinéraire, horaire, prix, préférences, conducteur et véhicule.
 
                     Le numéro de téléphone du conducteur **n'apparaît pas ici** : il n'est
-                    communiqué qu'au passager dont la réservation a été confirmée.""")
+                    communiqué qu'au passager dont la réservation a été confirmée.
+
+                    Un trajet ouvert à une organisation n'est lisible que par ses membres,
+                    et par son conducteur. Hors de ce cercle, la réponse est **404** et non
+                    403 : distinguer les deux confirmerait l'existence du trajet et
+                    révélerait l'organisation de son conducteur.""")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Détail du trajet."),
-            @ApiResponse(responseCode = "404", description = "Aucun trajet pour cet identifiant.", content = @Content())
+            @ApiResponse(responseCode = "404", description = "Aucun trajet pour cet identifiant, ou trajet hors de votre cercle.", content = @Content())
     })
     @GetMapping("/{uuid}")
     public ResponseEntity<TripResponse> getTripDetail(
             @Parameter(description = "Identifiant public du trajet.", example = "0d4-0107-0000-4000-8000-000000000107")
-            @PathVariable String uuid) {
-        return ResponseEntity.ok(tripService.getTripByUuid(uuid));
+            @PathVariable String uuid,
+            Authentication auth) {
+        return ResponseEntity.ok(tripService.getTripByUuid(auth.getName(), uuid));
     }
 
     // F19 — Mes trajets (conducteur)

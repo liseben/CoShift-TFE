@@ -48,6 +48,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final EmailService emailService;
+    private final OrganizationService organizationService;
 
     /** Délai minimum entre la réservation et le départ, imposé par F27. */
     private static final int MIN_HOURS_BEFORE_BOOKING = 1;
@@ -64,6 +65,16 @@ public class BookingService {
         Trip trip = tripRepository.findByUuid(request.getTripUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(messages.get("trajet.introuvable")));
 
+        /* Dernier verrou du cercle fermé, et le seul qui compte vraiment : la
+           recherche et la fiche ne font que ne pas montrer, celui-ci refuse
+           d'écrire. Sans lui, il suffirait de connaître un identifiant de
+           trajet pour monter dans la voiture d'une autre organisation.
+           « Introuvable » plutôt qu'« interdit », pour la même raison qu'à la
+           lecture : ne pas confirmer l'existence de ce qui n'est pas de son
+           cercle. */
+        if (!organizationService.partageLeCercle(passenger, trip.getOrganization())) {
+            throw new ResourceNotFoundException(messages.get("trajet.introuvable"));
+        }
         if (trip.getDriver().getId().equals(passenger.getId())) {
             throw new BadRequestException(messages.get("reservation.proprePropreTrajet"));
         }

@@ -264,3 +264,18 @@
   padding-top: var(--sp-5);
   border-top: 1px solid var(--border);
 }
+
+
+/* Rattachement du trajet a une organisation. Meme traitement que la date :
+   c'est un fait du trajet, pas une decoration. */
+.td__cercle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--brand);
+  background: var(--brand-wash);
+  border-radius: var(--r-full);
+  padding: var(--sp-1) var(--sp-3);
+}

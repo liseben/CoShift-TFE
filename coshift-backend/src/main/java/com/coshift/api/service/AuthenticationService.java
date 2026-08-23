@@ -58,6 +58,7 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final LoginAttemptService loginAttemptService;
     private final SecurityAuditService audit;
+    private final OrganizationService organizationService;
 
     @Value("${api.google.client-id}")
     private String googleClientId;
@@ -153,6 +154,19 @@ public class AuthenticationService {
                    plus rien du destinataire. */
                 .preferredLanguage(messages.langueCourante().getLanguage())
                 .build();
+
+        /* Rattachement au cercle, déduit du domaine de l'adresse. La page
+           d'accueil l'annonce depuis toujours — « l'inscription passe par votre
+           e-mail professionnel : c'est lui qui vous rattache à votre
+           organisation » — mais rien ne le faisait : seul le SQL de
+           démonstration posait des membres, et tout compte créé par
+           l'application restait hors de toute organisation.
+
+           Le rattachement est posé avant l'enregistrement pour partir dans la
+           même écriture. Un domaine inconnu ne rattache à rien et ne crée
+           surtout aucune organisation : laisser n'importe quelle adresse fonder
+           un espace ferait du premier venu le voisin de tous les suivants. */
+        organizationService.rattacher(user);
 
         repository.save(user);
 

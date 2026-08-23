@@ -235,9 +235,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <Button variant="secondary" icon={<FiEdit3 />} onClick={openEdit}>
-            {tr("tableau.modifierProfil")}
-          </Button>
+          <div className="db__profile-actions">
+            <Button variant="secondary" icon={<FiEdit3 />} onClick={openEdit}>
+              {tr("tableau.modifierProfil")}
+            </Button>
+            {/* Les chiffres du cercle auquel on appartient. Le lien est ici et
+                non dans la navigation principale : il ne mene nulle part pour
+                un visiteur sans compte. */}
+            <Button variant="ghost" size="sm" to="/entreprises/tableau-de-bord">
+              {tr("organisation.lien")}
+            </Button>
+          </div>
         </div>
       </Card>
 

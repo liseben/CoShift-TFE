@@ -192,13 +192,16 @@ curl http://localhost:8080/actuator/health     # doit renvoyer "status":"UP"
 
 ## Comptes de démonstration
 
-Les migrations chargent un jeu de données de développement : 12 organisations, 120 comptes, 112 véhicules, 150 trajets et 258 réservations. Les organisations sont fictives ; les villes, marques et modèles sont réels, pour que distances et capacités restent crédibles.
+Les migrations chargent un jeu de données de développement : 12 organisations, 122 comptes, 114 véhicules, 208 trajets et 262 réservations. Les organisations sont fictives ; les villes, marques et modèles sont réels, pour que distances et capacités restent crédibles.
 
-| Adresse | Mot de passe | Intérêt pour la démonstration |
-|---|---|---|
-| `julie.lecomte@salon-mobilite.be` | `1234` | 8 trajets publiés, 1 véhicule, 2 réservations |
-| `charlotte.guerin@u-basse-meuse.be` | `1234` | 3 véhicules, 7 trajets |
-| `margaux.gautier@val-vert.be` | `1234` | 5 trajets et 5 réservations — les deux rôles |
+Chaque compte n'accède qu'aux trajets de ses organisations : c'est le cercle fermé, et il se voit dès la première recherche. La colonne « voit » ci-dessous donne le nombre de trajets à venir accessibles à chacun.
+
+| Adresse | Mot de passe | Intérêt pour la démonstration | Voit |
+|---|---|---|---|
+| `julie.lecomte@salon-mobilite.be` | `1234` | 8 trajets publiés, 1 véhicule, 2 réservations | 5 |
+| `charlotte.guerin@u-basse-meuse.be` | `1234` | 3 véhicules, 8 trajets | 6 |
+| `margaux.gautier@val-vert.be` | `1234` | 6 trajets et 5 réservations — les deux rôles | 6 |
+| `sarah.aubert@val-vert.be` | `1234` | **Deux organisations** : le sélecteur de cercle apparaît à la publication | 13 |
 
 98 des 122 comptes sont vérifiés. Les autres le sont volontairement restés, afin d'éprouver l'écran de saisie du code et le refus de connexion : `michael.leclercq@verhaegen.be` en fait partie et renvoie donc un `403`.
 

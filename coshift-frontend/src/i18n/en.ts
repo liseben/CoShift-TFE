@@ -545,6 +545,46 @@ export const en: Traductions = {
     pistes: "Or carry on here",
   },
 
+  organisation: {
+    cercleTitre: "Who this ride is open to",
+    cercleUnique: "This ride will be visible to members of {nom}.",
+    cercleChoisir: "Organisation",
+    cercleAide: "You belong to several organisations. Only members of the one you pick will see this ride.",
+    cercleAucune: "Your address does not belong to any registered organisation. Your ride will be visible to members who are, likewise, not attached to any organisation.",
+    porteLe: "Open to {nom}",
+
+    titre: "My organisation",
+    description: "Your organisation's carpooling figures.",
+    heroTitre: "Your organisation in figures",
+    heroAccroche:
+      "What carpooling has produced inside your circle. The same definitions as the open data set, applied to your rides alone.",
+    videTitre: "You do not belong to any organisation",
+    videTexte:
+      "This dashboard fills up as soon as an organisation claims the domain of your work address.",
+
+    volumes: "Rides",
+    trajetsPublies: "Rides published",
+    trajetsRealises: "Rides completed",
+    trajetsAnnules: "Rides cancelled",
+    placesPartagees: "Seats shared",
+    placesRestantes: "Seats left free",
+    tauxRemplissage: "Occupancy rate",
+
+    participation: "Participation",
+    membres: "Members attached",
+    conducteurs: "Offered a ride",
+    passagers: "Took a seat",
+
+    parMois: "By month of departure",
+    moisVide: "No rides so far.",
+    colonneMois: "Month",
+    colonneTrajets: "Rides",
+    colonnePlaces: "Seats shared",
+
+    nonMesureTitre: "What these figures do not say",
+    lien: "See my organisation's figures",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",

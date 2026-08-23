@@ -1,0 +1,121 @@
+/* Tableau de bord d'organisation.
+   Des chiffres, et rien qui les décore : un indicateur mis en scène se lit
+   moins bien qu'un indicateur posé à plat. */
+
+.od__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  max-width: var(--w-prose);
+}
+
+.od__lead {
+  font-size: var(--fs-md);
+  color: var(--text-soft);
+  line-height: var(--lh-base);
+}
+
+.od__org-nom {
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
+  text-wrap: balance;
+}
+
+/* ── Chiffres ── */
+.od__chiffres {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--sp-5);
+}
+
+.od__chiffre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.od__valeur {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  /* Les chiffres s'alignent d'une ligne à l'autre : sans cela, un « 1 » étroit
+     décale la colonne suivante et l'œil ne peut plus comparer. */
+  font-variant-numeric: tabular-nums;
+}
+
+.od__chiffre--accent .od__valeur { color: var(--brand); }
+
+.od__libelle {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: var(--lh-snug);
+}
+
+/* ── Répartition mensuelle ── */
+.od__table-wrap {
+  /* Le tableau défile dans sa boîte plutôt que d'élargir la page. */
+  overflow-x: auto;
+}
+
+.od__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.od__table th,
+.od__table td {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) 0;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.od__table thead th {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.od__table tbody th {
+  font-weight: var(--fw-medium);
+  color: var(--text-soft);
+}
+
+.od__table td { font-variant-numeric: tabular-nums; }
+
+/* La barre double le chiffre, elle ne le remplace pas : masquée aux lecteurs
+   d'écran, qui reçoivent la valeur juste à côté. */
+.od__barre {
+  display: inline-block;
+  width: 90px;
+  height: 8px;
+  margin-right: var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--surface-sunk);
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.od__barre > span {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+  border-radius: var(--r-full);
+}
+
+.od__vide,
+.od__non-mesure {
+  color: var(--text-soft);
+  line-height: var(--lh-base);
+  max-width: var(--w-prose);
+}
+
+@media (max-width: 640px) {
+  .od__barre { width: 48px; }
+  .od__org-nom { font-size: var(--fs-lg); }
+}

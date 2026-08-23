@@ -36,6 +36,20 @@ public class TripRequest {
     @NotBlank(message = "{validation.trajet.vehicule}")
     private String vehiculeUuid;
 
+    /**
+     * Organisation à laquelle le trajet est ouvert. Facultatif.
+     *
+     * <p>Un conducteur peut appartenir à plusieurs cercles — son employeur et
+     * le festival auquel il se rend. Le trajet, lui, n'en sert qu'un : le
+     * publier vers le mauvais le rend invisible à ceux qu'il concerne.</p>
+     *
+     * <p>Omis, le serveur retient l'organisation d'origine du conducteur,
+     * celle de son domaine de courriel. Le champ n'est donc à renseigner que
+     * lorsque le conducteur appartient à plusieurs organisations et en vise une
+     * autre. Il doit alors désigner une organisation dont il est membre.</p>
+     */
+    private String organizationUuid;
+
     // Préférences
     private boolean acceptsLuggage = true;
     private boolean acceptsPets    = false;

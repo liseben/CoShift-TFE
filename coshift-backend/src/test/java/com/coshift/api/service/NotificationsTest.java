@@ -8,6 +8,7 @@ import com.coshift.api.entity.TripStatus;
 import com.coshift.api.entity.User;
 import com.coshift.api.entity.Vehicule;
 import com.coshift.api.repository.BookingRepository;
+import com.coshift.api.repository.OrganizationRepository;
 import com.coshift.api.repository.ReviewRepository;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
@@ -67,6 +68,8 @@ class NotificationsTest {
     @Mock private ReviewRepository reviewRepository;
     @Mock private EmailService emailService;
     @Mock private Messages messages;
+    @Mock private OrganizationRepository organizationRepository;
+    @Mock private OrganizationService organizationService;
 
     private BookingService bookingService;
     private TripService tripService;
@@ -81,9 +84,14 @@ class NotificationsTest {
     @BeforeEach
     void preparer() {
         bookingService = new BookingService(bookingRepository, messages, tripRepository,
-                userRepository, reviewRepository, emailService);
+                userRepository, reviewRepository, emailService, organizationService);
         tripService = new TripService(tripRepository, messages, userRepository,
-                vehiculeRepository, bookingRepository, emailService);
+                vehiculeRepository, bookingRepository, emailService,
+                organizationRepository, organizationService);
+
+        /* Ces cas portent sur le destinataire et la langue des courriels, pas
+           sur la visibilite : tout le monde partage le cercle. */
+        when(organizationService.partageLeCercle(any(), any())).thenReturn(true);
 
         conducteur = utilisateur(1L, CONDUCTEUR, "Camille", "fr");
         // Anglophone : c'est tout l'enjeu des tests de langue ci-dessous.

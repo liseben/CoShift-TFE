@@ -269,3 +269,13 @@
 @media (max-width: 640px) {
   .db__profile { flex-direction: column; align-items: flex-start; }
 }
+
+
+/* Les deux actions de la carte de profil s'empilent plutot que de s'ecraser :
+   sur mobile, cote a cote, la seconde debordait de la carte. */
+.db__profile-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-2);
+}

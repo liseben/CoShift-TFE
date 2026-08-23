@@ -14,4 +14,17 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
     
     // Vérifier si un slug existe déjà (pour l'inscription)
     boolean existsBySlug(String slug);
+
+    /**
+     * Organisation revendiquant ce domaine de courriel.
+     *
+     * <p>Insensible à la casse : les adresses arrivent telles que la personne
+     * les a tapées, et {@code @Solvantis.be} désigne le même domaine que
+     * {@code @solvantis.be}.</p>
+     *
+     * <p>Une organisation désactivée ne rattache plus personne. Sans cette
+     * condition, résilier un contrat laisserait les inscriptions continuer à
+     * verser des comptes dans un cercle qui n'a plus de client.</p>
+     */
+    Optional<Organization> findByEmailDomainIgnoreCaseAndActiveTrue(String emailDomain);
 }

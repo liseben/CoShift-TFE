@@ -67,6 +67,7 @@ class BookingServiceTest {
     @Mock private ReviewRepository reviewRepository;
     @Mock private EmailService emailService;
     @Mock private Messages messages;
+    @Mock private OrganizationService organizationService;
 
     @InjectMocks private BookingService service;
 
@@ -81,6 +82,11 @@ class BookingServiceTest {
     void preparer() {
         conducteur = utilisateur(1L, COURRIEL_CONDUCTEUR);
         passager = utilisateur(2L, COURRIEL_PASSAGER);
+
+        /* Par defaut, tout le monde partage le cercle : les cas de cette
+           classe portent sur les regles de reservation, pas sur la visibilite.
+           Le cercle a ses propres tests, ou cette reponse est renversee. */
+        when(organizationService.partageLeCercle(any(), any())).thenReturn(true);
 
         /* Le vehicule n'est pas decoratif : trips.vehicule_id est NOT NULL et
            BookingResponse lit sa marque et son modele. Un trajet sans vehicule
@@ -480,6 +486,28 @@ class BookingServiceTest {
             var reponse = service.complete(COURRIEL_PASSAGER, "resa-uuid");
 
             assertThat(reponse.getStatusReason()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Cercle ferme a la reservation")
+    class Cercle {
+
+        @Test
+        @DisplayName("refuse de reserver un trajet d'une autre organisation")
+        void refuseHorsDuCercle() {
+            /* Dernier verrou, et le seul qui compte vraiment : la recherche et
+               la fiche ne font que ne pas montrer. Sans ce refus, il suffirait
+               de connaitre un identifiant de trajet pour monter dans la voiture
+               d'une autre entreprise. La reponse est « introuvable » plutot
+               qu'« interdit », pour ne pas confirmer l'existence du trajet. */
+            when(tripRepository.findByUuid("trajet-uuid")).thenReturn(Optional.of(trajet));
+            when(organizationService.partageLeCercle(any(), any())).thenReturn(false);
+
+            assertThatThrownBy(() -> service.book(COURRIEL_PASSAGER, demande(1)))
+                    .isInstanceOf(ResourceNotFoundException.class);
+
+            verify(bookingRepository, never()).save(any());
         }
     }
 

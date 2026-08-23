@@ -61,8 +61,26 @@ public class Review {
     @JoinColumn(name = "target_id", nullable = false)
     private User target;
 
-    /** De 1 à 5. Le barème est aussi contraint en base. */
+    /**
+     * De 1 à 5.
+     *
+     * <p>La colonne est un {@code TINYINT} : une note tient sur un octet, et
+     * V8 l'a écrite ainsi à dessein. Le champ Java reste un {@code int}, qui
+     * est le type naturel d'un barème en Java et celui qu'attendent les
+     * annotations {@code @Min}/{@code @Max} du DTO.</p>
+     *
+     * <p>Sans cette annotation, Hibernate déduit {@code INTEGER} du type Java
+     * et {@code ddl-auto=validate} refuse de démarrer : « wrong column type
+     * encountered in column [rating] ». Le défaut ne se voyait ni à la
+     * relecture ni aux tests unitaires — il n'apparaissait qu'au démarrage
+     * d'un contexte Spring complet contre la vraie base.</p>
+     *
+     * <p>La contrainte {@code CHECK} posée par V8 sur le barème est, elle,
+     * analysée puis ignorée par MySQL 5.7 : ce sont les annotations du DTO qui
+     * protègent réellement.</p>
+     */
     @Column(nullable = false)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.TINYINT)
     private int rating;
 
     /**

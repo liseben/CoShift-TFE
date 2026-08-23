@@ -1,10 +1,10 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaSuitcase, FaDog, FaMusic, FaComments } from "react-icons/fa";
+import { FaCar, FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaSuitcase, FaDog, FaMusic, FaComments, FaBuilding } from "react-icons/fa";
 import { FiArrowLeft, FiCheck } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
-import { Alert, Button, Card, EmptyState, Input, Spinner, Textarea } from "../../components/ui";
+import { Alert, Button, Card, EmptyState, Input, Select, Spinner, Textarea } from "../../components/ui";
 import { useT } from "../../context/LangContext";
 import "./CreateTripPage.css";
 import { useSeo } from "../../hooks/useSeo";
@@ -15,6 +15,12 @@ interface Vehicule {
   model: string;
   seats: number;
   energy: string;
+}
+
+/** Ce que /api/organizations/mine renvoie, reduit a ce dont ce formulaire a besoin. */
+interface Organisation {
+  uuid: string;
+  name: string;
 }
 
 /* Icônes SVG plutôt qu'emojis : le rendu d'un emoji change d'un système à
@@ -41,6 +47,7 @@ export default function CreateTripPage() {
   });
   const navigate = useNavigate();
   const [vehicules, setVehicules] = useState<Vehicule[]>([]);
+  const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +61,7 @@ export default function CreateTripPage() {
     departureCity: "", departureAddress: "",
     arrivalCity: "", arrivalAddress: "",
     departureTime: "", availableSeats: 1, pricePerSeat: "",
-    vehiculeUuid: "", description: "",
+    vehiculeUuid: "", organizationUuid: "", description: "",
     acceptsLuggage: true, acceptsPets: false,
     musicAllowed: true, talkingAllowed: true,
   });
@@ -70,6 +77,25 @@ export default function CreateTripPage() {
       })
       .catch(() => setError(t("publier.vehiculesIndisponibles")))
       .finally(() => setLoading(false));
+  }, []);
+
+  /* Les organisations du conducteur decident a qui le trajet sera visible.
+     Un echec ici n'empeche pas de publier : le serveur retiendra
+     l'organisation d'origine, exactement comme si le champ etait absent. La
+     liste ne sert qu'a laisser choisir quand il y en a plusieurs. */
+  useEffect(() => {
+    axios
+      .get<Organisation[]>(`${API_BASE}/api/organizations/mine`, { headers: headers() })
+      .then((r) => {
+        setOrganisations(r.data);
+        /* Le champ porte des le depart la valeur affichee. Sans cela, la liste
+           montrait une organisation pendant que le formulaire en envoyait une
+           autre — la valeur restait vide et le serveur retenait l'organisation
+           d'origine, qui n'est pas forcement la premiere de la liste. Le
+           serveur renvoie justement celle-ci en tete. */
+        if (r.data.length > 0) set("organizationUuid", r.data[0].uuid);
+      })
+      .catch(() => setOrganisations([]));
   }, []);
 
   const selected = vehicules.find((v) => v.uuid === form.vehiculeUuid);
@@ -187,6 +213,29 @@ export default function CreateTripPage() {
                 </label>
               ))}
             </fieldset>
+          </Card>
+
+          {/* Le cercle du trajet. Affiche meme quand il n'y a rien a choisir :
+              savoir qui verra son annonce fait partie de ce qu'on publie, et
+              une regle silencieuse est une regle que personne ne verifie. */}
+          <Card title={<><FaBuilding aria-hidden="true" /> {t("organisation.cercleTitre")}</>}>
+            {organisations.length > 1 && (
+              <Select
+                label={t("organisation.cercleChoisir")}
+                hint={t("organisation.cercleAide")}
+                value={form.organizationUuid}
+                onChange={(e) => set("organizationUuid", e.target.value)}
+                options={organisations.map((o) => ({ value: o.uuid, label: o.name }))}
+              />
+            )}
+            {organisations.length === 1 && (
+              <p className="ct__cercle">
+                {t("organisation.cercleUnique", { nom: organisations[0].name })}
+              </p>
+            )}
+            {organisations.length === 0 && (
+              <p className="ct__cercle ct__cercle--aucune">{t("organisation.cercleAucune")}</p>
+            )}
           </Card>
 
           <Card title={t("publier.details")}>

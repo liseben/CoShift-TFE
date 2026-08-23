@@ -18,6 +18,7 @@ import ConfidentialitePage from "./pages/Legal/ConfidentialitePage";
 import CguPage from "./pages/Legal/CguPage";
 import CookiesPage from "./pages/Legal/CookiesPage";
 import EntreprisesPage from "./pages/Entreprises/EntreprisesPage";
+import OrganisationDashboardPage from "./pages/Entreprises/OrganisationDashboardPage";
 import BlogPage from "./pages/Blog/BlogPage";
 import BlogPostPage from "./pages/Blog/BlogPostPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
@@ -30,6 +31,9 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="entreprises" element={<EntreprisesPage />} />
+          {/* Les chiffres de SON organisation, derriere un compte. La page
+              vitrine reste publique : l'une vend le produit, l'autre le mesure. */}
+          <Route path="entreprises/tableau-de-bord" element={<OrganisationDashboardPage />} />
           <Route path="actus" element={<ActusPage />} />
           {/* Doit rester APRES la route fixe "actus". */}
           <Route path="actus/:id" element={<ArticlePage />} />
