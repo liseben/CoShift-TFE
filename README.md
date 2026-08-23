@@ -83,6 +83,12 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
 - L'annulation d'un trajet annule ses réservations en cascade, chacune portant son motif.
 - Le téléphone du conducteur n'est révélé qu'une fois la réservation confirmée.
 
+### Confiance
+
+- **Confirmation de prestation.** Le passager reconnaît que le trajet a eu lieu — et lui seul. Le conducteur a un intérêt à déclarer la course effectuée ; le passager n'en a aucun. Confier la confirmation à la partie qui n'y gagne rien est ce qui en fait une information fiable. Le compteur de trajets des deux participants est alors incrémenté.
+- **Notation réciproque.** Le passager note le conducteur, le conducteur note le passager. Trois conditions : avoir effectivement voyagé (réservation confirmée *puis* reconnue), avoir voyagé avec la personne notée, et une seule fois par trajet. Sans la première, réserver puis annuler donnerait le droit de noter ; sans la troisième, noter en boucle suffirait à couler quelqu'un.
+- La moyenne du profil est **relue depuis la table** après chaque avis, jamais mise à jour par pondération : un calcul incrémental dérive sans que rien ne le signale.
+
 ### Interface
 
 - Tableau de bord à quatre onglets : vue d'ensemble, demandes reçues, véhicules, données personnelles.
@@ -263,7 +269,6 @@ coshift-frontend/
 Fonctionnalités prévues, non réalisées dans cette version alpha :
 
 - [ ] Notifications par courriel : demande reçue, acceptation, refus, annulation de trajet
-- [ ] Notation réciproque après un trajet effectué
 - [ ] Messagerie entre conducteur et passager
 - [ ] Paiement en ligne et partage de frais
 - [ ] Espace d'administration : modération, signalements, statistiques

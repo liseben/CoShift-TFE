@@ -13,6 +13,7 @@ import com.coshift.api.exception.NoSeatsAvailableException;
 import com.coshift.api.exception.ResourceNotFoundException;
 import com.coshift.api.exception.UnauthorizedException;
 import com.coshift.api.repository.BookingRepository;
+import com.coshift.api.repository.ReviewRepository;
 import com.coshift.api.repository.TripRepository;
 import com.coshift.api.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,7 @@ class BookingServiceTest {
     @Mock private BookingRepository bookingRepository;
     @Mock private TripRepository tripRepository;
     @Mock private UserRepository userRepository;
+    @Mock private ReviewRepository reviewRepository;
     @Mock private Messages messages;
 
     @InjectMocks private BookingService service;
@@ -110,6 +112,7 @@ class BookingServiceTest {
         when(bookingRepository.save(any(Booking.class))).thenAnswer(i -> i.getArgument(0));
         when(tripRepository.save(any(Trip.class))).thenAnswer(i -> i.getArgument(0));
         when(messages.get(anyString())).thenReturn("message");
+        when(reviewRepository.reservationsDejaNoteesPar(anyLong())).thenReturn(java.util.List.of());
     }
 
     // ─────────────────────────── F27 — Demander une place ───────────────────────

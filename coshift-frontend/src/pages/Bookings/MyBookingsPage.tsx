@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { FaStar, FaTicketAlt, FaPhoneAlt, FaCar } from "react-icons/fa";
+import { FaStar, FaTicketAlt, FaPhoneAlt, FaCar, FaRegStar } from "react-icons/fa";
 import { FiArrowRight, FiCheckCircle, FiSearch } from "react-icons/fi";
 import axios from "axios";
 import { API_BASE } from "../../config/api";
 import { formatTripDate } from "./bookingStatus";
 import {
-  Alert, Avatar, Button, Card, EmptyState, Modal, Spinner, StatusBadge,
-  type Status,
+  Alert, Avatar, Button, Card, EmptyState, Modal, RatingInput, Spinner,
+  StatusBadge, Textarea, type Status,
 } from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import { useLang } from "../../context/LangContext";
@@ -21,6 +21,7 @@ interface Booking {
   status: string;
   statusReason?: string;
   completedAt?: string | null;
+  reviewed?: boolean;
   createdAt: string;
   trip: {
     uuid: string;
@@ -133,6 +134,51 @@ export default function MyBookingsPage() {
     }
   };
 
+  /* Notation : la reservation visee, la note et le commentaire en cours. */
+  const [aNoter, setANoter] = useState<Booking | null>(null);
+  const [note, setNote] = useState(0);
+  const [commentaire, setCommentaire] = useState("");
+  const [erreurNote, setErreurNote] = useState<string | null>(null);
+  const [succes, setSucces] = useState<string | null>(null);
+
+  const ouvrirNotation = (b: Booking) => {
+    setANoter(b);
+    setNote(0);
+    setCommentaire("");
+    setErreurNote(null);
+  };
+
+  const envoyerAvis = async () => {
+    if (!aNoter) return;
+    /* Le serveur refuserait une note absente ; l'annoncer ici evite un
+       aller-retour et un message d'erreur technique. */
+    if (note < 1) {
+      setErreurNote(t("reservations.noteRequise"));
+      return;
+    }
+    const uuid = aNoter.uuid;
+    setBusy(uuid);
+    setError(null);
+    try {
+      await axios.post(
+        `${API_BASE}/api/bookings/${uuid}/review`,
+        { rating: note, comment: commentaire },
+        { headers: headers() },
+      );
+      setBookings((prev) =>
+        prev.map((b) => (b.uuid === uuid ? { ...b, reviewed: true } : b)));
+      setANoter(null);
+      setSucces(t("reservations.avisEnvoye"));
+    } catch (err) {
+      setErreurNote(
+        (axios.isAxiosError(err) && err.response?.data?.message) ||
+          t("reservations.avisEchoue"),
+      );
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const isCancellable = (b: Booking) =>
     (b.status === "PENDING" || b.status === "CONFIRMED") &&
     new Date(b.trip.departureTime) > new Date();
@@ -156,6 +202,7 @@ export default function MyBookingsPage() {
       </header>
 
       {error && <Alert tone="danger" onDismiss={() => setError(null)}>{error}</Alert>}
+      {succes && <Alert tone="success" onDismiss={() => setSucces(null)}>{succes}</Alert>}
 
       {loading ? (
         <Spinner size="lg" center showLabel label={t("reservations.chargement")} />
@@ -240,6 +287,16 @@ export default function MyBookingsPage() {
                 <Button variant="secondary" size="sm" to={`/trips/${b.trip.uuid}`}>
                   {t("reservations.voirLeTrajet")}
                 </Button>
+                {b.status === "COMPLETED" && !b.reviewed && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={<FaRegStar />}
+                    onClick={() => ouvrirNotation(b)}
+                  >
+                    {t("reservations.noter")}
+                  </Button>
+                )}
                 {isConfirmable(b) && (
                   <Button
                     size="sm"
@@ -281,6 +338,61 @@ export default function MyBookingsPage() {
               trajet: `${toCancel.trip.departureCity} → ${toCancel.trip.arrivalCity}`,
             })}
           </p>
+        )}
+      </Modal>
+
+      {/* Notation. Deposer un avis est definitif : l'intro le dit avant, pas
+          apres. */}
+      <Modal
+        open={aNoter !== null}
+        onClose={() => setANoter(null)}
+        title={t("reservations.noterTitre")}
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setANoter(null)}>
+              {t("commun.retour")}
+            </Button>
+            <Button loading={busy !== null} onClick={envoyerAvis}>
+              {t("reservations.envoyerAvis")}
+            </Button>
+          </>
+        }
+      >
+        {aNoter && (
+          <div className="stack-4">
+            <p className="bk-lead">
+              {aNoter.trip.departureCity} → {aNoter.trip.arrivalCity} ·{" "}
+              {aNoter.trip.driverFirstname} {aNoter.trip.driverLastname}
+            </p>
+            <p>{t("reservations.noterIntro")}</p>
+
+            <RatingInput
+              label={t("reservations.noteLabel")}
+              value={note}
+              onChange={(n) => {
+                setNote(n);
+                setErreurNote(null);
+              }}
+              libelles={[
+                t("reservations.etoile_une"),
+                t("reservations.etoile_deux"),
+                t("reservations.etoile_trois"),
+                t("reservations.etoile_quatre"),
+                t("reservations.etoile_cinq"),
+              ]}
+              error={erreurNote ?? undefined}
+            />
+
+            <Textarea
+              label={t("reservations.commentaireLabel")}
+              placeholder={t("reservations.commentairePlaceholder")}
+              value={commentaire}
+              onChange={(e) => setCommentaire(e.target.value)}
+              maxLength={500}
+              rows={4}
+            />
+          </div>
         )}
       </Modal>
     </div>

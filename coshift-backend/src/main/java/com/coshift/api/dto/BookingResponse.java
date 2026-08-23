@@ -38,6 +38,14 @@ public class BookingResponse {
      */
     private LocalDateTime completedAt;
 
+    /**
+     * Vrai si le membre qui consulte a déjà noté ce trajet (F22, F31).
+     *
+     * <p>Renseigné par le service, qui seul sait qui consulte. Le client s'en
+     * sert pour ne proposer « Noter » que là où c'est encore possible.</p>
+     */
+    private boolean reviewed;
+
     private TripSummary trip;
     private PassengerSummary passenger;
 
