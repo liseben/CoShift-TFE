@@ -83,6 +83,11 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
 - L'annulation d'un trajet annule ses réservations en cascade, chacune portant son motif.
 - Le téléphone du conducteur n'est révélé qu'une fois la réservation confirmée.
 
+### Notifications
+
+- Courriel à chaque changement d'état : demande reçue, réservation acceptée, refusée avec son motif, désistement d'un passager, et annulation d'un trajet — la plus importante des cinq, sans laquelle quelqu'un attend à un point de rendez-vous où personne ne viendra.
+- **Chacun est écrit dans la langue de son destinataire**, pas dans celle de la personne qui a déclenché l'envoi. Un conducteur francophone sollicité par un passager anglophone reçoit du français.
+
 ### Confiance
 
 - **Confirmation de prestation.** Le passager reconnaît que le trajet a eu lieu — et lui seul. Le conducteur a un intérêt à déclarer la course effectuée ; le passager n'en a aucun. Confier la confirmation à la partie qui n'y gagne rien est ce qui en fait une information fiable. Le compteur de trajets des deux participants est alors incrémenté.
@@ -268,7 +273,6 @@ coshift-frontend/
 
 Fonctionnalités prévues, non réalisées dans cette version alpha :
 
-- [ ] Notifications par courriel : demande reçue, acceptation, refus, annulation de trajet
 - [ ] Messagerie entre conducteur et passager
 - [ ] Paiement en ligne et partage de frais
 - [ ] Espace d'administration : modération, signalements, statistiques

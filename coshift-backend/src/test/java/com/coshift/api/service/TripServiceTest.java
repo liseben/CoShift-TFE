@@ -63,6 +63,7 @@ class TripServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private VehiculeRepository vehiculeRepository;
     @Mock private BookingRepository bookingRepository;
+    @Mock private EmailService emailService;
     @Mock private Messages messages;
 
     @InjectMocks private TripService service;

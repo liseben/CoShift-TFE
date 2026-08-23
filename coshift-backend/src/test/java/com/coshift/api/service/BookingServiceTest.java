@@ -65,6 +65,7 @@ class BookingServiceTest {
     @Mock private TripRepository tripRepository;
     @Mock private UserRepository userRepository;
     @Mock private ReviewRepository reviewRepository;
+    @Mock private EmailService emailService;
     @Mock private Messages messages;
 
     @InjectMocks private BookingService service;

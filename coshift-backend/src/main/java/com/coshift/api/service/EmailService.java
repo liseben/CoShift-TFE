@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+import com.coshift.api.entity.User;
+
 import java.util.Locale;
 
 /**
@@ -43,6 +45,10 @@ import java.util.Locale;
  * l'appelant — un choix délibéré, une inscription ne devant pas échouer parce
  * que le courriel ne part pas, mais qui masque le problème. La sonde de santé
  * le signale.</p>
+ *
+ * <p>La capture porte volontairement sur {@code Exception} et non sur les
+ * seules exceptions vérifiées : l'échec réel vient de l'envoi lui-même, qui
+ * lève une {@code MailException} non vérifiée.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -54,6 +60,10 @@ public class EmailService {
 
     @Value("${spring.mail.username}")
     private String fromAddress;
+
+    /** Domaine du site, pour que le bouton d'une notification mène quelque part. */
+    @Value("${app.public-base-url:http://localhost:5173}")
+    private String siteUrl;
 
     /** Vérification d'adresse à l'inscription. */
     @Async
@@ -87,6 +97,130 @@ public class EmailService {
                 "réinitialisation");
     }
 
+    /* ═══════════════════════ Notifications (F19, F20, F29) ══════════════════════
+     *
+     * Jusqu'ici, CoShift n'écrivait qu'à propos du compte lui-même : vérifier
+     * une adresse, réinitialiser un mot de passe. Rien ne prévenait des
+     * événements qui font pourtant vivre la plateforme. Un conducteur devait
+     * ouvrir son tableau de bord et regarder pour découvrir qu'on l'avait
+     * sollicité ; un passager n'apprenait pas que son trajet du lendemain était
+     * annulé. Les données circulaient, la mise en relation ne se refermait
+     * jamais.
+     *
+     * Toutes ces méthodes reçoivent le destinataire en entier plutôt que son
+     * adresse : c'est lui qui porte la langue dans laquelle il faut écrire, et
+     * elle n'a plus rien à voir avec celle de la requête qui déclenche l'envoi.
+     */
+
+    /** F19 — une demande de place vient d'arriver sur un trajet. */
+    @Async
+    public void notifierDemandeRecue(User conducteur, String prenomPassager, String trajet, int places) {
+        Locale l = conducteur.langue();
+        envoyer(conducteur.getEmail(), l,
+                messages.get(l, "courriel.demandeRecue.sujet"),
+                notification(l,
+                        messages.get(l, "courriel.demandeRecue.titre"),
+                        messages.get(l, "courriel.bonjour", conducteur.getFirstname()),
+                        messages.get(l, "courriel.demandeRecue.intro", prenomPassager, places),
+                        trajet,
+                        messages.get(l, "courriel.lien.demandes"),
+                        siteUrl + "/dashboard?tab=requests"),
+                "demande reçue");
+    }
+
+    /** F20 — le conducteur a accepté. */
+    @Async
+    public void notifierReservationAcceptee(User passager, String prenomConducteur, String trajet) {
+        Locale l = passager.langue();
+        envoyer(passager.getEmail(), l,
+                messages.get(l, "courriel.acceptee.sujet"),
+                notification(l,
+                        messages.get(l, "courriel.acceptee.titre"),
+                        messages.get(l, "courriel.bonjour", passager.getFirstname()),
+                        messages.get(l, "courriel.acceptee.intro", prenomConducteur),
+                        trajet,
+                        messages.get(l, "courriel.lien.reservations"),
+                        siteUrl + "/bookings"),
+                "réservation acceptée");
+    }
+
+    /**
+     * F20 — le conducteur a refusé.
+     *
+     * <p>Le motif est repris tel quel quand il existe. Refuser sans un mot
+     * laisse le passager sans explication ; le taire dans le courriel
+     * l'obligerait à revenir le chercher.</p>
+     */
+    @Async
+    public void notifierReservationRefusee(User passager, String trajet, String motif) {
+        Locale l = passager.langue();
+        String details = (motif == null || motif.isBlank())
+                ? trajet
+                : trajet + "<br><br><em>" + echapperHtml(motif) + "</em>";
+
+        envoyer(passager.getEmail(), l,
+                messages.get(l, "courriel.refusee.sujet"),
+                notification(l,
+                        messages.get(l, "courriel.refusee.titre"),
+                        messages.get(l, "courriel.bonjour", passager.getFirstname()),
+                        messages.get(l, "courriel.refusee.intro"),
+                        details,
+                        messages.get(l, "courriel.lien.chercher"),
+                        siteUrl + "/trips/search"),
+                "réservation refusée");
+    }
+
+    /** F29 — le passager s'est désisté. */
+    @Async
+    public void notifierAnnulationParPassager(User conducteur, String prenomPassager, String trajet) {
+        Locale l = conducteur.langue();
+        envoyer(conducteur.getEmail(), l,
+                messages.get(l, "courriel.annulPassager.sujet"),
+                notification(l,
+                        messages.get(l, "courriel.annulPassager.titre"),
+                        messages.get(l, "courriel.bonjour", conducteur.getFirstname()),
+                        messages.get(l, "courriel.annulPassager.intro", prenomPassager),
+                        trajet,
+                        messages.get(l, "courriel.lien.demandes"),
+                        siteUrl + "/dashboard?tab=requests"),
+                "annulation par le passager");
+    }
+
+    /**
+     * F18 — le conducteur a annulé le trajet.
+     *
+     * <p>C'est la notification la plus importante des cinq : sans elle,
+     * quelqu'un attend à un point de rendez-vous où personne ne viendra.</p>
+     */
+    @Async
+    public void notifierTrajetAnnule(User passager, String trajet) {
+        Locale l = passager.langue();
+        envoyer(passager.getEmail(), l,
+                messages.get(l, "courriel.trajetAnnule.sujet"),
+                notification(l,
+                        messages.get(l, "courriel.trajetAnnule.titre"),
+                        messages.get(l, "courriel.bonjour", passager.getFirstname()),
+                        messages.get(l, "courriel.trajetAnnule.intro"),
+                        trajet,
+                        messages.get(l, "courriel.lien.chercher"),
+                        siteUrl + "/trips/search"),
+                "trajet annulé");
+    }
+
+    /**
+     * Neutralise le HTML d'un texte rédigé par un membre.
+     *
+     * <p>Le motif d'un refus est saisi librement par le conducteur et réinjecté
+     * dans un document HTML envoyé à quelqu'un d'autre. Sans échappement, il y
+     * ferait passer n'importe quelle balise.</p>
+     */
+    private String echapperHtml(String texte) {
+        return texte.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;");
+    }
+
     private void envoyer(String destinataire, Locale langue, String sujet, String corps, String nature) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -100,7 +234,19 @@ public class EmailService {
             mailSender.send(message);
             log.info("Courriel de {} envoyé à {} en {}", nature, destinataire, langue.getLanguage());
 
-        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
+        } catch (Exception e) {
+            /* Exception et non MessagingException. La capture ne visait que les
+               exceptions VERIFIEES levees par les accesseurs du helper, alors
+               que l'echec attendu — serveur injoignable, identifiants refuses —
+               vient de mailSender.send(), qui leve MailSendException : une
+               RuntimeException de Spring, qui traversait donc ce bloc.
+
+               La consequence n'etait pas visible parce que ces methodes sont
+               @Async : l'executeur avalait l'exception et journalisait une
+               trace brute, a la place du message lisible prevu ici. Mais la
+               garantie annoncee — « l'echec est silencieux pour l'appelant » —
+               ne tenait que par cet effet de bord, et tombait des qu'un appel
+               contournait le proxy. */
             log.error("Courriel de {} non envoyé à {} : {}", nature, destinataire, e.getMessage());
         }
     }
@@ -118,8 +264,65 @@ public class EmailService {
      * blocs {@code <style>} — d'où la duplication apparente entre l'en-tête et
      * les attributs.</p>
      */
+    /**
+     * Corps des courriels portant un code à six chiffres.
+     *
+     * <p>Vérification d'adresse et réinitialisation : les deux affichent un
+     * code bien visible, une durée de validité, et un avertissement à
+     * l'intention de qui n'a rien demandé.</p>
+     */
     private String gabarit(Locale langue, String code, String titre, String bonjour,
                            String intro, String validite, String avertissement) {
+        String corps = """
+                <p>%s</p>
+                <div class="code-box">
+                  <div class="code">%s</div>
+                  <div class="expiry">%s</div>
+                </div>
+                <p class="warn">%s</p>
+                """.formatted(intro, code, validite, avertissement);
+
+        return enveloppe(langue, titre, bonjour, corps);
+    }
+
+    /**
+     * Corps des notifications.
+     *
+     * <p>Pas de code, mais un rappel du trajet concerné et un lien qui ramène
+     * là où l'action se poursuit. Une notification qui ne dit pas quoi faire
+     * ensuite oblige à retrouver l'écran soi-même, ce qui revient à ne pas
+     * l'avoir envoyée.</p>
+     *
+     * @param details   rappel du trajet, déjà mis en forme
+     * @param lienTexte libellé du bouton
+     * @param lienUrl   destination du bouton
+     */
+    private String notification(Locale langue, String titre, String bonjour, String intro,
+                                String details, String lienTexte, String lienUrl) {
+        String corps = """
+                <p>%s</p>
+                <div class="detail-box">%s</div>
+                <p style="text-align:center; margin: 28px 0;">
+                  <a class="cta" href="%s">%s</a>
+                </p>
+                """.formatted(intro, details, lienUrl, lienTexte);
+
+        return enveloppe(langue, titre, bonjour, corps);
+    }
+
+    /**
+     * Enveloppe commune à tous les courriels.
+     *
+     * <p>L'attribut {@code lang} du document suit la langue du message : les
+     * lecteurs de courrier qui proposent une traduction automatique s'y fient,
+     * et une synthèse vocale lit un texte anglais avec l'accent français si on
+     * lui annonce du français.</p>
+     *
+     * <p>Le style reste en ligne : les clients de messagerie ignorent
+     * largement les feuilles de style externes, et beaucoup rognent même les
+     * blocs {@code <style>}.</p>
+     */
+    private String enveloppe(Locale langue, String titre, String bonjour, String corps) {
         return """
             <!DOCTYPE html>
             <html lang="%s">
@@ -138,6 +341,12 @@ public class EmailService {
                             border-radius: 12px; text-align: center; padding: 24px; margin: 28px 0; }
                 .code { font-size: 42px; font-weight: 900; letter-spacing: 12px; color: #60a5fa; }
                 .expiry { font-size: 13px; color: #64748b; margin-top: 8px; }
+                .detail-box { background: rgba(255,255,255,0.04); border-left: 3px solid #60a5fa;
+                              border-radius: 8px; padding: 16px 20px; margin: 24px 0;
+                              color: #cbd5e1; line-height: 1.7; }
+                .cta { display: inline-block; background: #60a5fa; color: #0f172a;
+                       text-decoration: none; font-weight: 700; padding: 14px 28px;
+                       border-radius: 10px; }
                 .warn { color: #fcd34d; }
                 .footer { margin-top: 32px; font-size: 12px; color: #475569;
                           border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; }
@@ -148,12 +357,7 @@ public class EmailService {
                 <div class="logo">Co<span>Shift</span></div>
                 <h2>%s</h2>
                 <p>%s</p>
-                <p>%s</p>
-                <div class="code-box">
-                  <div class="code">%s</div>
-                  <div class="expiry">%s</div>
-                </div>
-                <p class="warn">%s</p>
+                %s
                 <div class="footer">
                   %s<br>
                   %s
@@ -165,10 +369,7 @@ public class EmailService {
                 langue.getLanguage(),
                 titre,
                 bonjour,
-                intro,
-                code,
-                validite,
-                avertissement,
+                corps,
                 messages.get(langue, "courriel.pied"),
                 messages.get(langue, "courriel.piedAuto"));
     }

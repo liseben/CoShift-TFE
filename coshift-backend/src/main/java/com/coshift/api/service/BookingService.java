@@ -47,6 +47,7 @@ public class BookingService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+    private final EmailService emailService;
 
     /** Délai minimum entre la réservation et le départ, imposé par F27. */
     private static final int MIN_HOURS_BEFORE_BOOKING = 1;
@@ -93,6 +94,11 @@ public class BookingService {
 
         log.info("Nouvelle demande de réservation de {} place(s) sur le trajet {}",
                 request.getSeatsBooked(), trip.getUuid());
+
+        /* Sans cet envoi, le conducteur devait ouvrir son tableau de bord et
+           regarder pour découvrir qu'on l'avait sollicité. */
+        emailService.notifierDemandeRecue(trip.getDriver(), passenger.getFirstname(),
+                resume(trip), booking.getSeatsBooked());
 
         return BookingResponse.forPassenger(bookingRepository.save(booking));
     }
@@ -185,6 +191,9 @@ public class BookingService {
         log.info("Réservation {} acceptée : {} place(s) restante(s) sur le trajet {}",
                 bookingUuid, trip.getAvailableSeats(), trip.getUuid());
 
+        emailService.notifierReservationAcceptee(booking.getPassenger(),
+                trip.getDriver().getFirstname(), resume(trip));
+
         return BookingResponse.forDriver(bookingRepository.save(booking));
     }
 
@@ -194,6 +203,9 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.REJECTED);
         booking.setStatusReason(blankToNull(reason));
+
+        emailService.notifierReservationRefusee(booking.getPassenger(),
+                resume(booking.getTrip()), booking.getStatusReason());
 
         return BookingResponse.forDriver(bookingRepository.save(booking));
     }
@@ -226,6 +238,9 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStatusReason(blankToNull(reason));
+
+        emailService.notifierAnnulationParPassager(trip.getDriver(),
+                passenger.getFirstname(), resume(trip));
 
         return BookingResponse.forPassenger(bookingRepository.save(booking));
     }
@@ -331,6 +346,21 @@ public class BookingService {
     private User findUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(messages.get("auth.utilisateurIntrouvable")));
+    }
+
+    /**
+     * Rappel du trajet, tel qu'il apparaît dans un courriel.
+     *
+     * <p>Villes, date et heure : de quoi reconnaître de quel trajet on parle
+     * sans avoir à ouvrir l'application. L'adresse précise en est absente —
+     * elle n'a rien à faire dans un courriel qui traverse des serveurs tiers.</p>
+     */
+    private String resume(Trip trip) {
+        String quand = (trip.getDepartureTime() == null) ? "" :
+                trip.getDepartureTime().format(
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy à HH'h'mm"));
+        return trip.getDepartureCity() + " → " + trip.getArrivalCity()
+                + (quand.isEmpty() ? "" : "<br>" + quand);
     }
 
     private String blankToNull(String s) {
