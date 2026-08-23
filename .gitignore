@@ -26,3 +26,9 @@ coshift-backend/uploads/
 # versionner les rendrait publics et indéfiniment conservés.
 coshift-backend/logs/
 logs/
+
+# Documents de travail internes : état des lieux et backlog de finalisation.
+# Ils énumèrent les défauts connus du projet et n'ont pas leur place dans un
+# dépôt public consulté au moment de l'évaluation.
+AUDIT.md
+AUDIT-*.md
