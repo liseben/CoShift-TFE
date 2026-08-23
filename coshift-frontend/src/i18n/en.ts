@@ -601,6 +601,72 @@ export const en: Traductions = {
     iosNote: "From any browser other than Safari, iOS does not allow this installation.",
   },
 
+  admin: {
+    titre: "Administration",
+    description: "Platform supervision and account moderation.",
+    heroTitre: "Supervision",
+    porteePlateforme: "Scope: the whole platform.",
+    porteeOrganisations: "Scope: {noms}. You only see your circle.",
+    refuse: "This area is reserved for administration.",
+
+    membres: "Members",
+    membresTotal: "Accounts",
+    membresVerifies: "Confirmed addresses",
+    membresSuspendus: "Suspended accounts",
+    membresEfface: "Erased accounts (art. 17)",
+
+    trajets: "Rides",
+    trajetsAVenir: "Upcoming",
+    trajetsRealises: "Completed",
+    trajetsAnnules: "Cancelled",
+    trajetsSansOrganisation: "Outside any organisation",
+
+    reservations: "Bookings",
+    reservationsEnAttente: "Pending",
+    reservationsConfirmees: "Confirmed",
+    reservationsHonorees: "Honoured",
+    reservationsAnnulees: "Cancelled",
+
+    listeTitre: "Accounts",
+    rechercher: "Search for a member",
+    rechercherAide: "First name, last name or email address.",
+    aucunMembre: "No account matches.",
+    colonneMembre: "Member",
+    colonneOrganisations: "Organisations",
+    colonneEtat: "Status",
+    colonneInscrit: "Joined",
+    colonneAction: "Action",
+    etatActif: "Active",
+    etatSuspendu: "Suspended",
+    etatNonVerifie: "Address not confirmed",
+    depuisLe: "since {date}",
+    page: "Page {n} of {total}",
+    precedente: "Previous page",
+    suivante: "Next page",
+
+    suspendre: "Suspend",
+    reactiver: "Reactivate",
+    suspendreTitre: "Suspend {nom}",
+    suspendreTexte:
+      "The account will no longer be able to sign in. Nothing is erased: past rides also involve other participants and stay in place. The measure can be lifted at any time.",
+    motif: "Reason",
+    motifAide:
+      "Required. A decision with no written reason can no longer be explained three months later.",
+    confirmerSuspension: "Suspend the account",
+    suspenduPour: "Reason: {motif}",
+
+    blocages: "Sign-in throttles in force",
+    blocagesTexte:
+      "IP address × account pairs currently blocked. The security journal stays a file: opening an endpoint onto it would hand over the list of attacked accounts behind a single authentication.",
+    aucunBlocage: "No throttle in force.",
+    colonneIp: "IP address",
+    colonneCompte: "Account targeted",
+    colonneEchecs: "Failures",
+    colonneJusqua: "Until",
+
+    lien: "Administration",
+  },
+
   nav: {
     accueil: "CoShift, home",
     entreprises: "For organisations",

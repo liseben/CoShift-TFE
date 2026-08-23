@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -272,6 +273,34 @@ public class AuthenticationService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
+        } catch (LockedException e) {
+            /* Compte suspendu par la moderation.
+
+               Spring Security leve cette exception AVANT de regarder le mot de
+               passe : ses controles d'etat precedent la verification des
+               identifiants. Telle quelle, la reponse apprendrait a n'importe
+               qui, en tapant une adresse au hasard, qu'elle designe un compte
+               suspendu — c'est-a-dire permettrait de sonder les mesures de
+               moderation prises sur des tiers sans rien connaitre.
+
+               On verifie donc nous-memes le mot de passe avant de decider quoi
+               dire. Seule la personne concernee apprend la suspension, et c'est
+               justement a elle que la mesure doit etre expliquee ; les autres
+               recoivent le refus generique et sont comptes comme un echec.
+
+               La difference avec le compte non active, controle plus haut sans
+               cette precaution, est assumee : ne pas avoir clique sur son
+               courriel est un etat qu'on s'est cause et qu'on peut corriger
+               seul ; etre suspendu est une decision prise sur soi. */
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                loginAttemptService.recordFailure(attemptKey);
+                audit.consigner(Evenement.CONNEXION_ECHOUEE, user.getEmail(), clientIp, "mot de passe incorrect");
+                throw new BadCredentialsException(messages.get("auth.identifiantsRefuses"));
+            }
+            // Le mot de passe etait bon : ce n'est pas une tentative a freiner.
+            loginAttemptService.reset(attemptKey);
+            audit.consigner(Evenement.CONNEXION_COMPTE_SUSPENDU, user.getEmail(), clientIp);
+            throw new LockedException(messages.get("auth.compteSuspendu"));
         } catch (AuthenticationException e) {
             loginAttemptService.recordFailure(attemptKey);
             audit.consigner(Evenement.CONNEXION_ECHOUEE, user.getEmail(), clientIp, "mot de passe incorrect");

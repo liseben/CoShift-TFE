@@ -75,6 +75,29 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
 - **Article 17** — suppression du compte. L'opération annule d'abord les trajets et réservations à venir, pour que personne ne se présente à un rendez-vous qui n'aura pas lieu, puis anonymise les champs identifiants.
 - **Article 7** — consentement aux services tiers, horodaté, versionné, révocable en un clic depuis le pied de page. Aucun fond cartographique ni script Google n'est chargé avant une réponse explicite.
 
+### Administration
+
+- Deux rôles, deux portées. Un **`SUPER_ADMIN`** répond de la plateforme et voit
+  tout ; un **`ADMIN`** répond de ses organisations et ne voit qu'elles. Sans
+  cette borne, donner un rôle d'administrateur à une entreprise cliente lui
+  ouvrirait les membres et les trajets de toutes les autres — le cercle fermé se
+  contournerait par un rôle au lieu de se contourner par une requête. L'écran
+  annonce sa portée plutôt que de laisser lire un chiffre borné comme un chiffre
+  global.
+- Supervision en lecture : membres, trajets et réservations du périmètre.
+- **Suspension d'un compte**, réservée au `SUPER_ADMIN` : consulter n'engage
+  rien, suspendre engage la plateforme vis-à-vis de la personne. Le motif est
+  obligatoire. Suspendre n'efface rien — les trajets passés engagent aussi les
+  autres participants et restent en place.
+- La suspension prend effet **immédiatement**, y compris sur un jeton déjà émis :
+  le filtre JWT relit l'état du compte à chaque requête. Une mesure qui ne
+  prendrait effet qu'à la prochaine connexion n'en serait pas une.
+- La console **n'expose pas le journal de sécurité**. Il reste un fichier : lui
+  ouvrir un point d'entrée reviendrait à offrir, derrière une seule
+  authentification, la liste des comptes et des adresses attaqués. Elle montre à
+  la place les **freinages de connexion en cours**, qui répondent à la même
+  question et sont actionnables tout de suite.
+
 ### Installation sur l'écran d'accueil
 
 - L'application s'installe depuis le bouton de l'en-tête, sur Chrome, Edge et
@@ -218,6 +241,8 @@ Chaque compte n'accède qu'aux trajets de ses organisations : c'est le cercle fe
 | `charlotte.guerin@u-basse-meuse.be` | `1234` | 3 véhicules, 8 trajets | 6 |
 | `margaux.gautier@val-vert.be` | `1234` | 6 trajets et 5 réservations — les deux rôles | 6 |
 | `sarah.aubert@val-vert.be` | `1234` | **Deux organisations** : le sélecteur de cercle apparaît à la publication | 13 |
+| `fanny.moreau@solvantis.be` | `1234` | **`SUPER_ADMIN`** : console d'administration, portée plateforme | 6 |
+| `julien.martin@he-condroz.be` | `1234` | **`ADMIN`** : même console, bornée à son organisation | 7 |
 
 98 des 122 comptes sont vérifiés. Les autres le sont volontairement restés, afin d'éprouver l'écran de saisie du code et le refus de connexion : `michael.leclercq@verhaegen.be` en fait partie et renvoie donc un `403`.
 
@@ -297,12 +322,13 @@ Livré depuis la première rédaction de cette liste :
 - [x] Rattachement des trajets aux organisations, cercle de visibilité fermé et
       tableau de bord d'organisation
 - [x] Application installable (PWA)
+- [x] Espace d'administration : supervision et suspension de comptes
 
 Prévu, non réalisé dans cette version alpha :
 
 - [ ] Messagerie entre conducteur et passager
 - [ ] Paiement en ligne et partage de frais
-- [ ] Espace d'administration : modération, signalements, statistiques
+- [ ] Signalement d'une annonce ou d'un membre, et file de modération
 - [ ] Néerlandais
 - [ ] Distance des trajets, sans laquelle ni les kilomètres partagés ni les
       émissions évitées ne sont calculables

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -143,6 +144,50 @@ public class LoginAttemptService {
         String ip = (separateur < 0) ? key : key.substring(0, separateur);
         String compte = (separateur < 0) ? "-" : key.substring(separateur + 1);
         audit.consigner(evenement, compte, ip, detail);
+    }
+
+    /**
+     * Un freinage en cours, tel que la console de supervision l'affiche.
+     *
+     * <p>La clé est scindée : l'adresse appelante et le compte visé sont deux
+     * informations distinctes, et les recoller dans une seule chaîne
+     * obligerait l'interface à les redécouper.</p>
+     */
+    public record Blocage(String adresseIp, String compte, int echecs, Instant jusqua) {}
+
+    /**
+     * Freinages actuellement en vigueur, du plus récemment déclenché au plus
+     * ancien.
+     *
+     * <p>C'est ce que la console de supervision montre à la place du journal de
+     * sécurité. Le journal est un fichier, écrit hors de portée de
+     * l'application et volontairement : lui ouvrir un point d'entrée HTTP
+     * reviendrait à offrir, derrière une seule authentification, la liste des
+     * adresses et des comptes attaqués — c'est-à-dire exactement ce qu'un
+     * attaquant vient chercher. Les freinages en cours répondent à la même
+     * question — « quelque chose est-il en train de se passer ? » — sans
+     * ouvrir cette porte, et ils ont l'avantage d'être actionnables tout de
+     * suite.</p>
+     *
+     * <p>La liste vit en mémoire et disparaît au redémarrage. C'est cohérent
+     * avec ce qu'elle décrit : un blocage dure quinze minutes.</p>
+     */
+    public List<Blocage> blocagesEnCours() {
+        Instant now = Instant.now();
+        return counters.entrySet().stream()
+                .flatMap(entree -> {
+                    Counter compteur = entree.getValue();
+                    synchronized (compteur) {
+                        if (!compteur.isLocked(now)) return java.util.stream.Stream.empty();
+                        int separateur = entree.getKey().lastIndexOf('|');
+                        String ip = separateur < 0 ? entree.getKey() : entree.getKey().substring(0, separateur);
+                        String compte = separateur < 0 ? "" : entree.getKey().substring(separateur + 1);
+                        return java.util.stream.Stream.of(
+                                new Blocage(ip, compte, compteur.failures, compteur.lockedUntil));
+                    }
+                })
+                .sorted(java.util.Comparator.comparing(Blocage::jusqua).reversed())
+                .toList();
     }
 
     /** Efface le compteur après une opération réussie. */

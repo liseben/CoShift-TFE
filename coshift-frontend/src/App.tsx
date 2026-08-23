@@ -19,6 +19,7 @@ import CguPage from "./pages/Legal/CguPage";
 import CookiesPage from "./pages/Legal/CookiesPage";
 import EntreprisesPage from "./pages/Entreprises/EntreprisesPage";
 import OrganisationDashboardPage from "./pages/Entreprises/OrganisationDashboardPage";
+import AdminPage from "./pages/Admin/AdminPage";
 import BlogPage from "./pages/Blog/BlogPage";
 import BlogPostPage from "./pages/Blog/BlogPostPage";
 import NotFoundPage from "./pages/NotFound/NotFoundPage";
@@ -45,6 +46,9 @@ function App() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="verify-email" element={<VerificationPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
+          {/* La console d'administration. Le serveur refuse chaque appel a qui
+              n'a pas le role : la garde de la page n'evite qu'un ecran vide. */}
+          <Route path="administration" element={<AdminPage />} />
           <Route path="trips/search" element={<SearchTripsPage />} />
           <Route path="trips/create" element={<CreateTripPage />} />
           {/* Doit rester APRÈS les routes fixes, sinon "search" et "create"

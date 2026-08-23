@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -88,6 +89,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ErrorResponse> handleDisabled(DisabledException ex, WebRequest request) {
         return build(HttpStatus.FORBIDDEN, "Account Disabled", ex.getMessage(), request);
+    }
+
+    /**
+     * Compte suspendu par la modération.
+     *
+     * <p>Sans ce gestionnaire, {@code LockedException} tombait dans le filet de
+     * {@code Exception} et sortait en <strong>500</strong> : une décision de
+     * modération parfaitement volontaire se présentait comme une panne du
+     * serveur, et le message expliquant la suspension n'atteignait jamais la
+     * personne.</p>
+     *
+     * <p>403 et non 401 : les identifiants étaient bons. Ce n'est pas
+     * l'authentification qui a échoué, c'est l'accès qui est refusé.</p>
+     */
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ErrorResponse> handleLocked(LockedException ex, WebRequest request) {
+        return build(HttpStatus.FORBIDDEN, "Account Suspended", ex.getMessage(), request);
     }
 
     /**

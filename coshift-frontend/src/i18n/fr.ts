@@ -614,6 +614,73 @@ export const fr = {
       "Depuis un autre navigateur que Safari, iOS ne permet pas cette installation.",
   },
 
+  /* Console de supervision et de moderation. */
+  admin: {
+    titre: "Administration",
+    description: "Supervision de la plateforme et modération des comptes.",
+    heroTitre: "Supervision",
+    porteePlateforme: "Portée : la plateforme entière.",
+    porteeOrganisations: "Portée : {noms}. Vous ne voyez que votre cercle.",
+    refuse: "Cet espace est réservé à l'administration.",
+
+    membres: "Membres",
+    membresTotal: "Comptes",
+    membresVerifies: "Adresses confirmées",
+    membresSuspendus: "Comptes suspendus",
+    membresEfface: "Comptes effacés (art. 17)",
+
+    trajets: "Trajets",
+    trajetsAVenir: "À venir",
+    trajetsRealises: "Réalisés",
+    trajetsAnnules: "Annulés",
+    trajetsSansOrganisation: "Hors organisation",
+
+    reservations: "Réservations",
+    reservationsEnAttente: "En attente",
+    reservationsConfirmees: "Confirmées",
+    reservationsHonorees: "Honorées",
+    reservationsAnnulees: "Annulées",
+
+    listeTitre: "Comptes",
+    rechercher: "Rechercher un membre",
+    rechercherAide: "Prénom, nom ou adresse électronique.",
+    aucunMembre: "Aucun compte ne correspond.",
+    colonneMembre: "Membre",
+    colonneOrganisations: "Organisations",
+    colonneEtat: "État",
+    colonneInscrit: "Inscrit le",
+    colonneAction: "Action",
+    etatActif: "Actif",
+    etatSuspendu: "Suspendu",
+    etatNonVerifie: "Adresse non confirmée",
+    depuisLe: "depuis le {date}",
+    page: "Page {n} sur {total}",
+    precedente: "Page précédente",
+    suivante: "Page suivante",
+
+    suspendre: "Suspendre",
+    reactiver: "Réactiver",
+    suspendreTitre: "Suspendre {nom}",
+    suspendreTexte:
+      "Le compte ne pourra plus se connecter. Rien n'est effacé : les trajets passés engagent aussi les autres participants et restent en place. La mesure se lève à tout moment.",
+    motif: "Motif",
+    motifAide:
+      "Obligatoire. Une décision sans raison écrite ne peut plus être expliquée trois mois plus tard.",
+    confirmerSuspension: "Suspendre le compte",
+    suspenduPour: "Motif : {motif}",
+
+    blocages: "Freinages de connexion en cours",
+    blocagesTexte:
+      "Couples adresse IP × compte actuellement bloqués. Le journal de sécurité, lui, reste un fichier : lui ouvrir un point d'entrée reviendrait à offrir la liste des comptes attaqués derrière une seule authentification.",
+    aucunBlocage: "Aucun freinage en cours.",
+    colonneIp: "Adresse IP",
+    colonneCompte: "Compte visé",
+    colonneEchecs: "Échecs",
+    colonneJusqua: "Jusqu'à",
+
+    lien: "Administration",
+  },
+
   nav: {
     accueil: "CoShift, accueil",
     entreprises: "Entreprises",

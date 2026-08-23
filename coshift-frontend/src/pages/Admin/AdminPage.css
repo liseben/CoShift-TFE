@@ -1,0 +1,171 @@
+/* Console d'administration.
+   Un écran de travail : des chiffres, un tableau, rien de décoratif. Ce qui
+   demande une attention — un compte suspendu, un freinage en cours — doit se
+   repérer sans lire. */
+
+.ad__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.ad__header h1 {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* La portée est annoncée, pas déduite : un chiffre borné à une organisation ne
+   doit pas se lire comme un chiffre de plateforme. */
+.ad__portee {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.ad__blocs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sp-5);
+}
+
+/* ── Chiffres ── */
+.ad__chiffres {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--sp-4);
+}
+
+.ad__chiffre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.ad__valeur {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  /* Les chiffres s'alignent d'une ligne à l'autre : sans cela, un « 1 » étroit
+     décale la colonne suivante et l'œil ne peut plus comparer. */
+  font-variant-numeric: tabular-nums;
+}
+
+.ad__chiffre--alerte .ad__valeur { color: var(--danger); }
+
+.ad__libelle {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: var(--lh-snug);
+}
+
+/* ── Recherche ── */
+.ad__recherche {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.ad__recherche .field { flex: 1 1 260px; }
+
+/* ── Tableau ── */
+.ad__table-wrap {
+  /* Le tableau défile dans sa boîte plutôt que d'élargir la page. */
+  overflow-x: auto;
+}
+
+.ad__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.ad__table th,
+.ad__table td {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4) var(--sp-3) 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.ad__table thead th {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ad__table tbody th {
+  font-weight: var(--fw-normal);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ad__nom { font-weight: var(--fw-semibold); }
+
+.ad__email {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Une ligne suspendue se repère avant d'être lue, mais la couleur ne porte pas
+   seule l'information : le libellé « Suspendu » est écrit à côté. */
+.ad__table tr.is-suspendu { background: var(--danger-wash); }
+
+.ad__etat {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+
+.ad__etat--actif    { background: var(--eco-wash);     color: var(--eco); }
+.ad__etat--suspendu { background: var(--danger-wash);  color: var(--danger); }
+.ad__etat--attente  { background: var(--pending-wash); color: var(--pending); }
+
+.ad__detail {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+  max-width: 34ch;
+}
+
+/* ── Pagination ── */
+.ad__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.ad__note,
+.ad__vide {
+  color: var(--text-soft);
+  line-height: var(--lh-base);
+  max-width: var(--w-prose);
+}
+
+.ad__note {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--sp-4);
+}
+
+@media (max-width: 640px) {
+  .ad__table th,
+  .ad__table td { padding-right: var(--sp-3); }
+}

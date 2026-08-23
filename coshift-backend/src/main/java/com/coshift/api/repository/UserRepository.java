@@ -1,6 +1,8 @@
 package com.coshift.api.repository;
 
 import com.coshift.api.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,4 +44,35 @@ public interface UserRepository extends JpaRepository<User, Long> {
                OR (u.passwordResetExpiry   IS NOT NULL AND u.passwordResetExpiry   < :maintenant)
             """)
     List<User> findWithExpiredCodes(@Param("maintenant") LocalDateTime maintenant);
+
+    /**
+     * Membres visibles par un administrateur, filtres par une recherche libre.
+     *
+     * <p>Les comptes anonymises au titre de l article 17 sont exclus : ils n ont
+     * plus de nom ni d adresse, et les moderer n aurait ni objet ni fondement.</p>
+     *
+     * <p>{@code plateforme} leve la restriction pour un SUPER_ADMIN. Sinon seuls
+     * les membres d une organisation passee remontent. La liste d organisations
+     * n est jamais vide — l appelant y met une valeur impossible — sans quoi le
+     * {@code IN} ne serait pas du SQL valide.</p>
+     *
+     * <p>La recherche porte sur le nom, le prenom et l adresse. {@code EXISTS}
+     * plutot qu une jointure : une jointure sur une relation a plusieurs
+     * multiplierait les lignes et fausserait le decompte de la pagination.</p>
+     */
+    @Query("""
+            SELECT u FROM User u
+            WHERE u.deletedAt IS NULL
+              AND (:plateforme = TRUE
+                   OR EXISTS (SELECT 1 FROM User m JOIN m.organizations o
+                              WHERE m.id = u.id AND o.id IN :organisations))
+              AND (:recherche IS NULL
+                   OR LOWER(u.email)     LIKE :recherche
+                   OR LOWER(u.lastname)  LIKE :recherche
+                   OR LOWER(u.firstname) LIKE :recherche)
+            """)
+    Page<User> rechercherPourAdministration(@Param("plateforme") boolean plateforme,
+                                            @Param("organisations") java.util.Collection<Long> organisations,
+                                            @Param("recherche") String recherche,
+                                            Pageable pageable);
 }
