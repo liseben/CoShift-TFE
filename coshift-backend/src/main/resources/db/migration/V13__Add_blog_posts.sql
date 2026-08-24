@@ -62,7 +62,10 @@ CREATE TABLE blog_post_translations (
     post_id BIGINT       NOT NULL,
     locale  VARCHAR(5)   NOT NULL,
     title   VARCHAR(200) NOT NULL,
-    lead    VARCHAR(500) NOT NULL,
+    -- Entre accents graves : LEAD est un mot réservé depuis MySQL 8
+    -- (fonction de fenêtrage). Sans eux, la table se crée sur le 5.7 de
+    -- développement et refuse de se créer partout ailleurs.
+    `lead`  VARCHAR(500) NOT NULL,
     -- Paragraphes séparés par une ligne vide. Pas de HTML : le texte saisi est
     -- rendu comme du texte, ce qui interdit d'injecter un script par l'éditeur.
     body    MEDIUMTEXT   NOT NULL,
@@ -88,7 +91,7 @@ INSERT INTO blog_posts (id, uuid, slug, category, published_at, reading_minutes,
 (3004, '0e5-3004-0000-4000-8000-000000003004', 'domicile-travail', 'PRODUIT', '2026-08-08 09:00:00', 4, NULL,
  '2026-08-08 09:00:00', '2026-08-08 09:00:00');
 
-INSERT INTO blog_post_translations (id, post_id, locale, title, lead, body) VALUES
+INSERT INTO blog_post_translations (id, post_id, locale, title, `lead`, body) VALUES
 (3001, 3001, 'fr', 'Pourquoi c''est au passager de confirmer le trajet', 'Une petite décision de conception qui dit beaucoup sur la façon dont on fabrique une information fiable.', 'Quand un covoiturage a eu lieu, quelqu''un doit le déclarer. Ce geste compte : il incrémente le nombre de trajets des deux participants, il ouvre le droit de laisser un avis, et il alimentera demain le partage des frais. La question de savoir qui appuie sur le bouton n''est donc pas un détail d''interface.
 
 Le réflexe serait de confier la confirmation au conducteur. C''est lui qui organise, lui qui conduit, lui qui a la vue d''ensemble. Sauf que c''est précisément le problème : il a un intérêt à déclarer la course effectuée. Elle alimente son compteur, elle nourrit sa réputation, et le jour où l''argent circulera, elle le paiera.
