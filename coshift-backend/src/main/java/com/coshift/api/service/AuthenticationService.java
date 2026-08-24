@@ -217,6 +217,21 @@ public class AuthenticationService {
         repository.save(user);
         loginAttemptService.reset(attemptKey);
 
+        /* Bienvenue, ici et pas a l'inscription. Le courriel d'inscription porte
+           le code d'activation : y ajouter un mot d'accueil noierait la seule
+           chose que la personne doit y trouver. Et tant que l'adresse n'est pas
+           prouvee, rien ne dit qu'elle appartient a qui l'a saisie.
+
+           C'est aussi le moment ou le rattachement a une organisation est
+           acquis : le message peut donc nommer le cercle rejoint, ce qui est
+           l'information la plus utile du courriel. */
+        emailService.notifierBienvenue(user,
+                user.getOrganizations().stream()
+                        .filter(o -> Boolean.TRUE.equals(o.getActive()))
+                        .map(com.coshift.api.entity.Organization::getName)
+                        .findFirst()
+                        .orElse(null));
+
         var token = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)

@@ -22,6 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Pour éviter les doublons à l'inscription
     boolean existsByEmail(String email);
 
+    /** Sert a refuser la retrogradation du dernier administrateur de plateforme. */
+    long countByRole(com.coshift.api.entity.Role role);
+
     /**
      * Inscriptions jamais confirmées et antérieures à une date.
      *

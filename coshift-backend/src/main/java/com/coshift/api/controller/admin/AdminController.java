@@ -153,6 +153,44 @@ public class AdminController {
     }
 
     @Operation(
+            summary = "Changer le rôle d'un membre",
+            description = """
+                    Attribue `USER`, `ADMIN` ou `SUPER_ADMIN`.
+
+                    **Pourquoi ce point d'entrée existe.** Le premier `SUPER_ADMIN` a été posé
+                    par une migration — il faut bien que quelqu'un ouvre la porte de
+                    l'intérieur. S'en tenir là obligerait à écrire une migration, donc à
+                    redéployer, chaque fois qu'un client change d'interlocuteur.
+
+                    **Réservé au `SUPER_ADMIN`** : distribuer des rôles est le pouvoir qui
+                    contient tous les autres, puisqu'il permet de se les donner. Un
+                    administrateur d'organisation qui pourrait nommer des administrateurs se
+                    nommerait lui-même administrateur de plateforme.
+
+                    Trois autres refus : on ne change pas son propre rôle — se rétrograder par
+                    mégarde fermerait la porte derrière soi ; on ne rétrograde pas le dernier
+                    administrateur de plateforme, pour la même raison vue de l'autre côté ; et
+                    un compte dont l'adresse n'est pas confirmée n'obtient aucun rôle
+                    d'administration, car donner un rôle à une adresse non prouvée revient à
+                    le donner à qui la contrôle.
+
+                    L'opération est consignée au journal de sécurité avec l'ancien rôle, le
+                    nouveau et qui a décidé.""")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Rôle modifié."),
+            @ApiResponse(responseCode = "400", description = "Rôle sur soi-même, dernier administrateur, ou compte non vérifié.", content = @Content()),
+            @ApiResponse(responseCode = "403", description = "Réservé au SUPER_ADMIN.", content = @Content())
+    })
+    @PatchMapping("/membres/{uuid}/role")
+    public ResponseEntity<AdminMemberResponse> changerRole(
+            @Parameter(description = "Identifiant public du compte.") @PathVariable String uuid,
+            @Valid @RequestBody com.coshift.api.dto.RoleRequest request,
+            Authentication auth) {
+        return ResponseEntity.ok(
+                adminService.changerRole(administrateur(auth), uuid, request.getRole()));
+    }
+
+    @Operation(
             summary = "Freinages de connexion en cours",
             description = """
                     Couples adresse IP × compte actuellement bloqués par le freinage des

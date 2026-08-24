@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { FiSearch, FiShield, FiSlash, FiRotateCcw } from "react-icons/fi";
 import { API_BASE } from "../../config/api";
-import { Alert, Button, Card, Input, Modal, Spinner, Textarea } from "../../components/ui";
+import { Alert, Button, Card, Input, Modal, Spinner, Textarea , Select} from "../../components/ui";
 import { useAuth } from "../../context/AuthContext";
 import { useLang } from "../../context/LangContext";
 import { LANGUES } from "../../i18n";
@@ -88,6 +88,9 @@ export default function AdminPage() {
 
   /** Compte visé par la modale de suspension, ou null. */
   const [aSuspendre, setASuspendre] = useState<Membre | null>(null);
+  /* Membre dont on change le role, et le role vise. */
+  const [aPromouvoir, setAPromouvoir] = useState<Membre | null>(null);
+  const [roleVise, setRoleVise] = useState("USER");
   const [motif, setMotif] = useState("");
   const [envoi, setEnvoi] = useState(false);
 
@@ -147,6 +150,27 @@ export default function AdminPage() {
       );
       setASuspendre(null);
       setMotif("");
+      await chargerMembres(recherche, page);
+    } catch (err) {
+      setErreur(
+        (axios.isAxiosError(err) && err.response?.data?.message) || t("commun.erreurGenerique"),
+      );
+    } finally {
+      setEnvoi(false);
+    }
+  };
+
+  const changerRole = async () => {
+    if (!aPromouvoir) return;
+    setEnvoi(true);
+    setErreur(null);
+    try {
+      await axios.patch(
+        `${API_BASE}/api/admin/membres/${aPromouvoir.uuid}/role`,
+        { role: roleVise },
+        { headers: entetes() },
+      );
+      setAPromouvoir(null);
       await chargerMembres(recherche, page);
     } catch (err) {
       setErreur(
@@ -269,6 +293,7 @@ export default function AdminPage() {
                 <tr>
                   <th scope="col">{t("admin.colonneMembre")}</th>
                   <th scope="col">{t("admin.colonneOrganisations")}</th>
+                  <th scope="col">{t("admin.colonneRole")}</th>
                   <th scope="col">{t("admin.colonneEtat")}</th>
                   <th scope="col">{t("admin.colonneInscrit")}</th>
                   {estSuperAdmin && <th scope="col">{t("admin.colonneAction")}</th>}
@@ -282,6 +307,7 @@ export default function AdminPage() {
                       <span className="ad__email">{m.email}</span>
                     </th>
                     <td>{m.organisations.join(", ") || "—"}</td>
+                    <td>{t(`admin.role${m.role}`)}</td>
                     <td>
                       {m.suspendedAt ? (
                         <>
@@ -304,6 +330,12 @@ export default function AdminPage() {
                     <td>{date(m.createdAt)}</td>
                     {estSuperAdmin && (
                       <td>
+                        {/* Le role se change meme sur un compte suspendu : ce sont
+                            deux mesures independantes. */}
+                        <Button size="sm" variant="ghost" icon={<FiShield />}
+                                onClick={() => { setAPromouvoir(m); setRoleVise(m.role); }}>
+                          {t("admin.colonneRole")}
+                        </Button>
                         {m.role === "SUPER_ADMIN" ? (
                           "—"
                         ) : m.suspendedAt ? (
@@ -371,6 +403,35 @@ export default function AdminPage() {
           )}
         </Card>
       )}
+
+      <Modal
+        open={aPromouvoir !== null}
+        onClose={() => setAPromouvoir(null)}
+        title={t("admin.changerRole", {
+          nom: aPromouvoir ? `${aPromouvoir.firstname} ${aPromouvoir.lastname}` : "",
+        })}
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setAPromouvoir(null)}>{t("commun.annuler")}</Button>
+            <Button loading={envoi} disabled={roleVise === aPromouvoir?.role}
+                    onClick={() => void changerRole()}>
+              {t("admin.confirmerRole")}
+            </Button>
+          </>
+        }
+      >
+        <p className="ad__note">{t("admin.changerRoleAide")}</p>
+        <Select
+          label={t("admin.colonneRole")}
+          value={roleVise}
+          onChange={(e) => setRoleVise(e.target.value)}
+          options={["USER", "ADMIN", "SUPER_ADMIN"].map((r) => ({
+            value: r,
+            label: t(`admin.role${r}`),
+          }))}
+        />
+      </Modal>
 
       <Modal
         open={aSuspendre !== null}
