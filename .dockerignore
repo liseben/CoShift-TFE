@@ -1,0 +1,9 @@
+# Secrets et configuration locale : jamais dans une image.
+**/.env
+# Artefacts locaux : l'image reconstruit tout elle-même.
+coshift-frontend/node_modules/
+coshift-frontend/dist/
+coshift-backend/target/
+coshift-backend/uploads/
+.git/
+*.md

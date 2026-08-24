@@ -13,8 +13,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -100,6 +103,18 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
 
+                /* Interface embarquée : en production, le frontend construit
+                   par Vite vit dans classpath:/static/ et le backend le sert
+                   (voir WebMvcConfig). Ses chemins — index.html, /assets/…,
+                   le manifeste PWA, le service worker et toutes les routes du
+                   routeur React — sont publics par nature : c'est l'écran de
+                   l'application, pas une donnée. La règle n'ouvre que GET, et
+                   seulement ce qui n'est ni /api ni /actuator : ces deux-là
+                   sont déjà réglés au-dessus, et l'ordre des règles fait le
+                   reste — la première qui correspond gagne. */
+                .requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET,
+                        "^/(?!api/|actuator).*$")).permitAll()
+
                 // Tout le reste nécessite d'être connecté
                 .anyRequest().authenticated()
             )
@@ -108,12 +123,23 @@ public class SecurityConfiguration {
             // Spring Security pose déjà X-Content-Type-Options et X-Frame-Options ;
             // les trois suivants ne sont pas fournis par défaut.
             .headers(headers -> headers
-                    // L'API ne renvoie que du JSON et des images : elle n'a aucune
-                    // raison de charger un script, un style ou une police. Une
-                    // politique fermée neutralise l'exploitation d'une éventuelle
-                    // injection dans une réponse servie au navigateur.
-                    .contentSecurityPolicy(csp -> csp.policyDirectives(
-                            "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"))
+                    /* L'API ne renvoie que du JSON et des images : elle n'a
+                       aucune raison de charger un script, un style ou une
+                       police. Une politique fermée neutralise l'exploitation
+                       d'une éventuelle injection dans une réponse servie au
+                       navigateur.
+
+                       Elle est BORNÉE aux chemins de l'API. Depuis que le
+                       backend sert aussi l'interface (voir WebMvcConfig),
+                       une CSP globale à default-src 'none' interdirait à
+                       index.html de charger le moindre script : l'écran
+                       resterait blanc, sans erreur côté serveur. L'interface
+                       est donc servie sans CSP — comme la sert Vite en
+                       développement — et l'API garde la sienne. */
+                    .addHeaderWriter(new DelegatingRequestMatcherHeaderWriter(
+                            RegexRequestMatcher.regexMatcher("^/(api/|actuator|uploads/).*$"),
+                            new StaticHeadersWriter("Content-Security-Policy",
+                                    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")))
                     // Ne pas divulguer l'URL d'origine à un site tiers : un chemin
                     // peut contenir un identifiant de ressource.
                     .referrerPolicy(referrer -> referrer.policy(

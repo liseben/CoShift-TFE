@@ -32,3 +32,6 @@ logs/
 # dépôt public consulté au moment de l'évaluation.
 AUDIT.md
 AUDIT-*.md
+
+# Interface construite par Vite, copiee ici par le Dockerfile : artefact, pas source.
+coshift-backend/src/main/resources/static/
