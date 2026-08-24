@@ -40,6 +40,9 @@ COPY --from=serveur /app/target/*.jar app.jar
 # Railway impose son port par la variable PORT ; à défaut, 8080.
 # MaxRAMPercentage borne la JVM à la mémoire du conteneur au lieu de celle
 # de la machine hôte — sans quoi elle se croit riche et se fait tuer.
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"
+# preferIPv6Addresses : le réseau privé de Railway (…railway.internal) ne
+# publie que des adresses IPv6 ; sans cette préférence, la JVM peut tenter
+# l'IPv4 et échouer en « Communications link failure » vers la base.
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -Djava.net.preferIPv6Addresses=true"
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8080}"]
