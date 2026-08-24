@@ -83,7 +83,15 @@ public class SecurityAuditService {
         /** Suspension levée. Consignée aussi : une décision annulée reste une décision. */
         COMPTE_REACTIVE,
         /** Connexion refusée sur un compte suspendu, mot de passe pourtant correct. */
-        CONNEXION_COMPTE_SUSPENDU
+        CONNEXION_COMPTE_SUSPENDU,
+        /**
+         * Rôle d'un compte modifié.
+         *
+         * <p>L'opération la plus sensible de la console : distribuer un rôle est
+         * le pouvoir qui contient tous les autres. Le détail porte l'ancien rôle,
+         * le nouveau, et qui a décidé.</p>
+         */
+        ROLE_MODIFIE
     }
 
     /**

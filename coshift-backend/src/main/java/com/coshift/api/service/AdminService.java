@@ -237,6 +237,69 @@ public class AdminService {
         return AdminMemberResponse.from(cible);
     }
 
+    /**
+     * Change le rôle d'un membre.
+     *
+     * <h2>Pourquoi cela existe</h2>
+     *
+     * <p>Le premier {@code SUPER_ADMIN} a été posé par une migration : il faut
+     * bien que quelqu'un ouvre la porte de l'intérieur. Mais s'en tenir là
+     * obligerait à écrire une migration — donc à redéployer — chaque fois qu'un
+     * client change d'interlocuteur. Une plateforme qui ne sait pas nommer ses
+     * propres administrateurs n'est pas administrable.</p>
+     *
+     * <h2>Quatre refus</h2>
+     *
+     * <p><strong>Réservé au {@code SUPER_ADMIN}</strong> : distribuer des rôles
+     * est le pouvoir qui contient tous les autres, puisqu'il permet de se les
+     * donner. Un administrateur d'organisation qui pourrait nommer des
+     * administrateurs se nommerait lui-même administrateur de plateforme.</p>
+     *
+     * <p><strong>On ne change pas son propre rôle</strong>, dans aucun sens.
+     * Se rétrograder par mégarde fermerait la porte derrière soi, et il ne
+     * resterait plus qu'une migration pour la rouvrir.</p>
+     *
+     * <p><strong>On ne rétrograde pas le dernier administrateur de
+     * plateforme.</strong> C'est la même porte, vue de l'autre côté : une
+     * plateforme sans personne pour l'administrer ne se répare qu'en base.</p>
+     *
+     * <p><strong>Un compte non vérifié ne devient pas administrateur.</strong>
+     * Tant que l'adresse n'est pas prouvée, rien ne dit qu'elle appartient à qui
+     * l'a saisie — et donner un rôle à une adresse non prouvée, c'est le donner
+     * à qui la contrôle.</p>
+     */
+    @Transactional
+    public AdminMemberResponse changerRole(User administrateur, String uuid, Role nouveauRole) {
+        exigerSuperAdmin(administrateur);
+
+        User cible = trouver(uuid);
+
+        if (cible.getId().equals(administrateur.getId())) {
+            throw new BadRequestException(messages.get("admin.roleDeSoi"));
+        }
+        if (nouveauRole != Role.USER && !cible.isEmailVerified()) {
+            throw new BadRequestException(messages.get("admin.roleNonVerifie"));
+        }
+        if (cible.getRole() == Role.SUPER_ADMIN && nouveauRole != Role.SUPER_ADMIN
+                && userRepository.countByRole(Role.SUPER_ADMIN) <= 1) {
+            throw new BadRequestException(messages.get("admin.dernierAdministrateur"));
+        }
+
+        Role ancien = cible.getRole();
+        cible.setRole(nouveauRole);
+        userRepository.save(cible);
+
+        /* Consigne au journal de securite : distribuer un role est l'operation
+           la plus sensible de la console, et la premiere qu'on voudra relire
+           apres un incident. */
+        audit.consigner(SecurityAuditService.Evenement.ROLE_MODIFIE, cible.getEmail(), "-",
+                "de=" + ancien + " vers=" + nouveauRole + " par=" + administrateur.getEmail());
+        log.info("Rôle de {} : {} → {} (par {})", cible.getEmail(), ancien, nouveauRole,
+                administrateur.getEmail());
+
+        return AdminMemberResponse.from(cible);
+    }
+
     // ─────────────────────────── Freinages en cours ──────────────────────────
 
     /**

@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -297,6 +298,93 @@ class AdminServiceTest {
 
             assertThatThrownBy(() -> service.reactiver(adminOrg, "uuid-3"))
                     .isInstanceOf(UnauthorizedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("Changement de role")
+    class Roles {
+
+        @Test
+        @DisplayName("un ADMIN d'organisation ne peut pas distribuer de roles")
+        void reserveAuSuperAdmin() {
+            /* C'est le pouvoir qui contient tous les autres : un administrateur
+               d'organisation qui pourrait nommer des administrateurs se
+               nommerait lui-meme administrateur de plateforme. */
+            assertThatThrownBy(() -> service.changerRole(adminOrg, "uuid-3", Role.ADMIN))
+                    .isInstanceOf(UnauthorizedException.class);
+
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("promeut un membre verifie")
+        void promotion() {
+            var reponse = service.changerRole(superAdmin, "uuid-3", Role.ADMIN);
+
+            assertThat(membre.getRole()).isEqualTo(Role.ADMIN);
+            assertThat(reponse.role()).isEqualTo(Role.ADMIN);
+            verify(audit).consigner(
+                    org.mockito.ArgumentMatchers.eq(SecurityAuditService.Evenement.ROLE_MODIFIE),
+                    anyString(), anyString(), anyString());
+        }
+
+        @Test
+        @DisplayName("refuse de changer son propre role")
+        void pasSurSoi() {
+            /* Se retrograder par megarde fermerait la porte derriere soi, et il
+               ne resterait qu'une migration pour la rouvrir. */
+            when(userRepository.findByUuid("uuid-1")).thenReturn(Optional.of(superAdmin));
+
+            assertThatThrownBy(() -> service.changerRole(superAdmin, "uuid-1", Role.USER))
+                    .isInstanceOf(BadRequestException.class);
+        }
+
+        @Test
+        @DisplayName("refuse un role d'administration a une adresse non confirmee")
+        void pasSurUnCompteNonVerifie() {
+            /* Donner un role a une adresse non prouvee, c'est le donner a qui la
+               controle. */
+            membre.setEmailVerified(false);
+
+            assertThatThrownBy(() -> service.changerRole(superAdmin, "uuid-3", Role.ADMIN))
+                    .isInstanceOf(BadRequestException.class);
+        }
+
+        @Test
+        @DisplayName("retrograder vers USER reste possible sur un compte non verifie")
+        void retrogradationToujoursPossible() {
+            /* Le controle porte sur l'attribution d'un pouvoir, pas sur son
+               retrait : refuser de retrograder un compte non verifie
+               laisserait un role a quelqu'un dont l'adresse n'est pas prouvee. */
+            membre.setEmailVerified(false);
+            membre.setRole(Role.ADMIN);
+
+            assertThatCode(() -> service.changerRole(superAdmin, "uuid-3", Role.USER))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("refuse de retrograder le dernier administrateur de plateforme")
+        void dernierAdministrateur() {
+            /* Une plateforme sans personne pour l'administrer ne se repare qu'en
+               base. */
+            membre.setRole(Role.SUPER_ADMIN);
+            when(userRepository.countByRole(Role.SUPER_ADMIN)).thenReturn(1L);
+
+            assertThatThrownBy(() -> service.changerRole(superAdmin, "uuid-3", Role.USER))
+                    .isInstanceOf(BadRequestException.class);
+        }
+
+        @Test
+        @DisplayName("retrograde un administrateur quand il en reste d'autres")
+        void retrogradationPossible() {
+            membre.setRole(Role.SUPER_ADMIN);
+            when(userRepository.countByRole(Role.SUPER_ADMIN)).thenReturn(2L);
+
+            service.changerRole(superAdmin, "uuid-3", Role.USER);
+
+            assertThat(membre.getRole()).isEqualTo(Role.USER);
         }
     }
 

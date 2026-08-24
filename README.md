@@ -75,6 +75,27 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
 - **Article 17** — suppression du compte. L'opération annule d'abord les trajets et réservations à venir, pour que personne ne se présente à un rendez-vous qui n'aura pas lieu, puis anonymise les champs identifiants.
 - **Article 7** — consentement aux services tiers, horodaté, versionné, révocable en un clic depuis le pied de page. Aucun fond cartographique ni script Google n'est chargé avant une réponse explicite.
 
+### Courriels
+
+Sept messages partent automatiquement, chacun **dans la langue du destinataire**
+et non dans celle de la personne qui agit : activation du compte, bienvenue une
+fois l'adresse confirmée, demande de réservation reçue, réservation acceptée,
+réservation refusée avec son motif, réservation annulée par le passager, trajet
+annulé par le conducteur — et un **reçu de paiement** portant le trajet, le
+nombre de places, le montant et la référence de l'opération, seul identifiant
+commun entre ce courriel, la base et le relevé bancaire.
+
+La bienvenue part après la vérification, pas à l'inscription : le courriel
+d'inscription porte le code d'activation, et y ajouter un mot d'accueil noierait
+la seule chose qu'on doit y trouver. C'est aussi le moment où le rattachement à
+une organisation est acquis, donc où le message peut nommer le cercle rejoint.
+
+> **Configuration requise.** `MAIL_USERNAME` et `MAIL_APP_PASSWORD` dans
+> `coshift-backend/.env`. Sans mot de passe d'application valide, les envois
+> échouent silencieusement — l'échec est journalisé et n'interrompt jamais
+> l'opération en cours : perdre un reçu est regrettable, perdre l'enregistrement
+> d'un règlement le serait davantage.
+
 ### Partage de frais
 
 - Le montant devient **dû dès la demande**, mais rien n'est prélevé : le
@@ -132,6 +153,13 @@ Ces trois droits sont exerçables depuis le compte, sans formulaire ni délai :
   annonce sa portée plutôt que de laisser lire un chiffre borné comme un chiffre
   global.
 - Supervision en lecture : membres, trajets et réservations du périmètre.
+- **Attribution des rôles**, réservée au `SUPER_ADMIN`. Le premier a été posé par
+  une migration — il faut bien que quelqu'un ouvre la porte de l'intérieur — mais
+  s'en tenir là obligerait à redéployer chaque fois qu'un client change
+  d'interlocuteur. Trois refus : on ne change pas son propre rôle, on ne
+  rétrograde pas le dernier administrateur de plateforme, et un compte dont
+  l'adresse n'est pas confirmée n'obtient aucun rôle — le donner à une adresse
+  non prouvée, c'est le donner à qui la contrôle.
 - **Suspension d'un compte**, réservée au `SUPER_ADMIN` : consulter n'engage
   rien, suspendre engage la plateforme vis-à-vis de la personne. Le motif est
   obligatoire. Suspendre n'efface rien — les trajets passés engagent aussi les

@@ -208,6 +208,74 @@ public class EmailService {
     }
 
     /**
+     * Bienvenue, une fois l'adresse confirmée.
+     *
+     * <h2>Pourquoi après la vérification et non à l'inscription</h2>
+     *
+     * <p>Le courriel d'inscription porte le code d'activation : y ajouter un
+     * mot d'accueil noierait la seule chose que la personne doit y trouver.
+     * Et tant que l'adresse n'est pas prouvée, rien ne dit qu'elle appartient
+     * à qui l'a saisie — souhaiter la bienvenue à un inconnu serait au mieux
+     * inutile, au pire une nuisance envoyée à sa place.</p>
+     *
+     * <p>C'est aussi le moment où le rattachement à une organisation vient
+     * d'avoir lieu : le message peut donc nommer le cercle rejoint, ce qui est
+     * l'information la plus utile de tout le courriel.</p>
+     */
+    @Async
+    public void notifierBienvenue(User membre, String organisation) {
+        Locale l = membre.langue();
+        String details = (organisation == null)
+                ? messages.get(l, "courriel.bienvenue.sansOrganisation")
+                : messages.get(l, "courriel.bienvenue.organisation", echapperHtml(organisation));
+
+        envoyer(membre.getEmail(), l,
+                messages.get(l, "courriel.bienvenue.sujet"),
+                notification(l,
+                        messages.get(l, "courriel.bienvenue.titre"),
+                        messages.get(l, "courriel.bonjour", membre.getFirstname()),
+                        messages.get(l, "courriel.bienvenue.intro"),
+                        details,
+                        messages.get(l, "courriel.lien.chercher"),
+                        siteUrl + "/trips/search"),
+                "bienvenue");
+    }
+
+    /**
+     * Reçu d'un paiement.
+     *
+     * <h2>Ce qu'un reçu doit contenir</h2>
+     *
+     * <p>Non pas « votre paiement a été accepté », mais <em>ce pour quoi</em> on
+     * a payé : le trajet, la date, le nombre de places, le montant, et la
+     * référence de l'opération. C'est ce qu'on cherche trois semaines plus tard
+     * en relisant son relevé bancaire, et c'est la seule façon de rapprocher
+     * une ligne de banque d'un déplacement.</p>
+     *
+     * <p>La référence du prestataire y figure pour la même raison : c'est le
+     * seul identifiant commun entre ce courriel, la base de CoShift et le relevé
+     * de la banque.</p>
+     */
+    @Async
+    public void notifierPaiementRecu(User passager, String trajet, String montant,
+                                     int places, String reference) {
+        Locale l = passager.langue();
+        String details = messages.get(l, "courriel.paiement.details",
+                trajet, places, montant, echapperHtml(reference));
+
+        envoyer(passager.getEmail(), l,
+                messages.get(l, "courriel.paiement.sujet", montant),
+                notification(l,
+                        messages.get(l, "courriel.paiement.titre"),
+                        messages.get(l, "courriel.bonjour", passager.getFirstname()),
+                        messages.get(l, "courriel.paiement.intro"),
+                        details,
+                        messages.get(l, "courriel.lien.reservations"),
+                        siteUrl + "/bookings"),
+                "reçu de paiement");
+    }
+
+    /**
      * Neutralise le HTML d'un texte rédigé par un membre.
      *
      * <p>Le motif d'un refus est saisi librement par le conducteur et réinjecté

@@ -70,6 +70,7 @@ public class PaymentService {
     private final PaymentRepository repository;
     private final PaymentGateway gateway;
     private final Messages messages;
+    private final EmailService emailService;
 
     // ─────────────────────────────── Cycle de vie ────────────────────────────
 
@@ -196,10 +197,42 @@ public class PaymentService {
         }, () -> log.warn("Notification reçue pour une opération inconnue : {}", reference));
     }
 
+    /**
+     * Marque le paiement acquis et envoie le reçu.
+     *
+     * <p>Un seul endroit, appelé par les trois chemins qui peuvent aboutir : le
+     * prestataire qui règle sur-le-champ, la vérification côté serveur, et la
+     * notification signée. Envoyer le reçu depuis chacun d'eux aurait fini par
+     * en oublier un — ou par en envoyer trois.</p>
+     *
+     * <p>L'envoi est asynchrone et journalise ses échecs : un serveur de
+     * courrier indisponible ne doit pas faire échouer un paiement qui, lui, a
+     * bien eu lieu. Perdre un reçu est regrettable ; perdre l'enregistrement
+     * d'un règlement le serait bien davantage.</p>
+     */
     private Payment marquerRegle(Payment paiement) {
         paiement.setStatus(PaymentStatus.PAID);
         paiement.setPaidAt(LocalDateTime.now());
-        return repository.save(paiement);
+        Payment enregistre = repository.save(paiement);
+
+        Booking reservation = enregistre.getBooking();
+        emailService.notifierPaiementRecu(
+                reservation.getPassenger(),
+                resume(reservation.getTrip()),
+                enregistre.getAmount().toPlainString(),
+                reservation.getSeatsBooked(),
+                enregistre.getProviderReference() == null ? "—" : enregistre.getProviderReference());
+
+        return enregistre;
+    }
+
+    /** Rappel du trajet, tel qu'il apparaît dans le reçu. */
+    private String resume(com.coshift.api.entity.Trip trip) {
+        String quand = (trip.getDepartureTime() == null) ? "" :
+                trip.getDepartureTime().format(
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy à HH'h'mm"));
+        return trip.getDepartureCity() + " → " + trip.getArrivalCity()
+                + (quand.isEmpty() ? "" : "<br>" + quand);
     }
 
     /**

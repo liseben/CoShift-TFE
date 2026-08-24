@@ -51,6 +51,7 @@ class PaymentServiceTest {
     @Mock private PaymentRepository repository;
     @Mock private PaymentGateway gateway;
     @Mock private Messages messages;
+    @Mock private EmailService emailService;
 
     @InjectMocks private PaymentService service;
 
