@@ -42,8 +42,16 @@ public class BlogPostTranslation {
     @Column(nullable = false, length = 200)
     private String title;
 
-    /** Chapeau : la phrase qui donne envie de lire, affichée dans la liste. */
-    @Column(nullable = false, length = 500)
+    /**
+     * Chapeau : la phrase qui donne envie de lire, affichée dans la liste.
+     *
+     * <p>Le nom de colonne est cité entre accents graves parce que LEAD est un
+     * mot réservé depuis MySQL 8 — c'est la fonction de fenêtrage. Sans la
+     * citation, Hibernate écrirait {@code insert into … (…, lead, …)} et
+     * l'éditeur de blog échouerait en erreur de syntaxe sur tout serveur
+     * récent, alors que tout fonctionne sur le 5.7 de développement.</p>
+     */
+    @Column(name = "`lead`", nullable = false, length = 500)
     private String lead;
 
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
